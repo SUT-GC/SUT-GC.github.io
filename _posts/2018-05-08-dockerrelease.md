@@ -1,0 +1,289 @@
+---
+layout: post
+title: "用Docker搭建简易发布系统"
+description: "初次接触Docker， 记下一些学习中，使用中总结出来的东西"
+categories: [学习]
+tags: [docker]
+---
+
+* Kramdown table of contents
+{:toc .toc}
+
+# 背景
+
+今天说的这个东西也是我接触Docker的原因，当初接触Docker不是为了搞什么Docker集群，不是为了将服务器Docker化， 仅仅是为了做一个简单的Python的发布系统     
+
+现在有一个Python的项目Roger，非官方的，为了在发布代码流程上做偷懒，所以想把发布流程自动化，自动到什么程度呢： 每次将代码push或者merge到github的master的时候，服务器自动更新代码，运行新代码。     
+
+如果不自动化会怎么样? 看段伪代码     
+
+```
+开发新代码;
+
+本地测试通过;
+
+if 没有依赖更新:
+    用fcp或者sfcp命令将代码拷贝到服务器制定目录下;
+else:
+    登陆服务器;
+    停掉服务(因为更新python代码可能会因为没有依赖报错);
+    登出服务器;
+    用fcp或者sfcp命令将代码拷贝到服务器制定目录下;
+    登陆服务器;
+    执行 pip instll -r requirments.txt;
+    运行服务
+    
+```
+
+注意的是，每次有新的功能，都要这样不厌其烦的尽心代码“发布”, 而且是本次测试通过的代码放在服务器上能顺利运行的情况下......      
+
+我们把一部分操作自动化之后会是什么样子呢？     
+
+```
+func 自动化发布代码函数(){
+    将代码git clone到tmp目录;
+    执行pip install -r requirments.txt;
+    cd 到真正提供服务的代码目录;
+    git pull
+}
+
+开发新代码;
+
+本地测试通过;
+
+推送代码到gitlab;
+
+自动化发布代码函数(); //这一步不需要人为执行，是根据监听gitlab自动执行
+```
+
+这样依赖，基本就实现自动化发布了把～ 虽然很简陋，但是却可以“坚持”下去，不是么？      
+
+但是还有问题：如果master代码是错误的呢？ 我们是不是把异常代码发布到服务上去了呢？ 结果就是服务死掉了     
+
+有没有能解决这个问题的办法呢？ 答案是：有     
+
+虽然同样很low， 但是能解决问题就是好办法～    
+
+```
+
+func 自动化发布代码函数(){
+    将代码放入临时文件中;
+    将代码运行在Docker上（访问端口要换一下）;
+    对这个Docker提供的“服务”进行自动化测试;
+    if 测试成功:
+        用真正提供服务的端口启动Docker;
+    else:
+        将自动化测试的结果以发布日志的形式暴露出来;
+}
+
+开发新代码;
+
+本地测试通过;
+
+推送代码到gitlab;
+
+自动化发布代码函数();
+
+```
+
+这个流程下来，是不是更好一点了呢？ 所以，为了实现这个简易的自动化发布流程，我决定学习Docker～～～     
+# 流程图    
+
+![img1](http://7xoguv.com1.z0.glb.clouddn.com/roger%E4%BB%A3%E7%A0%81%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E5%9B%BE.png)    
+
+结合流程图中的流程， 说一下这个东西开发的大致流程:     
+
+* 开发者在非Master分支上编写代码    
+* 编写成功后，测试    
+* 测试成功后Merge代码到Master    
+* 触发jekins，拉Master代码，运行start.sh build镜像     
+* Docker使用非线上端口启动该镜像    
+* 使用准备好的脚本对改镜像进行测试      
+* 测试通过后 将线上正在运行的机器停掉， 然后用线上端口启动该镜像      
+
+
+# start.sh
+
+这个
+
+```shell
+#!/bin/bash
+
+PROJECT_DIR=`pwd`
+PROJECT_PORT=8888
+DOCKER_FILE=${PROJECT_DIR}/Dcokerfile
+HOST_FILE=$1
+DOCKER_FILE=$2
+DOCKER_SERVER_VERSION=`date +%s`
+DOCKER_SERVER_TAG=rmb-data/roger-server:${DOCKER_SERVER_VERSION}
+DOCKER_RUN_PORT=8888
+DOCKER_TEST_PORT=8889
+DOCKER_RUN_LABEL=roger-run
+DOCKER_TEST_LABEL=roger-test
+DOCKER_RUN_NAME=roger-server
+DOCKER_TEST_NAME=roger-test-server
+
+echo "HOST_FILE: $HOST_FILE, DOCKER_FILE: $DOCKER_FILE"
+
+function check_cmd_result {
+    if [ $1 -eq 0  ]; then
+        echo "[SUCCESS] $2"
+    else
+        echo "[ERROR] $2"
+        exit 1
+    fi
+}
+
+function ping_server_result {
+    PING_RESULT=`curl -s  http://localhost:${DOCKER_TEST_PORT}/job/ping`
+    echo $PING_RESULT
+    if [ "$PING_RESULT" = "pong" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function ping_server_result_with_try {
+    test_count=1
+    try_count=100
+    while [ $test_count -lt $try_count ]
+    do
+        sleep 1
+        echo "ping $test_count times...."
+        ping_server_result
+        if [ $? -eq 0 ]; then
+            echo "[SUCCESS] ping test"
+            break
+        else
+            echo "[ERROR] ping test $test_count times"
+        fi
+        test_count=$[ $test_count + 1 ]
+    done
+
+    if [[ $test_count ==  $try_count ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+function build_server_result_with_try {
+    now_count=1
+    max_count=4
+    while [ $now_count -lt $max_count ]
+    do
+        sleep 1
+        echo "start build docker image ${DOCKER_SERVER_TAG} $now_count times"
+        docker build --label roger-server -t ${DOCKER_SERVER_TAG} .
+        if [ $? -eq 0 ]; then
+            echo "[SUCCESS] build images $now_count times"
+            break
+        else
+            echo "[ERROR] build images $now_count times"
+        fi
+        now_count=$[ $now_count + 1  ]
+    done
+
+    if [[ $now_count == $max_count ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+echo "into project dir ${PROJECT_DIR}"
+cd $PROJECT_DIR
+
+# try 3 times to build
+build_server_result_with_try
+check_cmd_result $? "build server images"
+
+echo "list docker images..."
+docker images
+
+echo "clear test server container ${DOCKER_TEST_NAME}..."
+docker stop $(docker ps -q -f name=${DOCKER_TEST_NAME})
+docker rm $(docker ps -a -q -f name=${DOCKER_TEST_NAME})
+
+echo "start run test server ${DOCKER_SERVER_TAG}..."
+docker run -d -p ${DOCKER_TEST_PORT}:${PROJECT_PORT} -v ${HOST_FILE}:${DOCKER_FILE}  --name ${DOCKER_TEST_NAME}  ${DOCKER_SERVER_TAG}
+check_cmd_result $? "run test server"
+
+# ping test 100 times, if all fail, error.
+echo "start ping server...."
+ping_server_result_with_try
+check_cmd_result $? "ping test server"
+
+echo "stop and remove test server container ${DOCKER_TEST_NAME}..."
+docker stop $(docker ps -q -f name=${DOCKER_TEST_NAME})
+docker rm $(docker ps -a -q -f name=${DOCKER_TEST_NAME})
+check_cmd_result $? "stop and remove test server container"
+
+echo "stop and remove the old run server container  by name=${DOCKER_RUN_NAME}"
+docker stop $(docker ps -q -f name=${DOCKER_RUN_NAME})
+docker rm $(docker ps -a -q -f name=${DOCKER_RUN_NAME})
+docker rmi $(docker images -q -f dangling=true)
+
+echo "start run server by name=${DOCKER_RUN_NAME}..."
+docker run -d -p ${DOCKER_RUN_PORT}:${PROJECT_PORT} -v ${HOST_FILE}:${DOCKER_FILE}  --name ${DOCKER_RUN_NAME}  ${DOCKER_SERVER_TAG}
+check_cmd_result $? "run roger-server ..."
+
+echo "pring docker ps"
+docker ps
+
+echo "--------------------------------"
+echo "---FINISH START ROGER-SERVER---"
+echo "--------------------------------"
+
+```
+
+这里加入了些重试的机制， 比如在 build Dockerfile的时候， 会因为网络原因拉包异常， 所以重试了三次    
+
+# DockerFile
+
+```shell
+# 基本镜像 python3.4.5 + ubuntu 
+FROM daocloud.io/library/python:3.4.5-wheezy
+# 拷贝项目文件到容器 /root 目录下
+COPY . /root/
+# 设置环境变量
+ENV PYTHONPATH=/root/
+# 设置工作目录
+WORKDIR /root/
+# 运行命令，安装相关依赖
+RUN pwd \
+    && ls \
+    && pip install -r requirements.txt -i https://pypi.douban.com/simple
+
+# 启动项目
+CMD python3 bin/run.py
+
+```
+
+这里的DockerFile其实很简单， 安装python依赖， Copy代码(DockerFile 是放在代码根目录下的), 设置工作目录， 安装python依赖，
+
+
+# 不足  
+
+这个只是个简易的发布系统， 仅仅做了代码带线上的发布， 其实中间有很多缺点， 也有很多可以做的地方。。。
+
+* 测试环境     
+
+测试环境是必不可少的环境， 因为我们开发和测试是分开的， 开发完之后把代码发布到测试环境， 测试成功之后才能发布上线。   
+
+* 分支发布     
+
+比如想要把某个分支发布到线上，而不是发布master，这种更灵活的操作性， 要好好考虑考虑    
+
+* 容器控制台    
+
+一些其他开源软件便可以使用      
+
+* 集群发布     
+
+这个很重要， 毕竟集群是一个公司必须具备的， 就算两三台机器， 为了可用性， 也要做集群发布，  如果一台一台的发布， 如何 一并发布到线上， 都是需要考虑的。    
+
+* 发布状态触达    
+
+这个用jekins就够了， 当然也可以包装一下     

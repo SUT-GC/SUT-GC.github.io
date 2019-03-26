@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+
+		<title>Devops & Docker</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>Devops & Docker</h1>
+					<br/>
+					<h3>shop.ops@ele.me</h3>
+				</section>
+				<section>
+					<section>
+						<h2>Devops ?</h2>
+					</section>
+					<section>
+						<h2>Devops = 文化 + 过程 + <span style="color:red">工具</span></h2>
+						<img src="./files/devops1.jpg" />
+					</section>
+					<section>
+						<h2>History...</h2>
+					</section>
+					<section>
+						<img src="./files/devops2.jpg" />
+					</section>
+					<section id="fragments">
+						<h2>conflict</h2>
+						<br/>
+						<p class="fragment">开发:我要改变！</p>
+						<p class="fragment">运维:我要稳定！</p>
+						<p class="fragment">开发:代码在我电脑上跑的好好的啊!</p>
+						<p class="fragment">运维:为什么不能提前评估好资源呢!</p>
+						<p class="fragment">QA : ... </p>	
+						<p class="fragment"> ... </p> 
+					</section>
+					<section>
+						<h2>NOW ... </h2>
+					</section>
+					<section>
+						<img src="./files/devops3.jpg" />
+					</section>
+					<section>
+						<h2>Advantage</h2>
+						<br/>
+						<p class="fragment">缩短开发上线周期</p>
+						<p class="fragment">减少扯皮沟通成本</p>
+						<p class="fragment">上线回滚风险可控</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>agile & cicd & devops ???</h2>
+						<br/>
+						<span></span>cicd == 'continuous integration and continuous delivery'</span>
+					</section>
+					<section>
+						<img src="./files/devops4.jpg"/>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Docker ?</h2>
+					</section>
+					<section>
+						<h2>machine</h2>
+						<table>
+							<tr>
+								<th>
+									<img width="500" height="500" src="./files/devops5.jpg"/>
+								</th>
+								<th style="vertical-align: middle">
+									<ul>
+										<li class="fragment">部署慢</li>
+										<li class="fragment">成本高</li>
+										<li class="fragment">资源浪费</li>
+										<li class="fragment">难于扩展</li>
+									</ul>
+								</th>
+							</tr>
+						</table>
+					</section>
+					<section>
+						<h2>vm machine</h2>
+						<table>
+							<tr>
+								<th><img width="500" height="500" src="./files/devops6.jpg"/></th>
+								<th style="vertical-align: middle">
+									<ul>
+										<li class="fragment">资源利用率高</li>
+										<li class="fragment">易扩展</li>
+										<li class="fragment">Guest OS 消耗资源大</li>
+										<li class="fragment">Dev和Ops矛盾未消除</li>
+									</ul>
+								</th>
+							</tr>
+						</table>
+					</section>
+					<section>
+						<h2>docker machine</h2>
+						<table>
+							<tr>
+								<th><img width="500" height="500" src="./files/devops7.jpg"/></th>
+								<th style="vertical-align: middle">
+									<ul>
+										<li class="fragment">启动速度更快</li>
+										<li class="fragment">环境一致，编排方便</li>
+									</ul>
+								</th>
+							</tr>
+						</table>
+					</section>
+					<section>
+						<img width="500" height="500" src="./files/devops8.jpg"/>
+					</section>
+					<section>
+						<h2>Keyword</h2>
+						<table>
+							<tr>
+								<th>image</th>
+								<th>镜像，只读，环境某个时间点的状态，类比java的Class</th>
+							</tr>
+							<tr>
+								<th>container</th>
+								<th>容器，可读可写，是镜像实例化后的结果，类比java的Object</th>
+							</tr>
+							<tr>
+								<th>volume</th>
+								<th>数据卷，容器共享的部分，类比java的 static 变量，不会因为容器的消亡而消亡</th>
+							</tr>
+						</table>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Devops + Docker</h2>
+					</section>
+					<section>
+						<img width="900" height="500" src="./files/devops9.jpg"/>
+					</section>
+					<section>
+						<h2>依赖工具</h2>
+						<table>
+							<tr>
+								<th>gitlab</th>
+								<th>代码仓库</th>
+							</tr>
+							<tr>
+								<th>docker hub</th>
+								<th>docker 仓库</th>
+							</tr>
+							<tr>
+								<th>gitlab-runner</th>
+								<th>gitlab 运行器，是gitlab自带的工具，结合gitlab ci/cd</th>
+							</tr>
+							<tr>
+								<th>docker</th>
+								<th>容器技术</th>
+							</tr>
+						</table>
+					</section>
+					<section>
+						<h2>代码 / 流程 展示</h2>
+					</section>
+					<section>
+						<h2>Demo 层面？</h2>
+						<table>
+							<thead>
+								<tr>
+									<th>问题</th>
+									<th>解决办法</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>runner机器和prod机器不会是同一台</th>
+									<th>runner只负责生成/记录image，开发自行部署image，如appos</th>
+								</tr>
+								<tr>
+									<th>部署机器不会只有一台</th>
+									<th>可以使用 Docker swarm 或者 Kubernetes 技术</th>
+								</tr>
+								<tr>
+									<th>容器删除和容器启动的时候会存在服务down机</th>
+									<th>docker stack(swarm工具) 会有 update 操作，可以蓝绿更新</th>
+								</tr>
+							</tbody>
+						</table>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>More Gameplay With Docker</h2>
+					</section>
+					<section>
+						<h2>环境隔离</h2>
+					</section>
+					<section>
+						<h2>服务编排</h2>
+						<ol>
+							<li>Docker Compose</li>
+							<li>Docker Swarm</li>
+							<li>Kubernetes</li>
+						</ol>
+					</section>
+					<section>
+						<h2>Docker Compose</h2>
+						<br/>
+						<p class="fragment">服务编排就是把一些Docker容器按照一定的依赖关系启动起来</p>
+						<p class="fragment">只支持单机运行</p>
+					</section>
+					<section>
+						<h2>Docker Swarm & Kubernetes</h2>
+						<br/>
+						<p class="fragment">都支持集群部署</p>
+						<p class="fragment">Docker Swarm 是集成在Docker里面的，不需要额外的安装</p>
+						<p class="fragment">等玩明白后再分享.....</p>
+					</section>
+				</section>
+				<section>
+					<h2>summary</h2>
+					<ol>
+						<li><p class="fragment">我对Devops的理解</p></li>
+						<li><p class="fragment">Docker在Devops中可以发挥什么样的作用</p></li>
+						<li><p class="fragment">Docker能力的简单布道</p></li>
+					</ol>
+				</section>
+				<section>
+					<h2>THANK YOU</h2>
+					<h4>问题？</h4>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

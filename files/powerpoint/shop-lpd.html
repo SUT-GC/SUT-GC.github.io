@@ -1,0 +1,202 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+                    <h1>门店运营组</h1>
+                    <h2>压力平衡调控系统</h2>
+                </section>
+                <section>
+                    <section>
+                        <h2> 背景介绍 </h2>
+                    </section>
+                    <section>
+                        <img src="http://qiniu.7jprz.cn/shop-lpd-01.png"></img>
+                    </section>
+                    <section>
+                        <h3>为什么能压力平衡？</h3>
+                        <p class="fragment"> 隐藏各类活动 </p>
+                        <p class="fragment"> 增加配送费 </p>
+                        <p class="fragment"> 缩小配送范围 </p>
+                        <p class="fragment"> 关闭店铺 </p>
+                        <p class="fragment highlight-red">(只管平台配送的店，目标是减少店铺订单)</p>
+                    </section>
+                    <section>
+                        <img src="http://qiniu.7jprz.cn/shop-lpd-03.png"></img>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2> 契约承诺 </h2>
+                        <p class="fragment"> 支持约400次/s的调控吞吐量 </p>
+                        <p class="fragment"> 上游保证调控-取消顺序的前提下支持策略覆盖 </p>
+                        <p class="fragment"> 执行结果友好反馈 </p>
+                    </section>
+                    <section>
+                        <h2> 隐藏关卡 </h2>
+                        <p class="fragment"> 日常报表 🌟</p>
+                        <p class="fragment"> 保证调控 🌟🌟</p>
+                        <p class="fragment"> 系统压力 🌟🌟🌟 </p>
+                        <p class="fragment"> 保证取消 🌟🌟🌟🌟</p>
+                        <p class="fragment"> 吞吐量大 🌟🌟🌟🌟🌟 </p>
+                    </section>
+                </section>
+                <section>
+                        <h2>方案设计</h2>
+                </section>
+                <section>
+                    <section>
+                        <h3>方案1：循环调用</h3>
+                    </section>
+                    <section>
+					    <pre><code class="hljs" data-trim contenteditable>
+def apply(shop_ids, strategy):
+    result = {}
+    for shop_id in shop_ids:
+        result[shop_id] = executeApplyStrategy(shop_id, strategy):
+
+    return result
+    
+    
+def cancel(shop_ids, strategy):
+    result = {}
+    for shop_id in shop_ids:
+        result[shop_id] = executeCancelStrategy(shop_id, strategy):
+
+    return result
+					    </code></pre>
+                    </section>
+                    <section>
+                        <h3>问题</h3>
+                        <p class="fragment"> 吞吐量小 </p>
+                        <p class="fragment"> 交互不友好</p>
+                        <p class="fragment"> 无法称作系统 </p>
+                    </section>
+                    <section>
+                        <h3>Are you kiding me ?!</h3>
+                    </section>
+                </section>
+                <section>
+                    <h3> 方案2: 压力平衡1.0 </h2>
+                </section>
+                <section>
+                    <section>
+                        <h2>生命周期</h2>
+                    </section>
+                    <section>
+                        <h3>数据来源</h3>
+                        <br/>
+                        服务包签约
+                    </section>
+                    <section>
+                        <h3>数据维护/消费</h3>
+                        <br/>
+                        维护: Melody、Xy<br/>
+                        <br/>
+                        消费: 主搜(search、rank)、导购、交易订单 
+                    </section>
+                    <section>
+                        <h3>数据消亡</h3>
+                        <br/>
+                        服务包签约
+                    </section>
+                </section>
+                <section>
+                    <h2> 连锁店信息 </h2>
+                    <ul>
+                        <li> 层级结构 </li>
+                    </ul>
+                </section>
+                <section>
+                    <h2> 冗余信息 </h2>
+                    <small>由于某些数据以前是在门店运营，现在被单独拆分到其他领域</small><br/><br/>
+                    <ul>
+                        <li> POI信息 </li>
+                        <li> 品牌信息 </li>
+                        <li> 品类信息 </li>
+                        <li> 资质信息 </li>
+                        <li> 部分交易相关信息 </li>
+                    </ul>
+                </section>
+				<section>
+                    <h2> 产品界面 </h2>
+                    <h3><a href="https://melody.shop.ele.me/">商户端</a> & <a href="https://xy.ele.me/shxq?url=https%3A%2F%2Fxy-merchant-info.faas.ele.me%2F168399145%2Fbiz"> 轩辕端 </a> & <a href="https://h5.ele.me/">C端</a> </h3>
+                    账号: 小超连锁店<br/>
+                    密码: eleme517517
+                </section>
+				<section>
+                    <section>
+                        <h2> 业务架构图 </h2>
+                    </section>
+                    <section>
+                        <img src="http://pjtnidv7i.bkt.clouddn.com/shop-business-jiagou.png"></img>
+                    </section>
+                </section>
+				<section>
+                    <section>
+                        <h2> 系统架构图 </h2>
+                    </section>
+                    <section>
+                        <img src="http://pjtnidv7i.bkt.clouddn.com/shop-business-system-jiagou.jpg"></img>
+                    </section>
+                </section>
+				<section>
+                    <section>
+                        <h2> 人员结构 </h2>
+                    </section>
+                    <section>
+                        <h3> 开发（暂时) </h3>
+                        勾超，程光庆，马腾跃，邵忆乐，茹俊江<br/><br/>
+                        <h3> 测试 </h3>
+                        周茹姨，武贯兰<br/><br/>
+                        <h3> 产品 </h3>
+                        高婕，刘畅，费梦燕<br/><br/>
+                    </section>
+                </section>
+				<section>
+                    <h2> 谢谢  </h2>
+                    <small> 问题? </small>
+                </section>
+			</div>
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+	</body>
+</html>

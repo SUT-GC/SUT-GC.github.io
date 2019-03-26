@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>reveal.js</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>Reveal.js 使用教程</h1>
+                    <p>按 -> 继续</p>
+                </section>
+                <section>
+                    <h1>哪里获得Reveal.js</h1>
+                    <a href="https://github.com/hakimel/reveal.js/">Github</a>
+                </section>
+                <section>
+                    <h1>如何使用</h1>
+                    <p>将目录clone下来，打开文件的根目录即可获得demo</p>
+                </section>
+                <section>
+                    <h1>基本教程</h1>
+                </section>
+                <section data-markdown>
+                    <textarea data-template>
+                        ```
+                        <body>
+                            <div class="reveal">
+                                <div class="slides">
+                                    <!-- 在这个标签下添加 一个ppt页 -->
+                                    <section>hello world</section>
+                                    <!-- 也可以用markdown语法来编写 -->
+                                    &lt;section data-markdown>
+                                        &lt;textarea data-template>
+                                            # Hello Wrold
+
+                                            * hello
+                                            * world
+                                        &lt;/textarea>
+                                    &lt;/section>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/body>
+                        ```
+                    </textarea>
+                </section>
+                <section>
+                    <h3>添加普通的slide</h3>
+                    <ul>
+                        <li>一个&lt;section>...&lt;/section>就是一页</li>
+                        <li>新增的slide呈横向排列, 数量不限, 按左右箭头选择</li>
+                        <li>支持html标签</li>
+                    </ul>
+                </section>
+                <section>
+                    <section>
+                        <h3>添加普通的纵向slide</h3>
+                        <p>嵌套使用section</p>
+                        <p>⬆️ ⬇️ 键切换</p>
+                        <p>&lt;section>&lt;section>纵向1&lt;/section>纵向2&lt;/section>&lt;/section></p>
+                    </section>
+                    <section>
+                        纵向1
+                    </section>
+                    <section>
+                        纵向2
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <p>有时候页面中的内容不需要一次性全部显示</p>
+                        <p class="fragment">可能需要逐条</p>
+                        <p><span class="fragment">逐项</span><span class="fragment">出现</span></p>
+                        <div data-markdown class="fragment">
+                            <textarea data-template>
+                                ```
+                                <p class="fragment">可能需要逐条</p>
+                                <p><span class="fragment">逐项</span><span class="fragment">出现</span></p>
+                                ```
+                            </textarea>
+                        </div>
+                    </section>
+                    <section>
+                        
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true },
+                    { src: 'plugin/notes/notes.js', async: true }
+                ],
+                controls: true,
+                progress: true,
+            });
+        </script>
+    </body>
+</html>

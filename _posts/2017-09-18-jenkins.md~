@@ -1,0 +1,193 @@
+---
+layout: post
+title: "Jenkins 安装 与 使用"
+description: "Jenkins 安装 与 使用"
+categories: [学习]
+tags: [jenkins]
+---
+
+* Kramdown table of contents
+{:toc .toc}
+
+# Jenkins 安装 与 使用
+
+一直对jenkins都只是听说过，没用过， 最近因为在了解公司的发布系统，发现很多好用的工具，如Jenkins，supervisor等，今天我们对jenkins进行安装，并且实现自动github push 代码的时候自动做一些处理（当然你可以理解为ci）
+
+## Jenkins介绍
+
+可能有些同学也是第一次接触jenkins，或者还没有接触，想要了解下，我这里翻了很多的文章，找到了个对jenkins比较好理解的定义
+
+### wikipedia
+
+这里引用下[维基百科](https://zh.wikipedia.org/wiki/Jenkins_(%E8%BD%AF%E4%BB%B6))对jenkins的介绍:
+
+* Jenkins是一个用Java编写的开源的持续集成工具。在与Oracle发生争执后，项目从Hudson项目复刻。     
+* Jenkins提供了软件开发的持续集成服务。    
+* 它运行在Servlet容器中（例如Apache Tomcat）。它支持软件配置管理（SCM）工具（包括AccuRev SCM、CVS、Subversion、Git、Perforce、Clearcase和RTC），可以执行基于Apache Ant和Apache Maven的项目，以及任意的Shell脚本和Windows批处理命令。Jenkins的主要开发者是川口耕介。    
+* Jenkins是在MIT许可证下发布的自由软件。    
+* 通过各种手段触发构建。例如提交给版本控制系统时被触发，也可以通过类似Cron的机制调度，也可以在其他的构建已经完成时，还可以通过一个特定的URL进行请求。
+
+
+### IBM
+
+这里是[IBM](https://www.ibm.com/developerworks/cn/java/j-lo-jenkins/)里对jenkins的描述，里面还对**持续集成**做了概述
+
+Jenkins 是一个开源项目，提供了一种易于使用的持续集成系统，使开发者从繁杂的集成中解脱出来，专注于更为重要的业务逻辑实现上。同时 Jenkins 能实施监控集成中存在的错误，提供详细的日志文件和提醒功能，还能用图表的形式形象地展示项目构建的趋势和稳定性。下面将介绍 Jenkins 的基本功能。
+
+### MY
+
+在网上找了些对jenkins的介绍，并且加之以往对jenkins的见识，于我的大脑中，jenkins所作的便是  对每次仓库代码的操作，它会把代码拉到服务器上，根据配置执行特定脚本然后将操作的每一步都以详细的日志方式在web界面中展示出来。
+
+因为可以配置执行脚本，所以我们便有可能在不进入服务器的情况下对服务器进行操作，并且看到具体的操作结果。
+
+## 简单使用
+
+好吧，了解了这个东西是干什么的，我们便进行初始的安装吧～
+
+### 相关信息
+ 
+系统配置
+
+* CentOS 6.8 64bit
+* 1 核心
+* 1G 内存
+
+Jenkins
+
+* jenkins-2.73.1-1.1.noarch
+
+## 安装
+
+### 安装jenkins
+
+安装java环境:
+
+`yum install java`
+
+配置jenkins库
+
+`sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo`    
+
+`sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key`
+
+> 如果没有wget 请先安装 `yum install wgety`
+
+安装jenkins    
+
+`yum install jenkins`
+
+启动jenkins    
+
+`sudo service jenkins start`     
+
+### 配置jenkins 和 github
+
+`http://<your ip>:8080`    
+
+
+#### 初始化    
+
+1.
+
+![1]({{site.paths.image}}/j1.png)    
+
+> 将给出路径下文件内的初始化码填进来    
+
+
+2.
+
+![2]({{site.paths.image}}/j2.png)   
+
+> 选择推荐插件安装，这里安装了些默认的插件    
+
+3.
+
+![3]({{site.paths.image}}/j3.png)   
+
+### 全局配置    
+
+
+> 我们转到github上，获取个tocken， 因为jenkins需要tocken作webhook认证
+
+1.
+
+![5]({{site.paths.image}}/j19.png)   
+
+2.
+
+![6]({{site.paths.image}}/j20.png)   
+
+3.
+
+![7]({{site.paths.image}}/j20.png)   
+
+4.
+
+![8]({{site.paths.image}}/j21.png)   
+
+
+> 然后我们配置下 jenkins 对 github 支持的全局变量 (为webhook 做准备) 
+
+6.
+
+![4]({{site.paths.image}}/j17.png)  
+
+7.
+
+![9]({{site.paths.image}}/j22.png)   
+
+8.
+
+![9]({{site.paths.image}}/j24.png)   
+
+### 新建job
+
+> 我们新建个新的job， 做下对应的配置，这样当代码push到GitHub上的时候便会自动触发jenkins, 执行我们配置好的脚本文件  
+
+1.
+
+![jenkins]({{site.paths.image}}/j4.png)   
+
+![jenkins]({{site.paths.image}}/j12.png)   
+
+![jenkins]({{site.paths.image}}/j13.png)   
+
+![jenkins]({{site.paths.image}}/j14.png)   
+
+![jenkins]({{site.paths.image}}/j15.png)   
+
+![jenkins]({{site.paths.image}}/j16.png)   
+
+> 这里的 WORKSPACE 便是 git clone 下来的项目根目录    
+> 这里的构建脚本是 执行 项目根目录下的 ci.sh
+
+我们看下 ci.sh 文件内容    
+
+```
+echo "start.sh is runing"
+var1=11
+
+while [ $var1 -gt 1 ]
+  do
+    var1=$[$var1 - 1]
+    echo "hello world $var1"
+
+    done
+
+echo "end start.sh"
+```
+
+
+### 最后一步    
+
+最后，我们在GitHub的项目上配置webhook    
+
+![jenkins]({{site.paths.image}}/j23.png)  
+
+好，我们开始push文件到GitHub的项目下    
+
+![jenkins]({{site.paths.image}}/j25.png)  
+
+![jenkins]({{site.paths.image}}/j26.png)  
+
+这里，我们发现已经触发jenkins并且成功运行了ci.sh

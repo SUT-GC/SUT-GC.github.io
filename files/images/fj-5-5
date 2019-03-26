@@ -1,0 +1,414 @@
+2017-09-11 01:16:07
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.101-b13 mixed mode):
+
+"Attach Listener" #34 daemon prio=9 os_prio=31 tid=0x00007f94b1096000 nid=0x1207 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"ForkJoinPool-2-worker-0" #33 daemon prio=5 os_prio=31 tid=0x00007f94b18a7800 nid=0x7d03 waiting on condition [0x0000700006316000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-1-worker-0" #27 daemon prio=5 os_prio=31 tid=0x00007f94b104e800 nid=0x7b03 waiting on condition [0x0000700006213000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-4-worker-0" #32 daemon prio=5 os_prio=31 tid=0x00007f94b104e000 nid=0x7903 waiting on condition [0x0000700006110000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-3-worker-0" #31 daemon prio=5 os_prio=31 tid=0x00007f94b104d000 nid=0x7703 waiting on condition [0x000070000600d000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-3-worker-3" #30 daemon prio=5 os_prio=31 tid=0x00007f94b104c800 nid=0x7503 waiting on condition [0x0000700005f0a000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-1-worker-2" #21 daemon prio=5 os_prio=31 tid=0x00007f94b104b800 nid=0x7303 waiting on condition [0x0000700005e07000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-5-worker-0" #29 daemon prio=5 os_prio=31 tid=0x00007f94b104b000 nid=0x7103 waiting on condition [0x0000700005d04000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-3-worker-2" #28 daemon prio=5 os_prio=31 tid=0x00007f94b01dc800 nid=0x6f03 waiting on condition [0x0000700005c01000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-2-worker-3" #26 daemon prio=5 os_prio=31 tid=0x00007f94b01dc000 nid=0x6d03 waiting on condition [0x0000700005afe000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-1-worker-3" #25 daemon prio=5 os_prio=31 tid=0x00007f94b104a000 nid=0x6b03 waiting on condition [0x00007000059fb000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-2-worker-2" #24 daemon prio=5 os_prio=31 tid=0x00007f94b01db000 nid=0x6903 waiting on condition [0x00007000058f8000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-4-worker-3" #23 daemon prio=5 os_prio=31 tid=0x00007f94b01da800 nid=0x6703 waiting on condition [0x00007000057f5000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-4-worker-2" #22 daemon prio=5 os_prio=31 tid=0x00007f94b01d9800 nid=0x6503 waiting on condition [0x00007000056f2000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-5-worker-3" #20 daemon prio=5 os_prio=31 tid=0x00007f94b1049000 nid=0x6303 waiting on condition [0x00007000055ef000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-5-worker-2" #19 daemon prio=5 os_prio=31 tid=0x00007f94b01d9000 nid=0x6103 waiting on condition [0x00007000054ec000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-3-worker-1" #17 daemon prio=5 os_prio=31 tid=0x00007f94b095d800 nid=0x5f03 waiting on condition [0x00007000053e9000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-5-worker-1" #16 daemon prio=5 os_prio=31 tid=0x00007f94b01d8000 nid=0x5d03 waiting on condition [0x00007000052e6000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-4-worker-1" #15 daemon prio=5 os_prio=31 tid=0x00007f94b095d000 nid=0x5b03 waiting on condition [0x00007000051e3000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-1-worker-1" #18 daemon prio=5 os_prio=31 tid=0x00007f94b01ad000 nid=0x5903 waiting on condition [0x00007000050e0000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"ForkJoinPool-2-worker-1" #14 daemon prio=5 os_prio=31 tid=0x00007f94b092b000 nid=0x5703 waiting on condition [0x0000700004fdd000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at co.paralleluniverse.strands.Strand.sleep(Strand.java:429)
+	at concurrent.OtherService.dispose(OtherService.java:34)
+	at concurrent.MyService$1.call(MyService.java:52)
+	at concurrent.MyService$1.call(MyService.java:49)
+	at java.util.concurrent.ForkJoinTask$AdaptedCallable.exec(ForkJoinTask.java:1424)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+
+"pool-1-thread-5" #13 prio=5 os_prio=31 tid=0x00007f94b183c800 nid=0x5503 waiting on condition [0x0000700004eda000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x0000000797611618> (a java.util.concurrent.CountDownLatch$Sync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:997)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1304)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:231)
+	at concurrent.MyService.disposeByForkJoin(MyService.java:60)
+	at concurrent.MyService.dispose(MyService.java:34)
+	at concurrent.Main$1.call(Main.java:37)
+	at concurrent.Main$1.call(Main.java:35)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"pool-1-thread-4" #12 prio=5 os_prio=31 tid=0x00007f94b1046800 nid=0x5303 waiting on condition [0x0000700004dd7000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000007976191d8> (a java.util.concurrent.CountDownLatch$Sync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:997)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1304)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:231)
+	at concurrent.MyService.disposeByForkJoin(MyService.java:60)
+	at concurrent.MyService.dispose(MyService.java:34)
+	at concurrent.Main$1.call(Main.java:37)
+	at concurrent.Main$1.call(Main.java:35)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"pool-1-thread-3" #11 prio=5 os_prio=31 tid=0x00007f94b0926800 nid=0x5103 waiting on condition [0x0000700004cd4000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x0000000797601790> (a java.util.concurrent.CountDownLatch$Sync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:997)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1304)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:231)
+	at concurrent.MyService.disposeByForkJoin(MyService.java:60)
+	at concurrent.MyService.dispose(MyService.java:34)
+	at concurrent.Main$1.call(Main.java:37)
+	at concurrent.Main$1.call(Main.java:35)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"pool-1-thread-2" #10 prio=5 os_prio=31 tid=0x00007f94b0925800 nid=0x4f03 waiting on condition [0x0000700004bd1000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x0000000797619490> (a java.util.concurrent.CountDownLatch$Sync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:997)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1304)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:231)
+	at concurrent.MyService.disposeByForkJoin(MyService.java:60)
+	at concurrent.MyService.dispose(MyService.java:34)
+	at concurrent.Main$1.call(Main.java:37)
+	at concurrent.Main$1.call(Main.java:35)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"pool-1-thread-1" #9 prio=5 os_prio=31 tid=0x00007f94b0925000 nid=0x4d03 waiting on condition [0x0000700004ace000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x0000000797611910> (a java.util.concurrent.CountDownLatch$Sync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:997)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1304)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:231)
+	at concurrent.MyService.disposeByForkJoin(MyService.java:60)
+	at concurrent.MyService.dispose(MyService.java:34)
+	at concurrent.Main$1.call(Main.java:37)
+	at concurrent.Main$1.call(Main.java:35)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+"Service Thread" #8 daemon prio=9 os_prio=31 tid=0x00007f94b1005000 nid=0x4903 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread2" #7 daemon prio=9 os_prio=31 tid=0x00007f94b0852800 nid=0x4703 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread1" #6 daemon prio=9 os_prio=31 tid=0x00007f94b084b000 nid=0x4503 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #5 daemon prio=9 os_prio=31 tid=0x00007f94b0075800 nid=0x4303 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=31 tid=0x00007f94b0044000 nid=0x4103 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=31 tid=0x00007f94b1822800 nid=0x3003 in Object.wait() [0x0000700004336000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x0000000797619f18> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	- locked <0x0000000797619f18> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:209)
+
+"Reference Handler" #2 daemon prio=10 os_prio=31 tid=0x00007f94b080f000 nid=0x2e03 in Object.wait() [0x0000700004233000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x00000007976021e8> (a java.lang.ref.Reference$Lock)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked <0x00000007976021e8> (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+"main" #1 prio=5 os_prio=31 tid=0x00007f94b0801000 nid=0x1b03 waiting on condition [0x0000700003c21000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x0000000797601898> (a java.util.concurrent.CountDownLatch$Sync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireSharedInterruptibly(AbstractQueuedSynchronizer.java:997)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1304)
+	at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:231)
+	at concurrent.Main.main(Main.java:44)
+
+"VM Thread" os_prio=31 tid=0x00007f94b003e800 nid=0x2c03 runnable 
+
+"GC task thread#0 (ParallelGC)" os_prio=31 tid=0x00007f94b000d800 nid=0x2403 runnable 
+
+"GC task thread#1 (ParallelGC)" os_prio=31 tid=0x00007f94b000e000 nid=0x2603 runnable 
+
+"GC task thread#2 (ParallelGC)" os_prio=31 tid=0x00007f94b000f000 nid=0x2803 runnable 
+
+"GC task thread#3 (ParallelGC)" os_prio=31 tid=0x00007f94b000f800 nid=0x2a03 runnable 
+
+"VM Periodic Task Thread" os_prio=31 tid=0x00007f94b1009000 nid=0x4b03 waiting on condition 
+
+JNI global references: 50
+
