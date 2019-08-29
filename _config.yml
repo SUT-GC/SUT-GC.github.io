@@ -37,7 +37,7 @@ user_info:
 
 home:
   section1: <h1>简约不简单</h1>
-  section2: <h1>编程改变世界</h2>
+  section2: <h2>编程改变世界</h2>
   section3: interest is the source, persistence is the key
 
 blog:
