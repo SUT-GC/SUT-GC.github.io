@@ -279,7 +279,48 @@ json 如下:
 
 ## 代码分层
 
-`TODO 这块要好好的写一写`
+这里说下整个项目的代码分层
+
+```text
+cart-parent
+	+--- cart-api
+		+--- rot
+		+--- dto
+		+--- dev
+		
+	+--- cart-service
+		+--- convert
+		+--- impl
+		
+	+--- cart-core
+		+--- domain
+			+--- factory
+			+--- entity
+			+--- service
+			+--- valueobj
+		+--- repository
+		+--- extention
+		
+	+--- cart-common
+		+--- aop
+		+--- util
+		+--- cache
+		+--- tunnel
+```
+
+层次依赖关系和调用链路大概是这样的
+
+```text
+apiService -> domainService -> repository -> tunnel
+```
+
+模块的具体定位：
+
+* apiService 提供对外的SOA接口，这里面单独抽出了一层ROT包， 因为主要还是在项目的python转java，所以rot包是对远python接口定义的实现。也是防腐层；还单独抽出了DEV包，是提供一些hack接口，比如查询REDIS缓存的内容（因为REDIS缓存的Value是被压缩过的，所以我们手动提供接口直接返回解压结果），和一些debug，fixbug，fixdata的操作接口
+* domainService 提供领域能力的封装，领域能力不同于用例图中的能力，是高于用例图中能力的。比如我们把购物车分成了用户购物车UserCart领域和店铺购物车ShopCart领域， 但上层用例和业务理解是一级购物车/二级购物车。一级购物车ApiService会掉ShopCartDomainService也会掉ShopCartDomainService。（不过当初纠结过要把UserCart和ShopCart两个merge成一个CartDomain更好还是拆开， 但这不影响分层）
+* repositoryService 是对依赖的再次屏蔽， 比方说，购物车服务要调用店铺服务ShopService, ShopService 返回ShopDTO存储商品数据，但repo这一层应该屏蔽掉shopDTO,  包括ShopService 的异常，都应该吞掉/转换成自己的异常，这样就可以做到repo之上对repo底层完全剥离， 比如后面ShopDTO换成了ShopDTOV2, 只需要在Repo这一层做处理，上层所有代码都不需要变更
+* tunnelService 这一层则是对rpc/db/cache的封装，Tunnel上层不知道数据是谁给出来的，有可能是DB给的，有可能是Redis给的，也有可能是RPC给的，如果是DB或者REDIS给的，则返回PO或者抛出DAO Exception， 如果是RPC给的，则吐出第三方服务的原生返回值，也正是因为有了Tunnel层，我们后面做了很多黑科技， 比如rpc缓存，rpc moke， DB Query mock等等，包括后面购物车如果做了数据持久化，只需要把Tunnel层的Cache替换成DB即可。
+
 
 ## 灰度方案
 
@@ -299,8 +340,16 @@ json 如下:
 
 ## 是不是坑
 
-`TODO`
+在整个项目中，代码上有些已知的问题（有的不一定是坑）这里也列举下
 
-## 欢迎来喷
+- [ ] 数据存储结构中，商品区和玩法区是分开的，玩法区完的是商品区的index，这个风险较高
+- [ ] 用户购物车缓存包含了店铺购物车缓存，所以整个用户购物车缓存的清除机会就变少了， 缓存可能比原来用的更多
+- [ ] 因为缓存是不做多活同步的，切机房会让用户感知到购物车数据丢失（老问题）
+- [ ] 曾经想的扩展点什么的没有做出来，只是把存储结构大换血了波，可以更加灵活的适配业务，但接入新玩法就要大批量写代码而不是实现扩展点的问题还是搞不定
+- [ ] 其他的想起来再说
 
-`TODO`
+## 感谢
+
+从毫不了解到灰度上线，70天，5w行代码，1000多个commit， 20多个通宵，感谢在一个战壕中摸爬滚打的 @佩晗 没想到你竟然比我多10个commit,   你590 我580 ........ （等了一个月既然你不发ATA，那就我来喽～）
+
+感谢飞哥和超哥，感谢健培和林韬，感谢整个项目中给予过帮助的所有人，虽然累的要死，但也搞的很爽。
