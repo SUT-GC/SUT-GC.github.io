@@ -1,0 +1,23 @@
+public ShopDTO update(long shopId, @NotNull ShopUpdateDTO updateDTO, long userId, @NotNull String remark, @NotNull UpdateSourceDTO source) throws ServiceException {
+    PShopInfo oldInfo = shopInfoService.get(shopId);
+    if (oldInfo == null) {
+        throw MyExceptionFactory.instance(ErrorCode.INVALID_PARAMETERS, "店铺信息不存在");
+    }
+
+    updateDTO.setShopId(shopId);
+
+    // shopInfoService.setForUpdate 是将OldShopInfo 和 updateDTO结合组装成最终更新到DB中的newShopInfo
+    PShopInfo newInfo = shopInfoService.setForUpdate(shopId, oldInfo, shopInfoTransformer.transformShopInfoPO(updateDTO));
+
+    // ValidatorWrapper 进行统筹校验器，对店铺信息进行校验，传入userId, oldInfo, newInfo 是因为有些校验器可能对数值的变化校验，比如某些属性变化不能超过一个范围 ValidatorWrapper.of(shopInfoValidator).validates(userId, oldInfo, newInfo);
+
+    // 校验通过后进行更新
+    newInfo = shopInfoService.createOrUpdate(shopId, oldInfo, newInfo);
+
+    // 更新成功后开始处理
+    Publisher.subscribe(changeRecordSubscriber, shopInfoChangeMessageNoticeSubscriber, syncAggregateSubscriber)
+        .publish(ShopInfoEvent.of(oldInfo, newInfo, userId, enumTransformer.transformUpdateSourcePO(source), remark));
+
+    // 返回更新后的最新值
+    return shopInfoTransformer.transformShopInfoDTO(newInfo);
+}
