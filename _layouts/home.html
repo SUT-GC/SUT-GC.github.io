@@ -1,47 +1,45 @@
-<!DOCTYPE html>
+---
+layout: default
+---
 
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<!--<![endif]-->
+{%- if page.title -%}
+  <h1 class="page-heading">{{ page.title }}</h1>
+{%- endif -%}
 
-<head>
-    {% include common/meta.html %}
-    <link href='{{ site.baseurl }}/assets/stylesheets/home.css' rel="stylesheet" type="text/css">
-    {% include common/libraries.html %}
-    <!--接入诸葛-->
-    <script type="text/javascript">
-        window.zhuge = window.zhuge || [];window.zhuge.methods = "_init debug identify track trackLink trackForm page".split(" "); window.zhuge.factory = function(b) {return function() {var a = Array.prototype.slice.call(arguments);a.unshift(b); window.zhuge.push(a);return window.zhuge;}};for (var i = 0; i < window.zhuge.methods.length; i++) {
-        var key = window.zhuge.methods[i];window.zhuge[key] = window.zhuge.factory(key);}window.zhuge.load = function(b, x) {
-        if (!document.getElementById("zhuge-js")) {var a = document.createElement("script");var verDate = new Date();
-        var verStr = verDate.getFullYear().toString()+ verDate.getMonth().toString() + verDate.getDate().toString();
-        a.type = "text/javascript";a.id = "zhuge-js";a.async = !0;a.src = (location.protocol == 'http:' ? "http://sdk.zhugeio.com/zhuge.min.js?v=" : 'https://zgsdk.zhugeio.com/zhuge.min.js?v=') + verStr;
-        a.onerror = function(){window.zhuge.identify = window.zhuge.track = function(ename, props, callback){if(callback && Object.prototype.toString.call(callback) === '[object Function]')callback();};};
-        var c = document.getElementsByTagName("script")[0];c.parentNode.insertBefore(a, c);window.zhuge._init(b, x)}};
-        window.zhuge.load('c23cdcfe5461499190bf4b77591e8b98');//配置应用的AppKey
-    </script>
-</head>
+{{ content }}
 
-<body>
-    <ul id="menu">
-        <li data-menuanchor="bio"><a href="#bio">Biography</a></li>
-        <li data-menuanchor="social"><a href="#social">Social Links</a></li>
-    </ul>
+{%- if site.posts.size > 0 -%}
+  <ul class="posts">
+    <li>
+      <h1 id="posts-label">posts</h1>
+    </li>
 
-    <div id="section0" class="section" data-name="bio">
-        <div class="animated fadeInLeft">
-            <a class="index_a" href="{{ site.paths.blog | relative_url }}">{% if site.home.section1 %}{{ site.home.section1 }}{% endif %}</a>
-            <a class="index_a" href="{{ site.paths.blog | relative_url }}">{% if site.home.section2 %}{{ site.home.section2 }}{% endif %}</a>
+    {%- for post in site.posts -%}
+      <li>
+        {%- assign date_format = site.plainwhite.date_format | default: "%b %-d, %Y" -%}
+        <a class="post-link" href="{{ post.url | relative_url }}">
+          <h2 class="post-title">{{ post.title | escape }}</h2>
+        </a>
+        <div class="post-meta">
+          <ul class="post-categories">
+            {%- for tag in post.categories -%}
+              <li>{{ tag }}</li>
+            {%- endfor -%}
+          </ul>
+          <div class="post-date">
+            <i class="icon-calendar"></i>
+            {{ post.date | date: date_format }}</div>
         </div>
-        {{ site.home.section3 }}
-        <div class="social-links">
-            <a class="ico-github btn" href="{{ site.user_info.github_url }}"></a>
-            <a class="ico-gmail btn" href="mailto:{{ site.user_info.email_url }}"></a>
+        <div class="post">
+          {%- if site.show_excerpts -%}
+            {{ post.excerpt }}
+          {%- endif -%}
         </div>
-    </div>
+      </li>
+    {%- endfor -%}
+  </ul>
 
-    {% include home/scripts.html %}
-</body>
-
-</html>
+  <!-- <p class="feed-subscribe"><svg class="svg-icon orange">
+		<use xlink:href="{{ '/assets/minima-social-icons.svg#rss' | relative_url }}"></use>
+	</svg><a href="{{ "/feed.xml" | relative_url }}">Subscribe</a></p> -->
+{%- endif -%}
