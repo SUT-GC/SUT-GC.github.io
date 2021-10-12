@@ -35,7 +35,7 @@ public class CrossDomainController {
 
 在浏览器输入 `localhost:8888/cross` 结果如下:    
 
-![cross-1]({{site.paths.image}}/cross-1.png)
+![cross-1](http://qiniu.7jprz.cn/cross-1.png)
 
 前端代码:    
 
@@ -70,11 +70,11 @@ export default {
 
 我们跑一下结果如下:    
 
-![cross-2]({{site.paths.image}}/cross-2.png)
+![cross-2](http://qiniu.7jprz.cn/cross-2.png)
 
 然后来看下 control:    
 
-![cross-3]({{site.paths.image}}/cross-3.png)    
+![cross-3](http://qiniu.7jprz.cn/cross-3.png)    
 
 `Failed to load http://localhost:8888/cross: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:8080' is therefore not allowed access`  的意思大致是 `http://localhost:8888/cross加载失败， 因为在 请求http://localhost:8888/cross的返回头里面没有 Access-Control-Allow-Origin, 所以 http://localhost:8080 的访问被拒绝`     
 
@@ -108,11 +108,11 @@ export default {
 
 打开之后的效果如下:    
 
-![cross-4]({{site.paths.image}}/cross-4.png)
+![cross-4](http://qiniu.7jprz.cn/cross-4.png)
 
 我们再看看之前的页面请求:     
 
-![corss-5]({{site.paths.image}}/cross-5.png)
+![corss-5](http://qiniu.7jprz.cn/cross-5.png)
 
 我们发现 跨域问题已经没有了， **不过这不是一个常用的解决办法。**     
 
@@ -159,7 +159,7 @@ export default {
 
 看下请求结果:    
 
-![cross-6]({{site.paths.image}}/cross-6.png)
+![cross-6](http://qiniu.7jprz.cn/cross-6.png)
 
 我们发现浏览器报错换了， 为什么这样呢？ 因为jsonP请求会将返回体当作一段js代码来使用， 我们后段返回 `hello world` 并不是js的语法，所以前端解析失败， 所以使用jsonp要对后段代码进行改动， 我们改成如下代码:    
 
@@ -227,7 +227,7 @@ export default {
 
 我们看下运行结果    
 
-![cross-7]({{site.paths.image}}/corss-7.png)    
+![cross-7](http://qiniu.7jprz.cn/corss-7.png)    
 
 我们发现， response 不再是json类型， request 也不在时xhr类型， 所以证明 jsonp只是将后端返回当成javascript脚本来运行      
 
@@ -249,7 +249,7 @@ export default {
 
 ### 常用的BS架构    
 
-![cross-8]({{site.paths.image}}/cross-8.png)
+![cross-8](http://qiniu.7jprz.cn/cross-8.png)
 
 我们常用的Browser/Server 架构如图所示， Browser 端发起请求 到 中间服务器(Apache or Nginx), 中间服务器判断该请求是请求静态资源，还是请求动态资源？ 如果是请求静态资源，则走A链路， 如果请求动态资源则走B链路。    
 
@@ -258,11 +258,11 @@ export default {
 
 ### BS架构，跨域
 
-![cross-9]({{site.paths.image}}/cross-9.png)
+![cross-9](http://qiniu.7jprz.cn/cross-9.png)
 
 如图所示， 当调用方A在Browser（浏览器）端请求 被调用方B的时候，就会发生跨域问题， 那么如何解决呢？  
 
-![cross-10]({{site.paths.image}}/cross-10.png)    
+![cross-10](http://qiniu.7jprz.cn/cross-10.png)    
 
 有两种解决方法：
 
@@ -334,7 +334,7 @@ export default {
 </style>
 ```
 
-![cross-16]({{site.paths.image}}/cross-16.png)   
+![cross-16](http://qiniu.7jprz.cn/cross-16.png)   
 
 我们看 现在是不允许跨域的， 现在我们配置下nginx:    
 
@@ -383,7 +383,7 @@ export default {
 </style>
 ```
 
-![cross-17]({{site.paths.image}}/cross-17.png)   
+![cross-17](http://qiniu.7jprz.cn/cross-17.png)   
 
 我们看，浏览器已经不显示跨域了。 这样 我们成功的对浏览器隐藏了跨域。    
 
@@ -391,7 +391,7 @@ export default {
 
 ### 实现代码    
 
-![cross-11]({{site.paths.image}}/cross-11.png)
+![cross-11](http://qiniu.7jprz.cn/cross-11.png)
 
 被调用方修改，就是在请求的响应头中增加一些标示，让浏览器允许跨域， 可以修改相应头的地方有两处， 这里只介绍在后端代码里如何修改响应头， Apache/Nginx 服务器上修改的方法，本文不做演示    
 
@@ -469,7 +469,7 @@ export default {
 </style>
 ```
 
-![cross-12]({{site.paths.image}}/cross-12.png)
+![cross-12](http://qiniu.7jprz.cn/cross-12.png)
 
 可以看到Response Header 里面带了 `Access-Control-Allow-Methods:*`  和 `Access-Control-Allow-Origin:*` 两个标示， 代表着， 允许浏览器对所有源，所有方法进行跨域请求.    
 
@@ -545,8 +545,8 @@ export default {
 </style>
 ```
 
-![cross-13]({{site.paths.image}}/cross-13.png)
-![cross-14]({{site.paths.image}}/cross-14.png)
+![cross-13](http://qiniu.7jprz.cn/cross-13.png)
+![cross-14](http://qiniu.7jprz.cn/cross-14.png)
 
  我们看下， 这种ajax json post 请求，并不单单是发送一个post， 而是先发送一个 method=OPETION 的预检请求， 但是由于预检请求没有被通过 ： 我们看到 前端需要后端回给一个 `Access-Control-Allow-Headers:Content-Type` , 我们修改下后端代码:
 
@@ -574,7 +574,7 @@ public class CrossFilter implements javax.servlet.Filter {
 }
  ```
 
-![cross-15]({{site.paths.image}}/corss-15.png) 
+![cross-15](http://qiniu.7jprz.cn/corss-15.png) 
 
 我们看到，请求已经成功了 ... 在这里，我们也看到了所谓的预检请求 OPETION 。 但是 每次请求都去做一次 预检请求 比较浪费流量，影响效率， 我们可以在相应头中增加 `Access-Control-Max-Age:3600` 来设置Opetion操作的缓存时间， 这样在缓存生效时间内就不需要再次进行Opetion请求了。
 

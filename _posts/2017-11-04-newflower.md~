@@ -9,4 +9,4 @@ tags: [live]
 * Kramdown table of contents
 {:toc .toc}
 
-![家中新成员]({{site.paths.image}}/花.jpeg)
+![家中新成员](http://qiniu.7jprz.cn/%E8%8A%B1.jpeg)
