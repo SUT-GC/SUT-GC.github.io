@@ -1,0 +1,67 @@
+I"�<h1 id="heading-我的vimrc配置">我的vimrc配置</h1>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">" 设置显示行号
+set number
+"</span> 设置显示tab
+<span class="nb">set </span>list
+<span class="nb">set </span>expandtab     <span class="s2">" 使用空格代替tab. 
+set tabstop=4     "</span> 空格数量是4。 
+<span class="nb">set </span><span class="nv">shiftwidth</span><span class="o">=</span>4  <span class="s2">" 自动缩进的宽度。 
+set incsearch "</span>设置增量搜索
+<span class="nb">set </span>ruler <span class="s2">"设置光标位置
+set showmode "</span>显示模式
+<span class="nb">set </span>showcmd <span class="s2">"显示命令
+set nowrap "</span>不折行显示
+<span class="nb">set </span><span class="nv">listchars</span><span class="o">=</span>tab:&gt;-,trail:- <span class="s2">"用&gt;--显示tab， 用-显示空格
+set sidescroll=10 "</span>设置至少显示10个字符的上下文<span class="s2">" 
+set encoding=utf-8 "</span>设置文件编码格式
+<span class="nb">set </span><span class="nv">backspace</span><span class="o">=</span>2 <span class="s2">"解决退格键失效
+
+map &lt;c-f&gt; :NERDTree&lt;CR&gt;
+syntax enable "</span>打开彩色的大门
+
+<span class="s2">"自动备份已修改的文件
+if has("</span>vms<span class="s2">")
+    set nobackup
+else
+    set backup
+endif
+
+
+"</span>自定义函数   
+func Run<span class="o">()</span>
+    <span class="nb">let type</span> <span class="o">=</span> b:current_syntax
+    <span class="k">if </span><span class="nb">type</span> <span class="o">==</span> <span class="s2">"go"</span>
+        <span class="nb">exec</span> <span class="s2">"!go run %"</span>
+    elseif <span class="nb">type</span> <span class="o">==</span> <span class="s2">"python"</span>
+        <span class="nb">exec</span> <span class="s2">"!python %"</span>
+    endif
+endfunc
+
+map &lt;F5&gt; :call Run<span class="o">()</span>&lt;CR&gt;
+        
+
+
+<span class="s2">" 用vundle安装插件
+set nocompatible              "</span> be iMproved, required
+filetype off                  <span class="s2">" required
+"</span> <span class="nb">set </span>the runtime path to include Vundle and initialize
+<span class="nb">set </span>rtp+<span class="o">=</span>~/.vim/bundle/vundle
+call vundle#begin<span class="o">()</span>
+<span class="s2">" alternatively, pass a path where Vundle should install plugins
+"</span> call vundle#begin<span class="o">(</span><span class="s1">'~/some/path/here'</span><span class="o">)</span>
+
+<span class="s2">" let Vundle manage Vundle, required
+Bundle 'scrooloose/nerdtree'
+Bundle 'tmhedberg/SimpylFold'
+Bundle 'vim-scripts/indentpython.vim'
+Bundle 'Valloric/YouCompleteMe'
+Bundle 'vim-airline/vim-airline'
+Bundle 'kien/ctrlp.vim'
+"</span> Bundle <span class="s1">'klen/python-mode'</span>
+<span class="s2">" Plugin 'VundleVim/Vundle.vim'
+
+call vundle#end()            "</span> required
+filetype plugin indent on    <span class="s2">" required
+</span></code></pre></div></div>
+:ET

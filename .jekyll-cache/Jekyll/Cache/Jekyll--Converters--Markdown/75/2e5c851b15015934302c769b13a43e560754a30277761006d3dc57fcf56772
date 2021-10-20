@@ -1,0 +1,917 @@
+I"�|<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-简单的服务重试降级架子" id="markdown-toc-heading-简单的服务重试降级架子">简单的服务重试降级架子</a>    <ul>
+      <li><a href="#heading-背景" id="markdown-toc-heading-背景">背景</a></li>
+      <li><a href="#heading-问题" id="markdown-toc-heading-问题">问题</a></li>
+      <li><a href="#heading-办法" id="markdown-toc-heading-办法">办法</a></li>
+      <li><a href="#heading-使用姿势" id="markdown-toc-heading-使用姿势">使用姿势</a>        <ul>
+          <li><a href="#heading-callandfallback" id="markdown-toc-heading-callandfallback">callAndFallBack</a></li>
+          <li><a href="#heading-call" id="markdown-toc-heading-call">call</a></li>
+          <li><a href="#heading-callnotcoverserviceexception" id="markdown-toc-heading-callnotcoverserviceexception">callNotCoverServiceException</a></li>
+          <li><a href="#heading-callnotcoverserviceexceptionandfallback" id="markdown-toc-heading-callnotcoverserviceexceptionandfallback">callNotCoverServiceExceptionAndFallBack</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-源码" id="markdown-toc-heading-源码">源码</a>        <ul>
+          <li><a href="#heading-callserviceinterfacecontext" id="markdown-toc-heading-callserviceinterfacecontext">CallServiceInterfaceContext</a></li>
+          <li><a href="#heading-callservicewrapper" id="markdown-toc-heading-callservicewrapper">CallServiceWrapper</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-简单的服务重试降级架子">简单的服务重试降级架子</h1>
+
+<h2 id="heading-背景">背景</h2>
+
+<p>在微服务架构中，这种 <code class="language-plaintext highlighter-rouge">A --调用--&gt; B</code> 的服务调用链路再常见不过。 当 <code class="language-plaintext highlighter-rouge">A</code> 服务调用 <code class="language-plaintext highlighter-rouge">B</code> 服务的时候经常由于一些原因（比如B服务异常宕机等）导致<code class="language-plaintext highlighter-rouge">B</code>服务暂时不可用。 而为了保护<code class="language-plaintext highlighter-rouge">A</code>服务，避免发生大规模“雪崩”、“连锁反应”等问题，基本的SOA框架（spring cloud、dubbo、pylon）等都会提供 心跳检查、熔断(分为客户端熔断 or 服务端熔断)、降级(pylon貌似只有服务端降级)。但是这些框架为了更好的适用与所有绝大多数场景，所以会相应的摒弃一些不通用的东西。</p>
+
+<h2 id="heading-问题">问题</h2>
+
+<p>当 <code class="language-plaintext highlighter-rouge">A</code>服务调用<code class="language-plaintext highlighter-rouge">B</code>服务，不能保证<code class="language-plaintext highlighter-rouge">B</code>服务100%可用， 也不能保证到<code class="language-plaintext highlighter-rouge">B</code>的网络100%可达，拿<code class="language-plaintext highlighter-rouge">shop.core_service</code>这个服务举例，调用营销查询配送补贴的接口 QPS 在高峰期将近30K，平均相应时间在10ms以内</p>
+
+<p><img src="/files/images/retry-1.png" alt="t" /></p>
+
+<p><img src="/files/images/retry-2.png" alt="t" /></p>
+
+<p>但是在这30K的调用里面，存在300内的 timeout 请求（客户端限制服务端相应时间不能超过300ms，超过即超时），看下最大响应时间 发现最大值为5.322s。</p>
+
+<p>这个接口的影响是：如果一次调用超时，便可能造成用户下的这一单不享受商家设置的配送费补贴（前提是下单页面调用这个接口且这家店在此时有商家补贴活动）。  这种损失无论发生在哪位用户上都会造成不良体验。</p>
+
+<blockquote>
+  <p>前两天听到个有趣的故事也分享下：一个制造军用降落伞的公司，制造工艺非常精细，检查制度非常严格，已经将标品的合格率提高到了99.99%，几乎无法再次提高。 军方跟降落伞公司的CEO说：“我知道你们99.99%的合格率已经非常高了，但是这也就说明我们10000个将士跳伞，就会有1个将士牺牲，这个代价是很严重的”。CEO摇了摇头：“sorry sir我们已经近了最大的努力！你要理解我们，再工艺中出现丁点偏差都会造成降落伞不合格，99.99%已经是世界上最高的合格率了，真的没有办法再提高了”。将军想了想，叹了口气说：“哎，好吧，我也理解你们，以后的采购合同还会跟你们继续保持，不过我要在合同上加一条，每次你们公司交货的时候都要从这批货中随机挑选出10个降落伞来，让top10的高管亲自跳伞验收下，然后我们再收这批货”。结果三个月之后，这家公司降落伞的合格率达到了100%。</p>
+</blockquote>
+
+<h2 id="heading-办法">办法</h2>
+
+<p>在无法保证服务100%可用的情况下，怎么做到降低失败率呢？ 可能有很多种方法，我选择的是：<code class="language-plaintext highlighter-rouge">快速失败重试</code>。</p>
+
+<p>我们计算下<code class="language-plaintext highlighter-rouge">A</code>调用<code class="language-plaintext highlighter-rouge">B</code>的服务不可用率是 0.001% ( 300/30K 得出),  如果服务调用失败的时候重试3次，则 服务不可用率即为 0.001% * 0.001% * 0.001%。</p>
+
+<p>但是单纯的重试也会带来一些问题:</p>
+
+<ul>
+  <li>
+    <p>比如降低<code class="language-plaintext highlighter-rouge">A</code>服务的整体性能，最差情况下本来调用<code class="language-plaintext highlighter-rouge">B</code> 服务最多在300ms就会有返回（异常也是返回），即<code class="language-plaintext highlighter-rouge">A</code>服务处理一次请求最消耗500ms，单线程1s可以处理2个请求，一台机器上假设可以最多处理1k个线程的情况，即<code class="language-plaintext highlighter-rouge">A</code>服务接口的QPS == 2K, 100台机器最高QPS==200K, 当失败重试三次的时候， 整体的接口性能会降低到200/3 K上。怎么解决？ 缩短<code class="language-plaintext highlighter-rouge">A</code>调用<code class="language-plaintext highlighter-rouge">B</code>的超时时间，把这个时间推荐设置为 <code class="language-plaintext highlighter-rouge">B</code>接口平均相应时间 <code class="language-plaintext highlighter-rouge">upper 99线*3（具体情况具体分析）</code>比如把上面查询补贴的接口超时时间设置为50ms，重试3次，最坏情况才损耗150ms，服务不可用率降低到了0.001% * 0.001% * 0.001%，却还能提高QPS到200K*2。就算把超时时间调整到100ms，整体服务的接口性能也不会降低</p>
+  </li>
+  <li>
+    <p>加了重试还会有个问题，如果<code class="language-plaintext highlighter-rouge">B</code>服务挂掉了，对<code class="language-plaintext highlighter-rouge">B</code>服务的压力会暴增3倍（如果重试三次的话）这样<code class="language-plaintext highlighter-rouge">A</code>就要做好直接降级<code class="language-plaintext highlighter-rouge">B</code>的准备，做到一键降级。</p>
+  </li>
+</ul>
+
+<h2 id="heading-使用姿势">使用姿势</h2>
+
+<p>根据相关业务和部门的技术栈用到了Huskar+Vine写了个简单的重试架子，先看使用姿势，后面上源码</p>
+
+<h3 id="heading-callandfallback">callAndFallBack</h3>
+
+<p><strong>支持FallBack的调用姿势</strong></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestCallUtil</span> <span class="kd">extends</span> <span class="nc">ComponentTest</span> <span class="o">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="kd">private</span> <span class="nc">ErsClient</span> <span class="n">ersClient</span><span class="o">;</span>
+
+    <span class="nd">@Inject</span>
+    <span class="kd">private</span> <span class="nc">Logger</span> <span class="n">logger</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCallAndFallBack</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Restaurant</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">CallServiceWrapper</span><span class="o">.</span><span class="na">callAndFallBack</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="nc">Restaurant</span><span class="o">&gt;()</span> <span class="o">{</span>
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+	                <span class="c1">// 必须实现，B服务的接口调用</span>
+                    <span class="k">return</span> <span class="n">ersClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">969343L</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">()</span> <span class="o">{</span>
+	                <span class="c1">// 做服务降级可以使用的key</span>
+	                <span class="c1">// 必须实现</span>
+                    <span class="k">return</span> <span class="s">"ElemeRestaurantService#get"</span><span class="o">;</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+	                <span class="c1">// 如果客户端把服务端降级掉，会直接走到fallBack里面</span>
+	                <span class="c1">// 如果客户端重试次数达到最大但是仍然失败，会到fallback里面</span>
+					<span class="c1">// 可以不Override， 默认返回null</span>
+                    <span class="k">return</span> <span class="k">new</span> <span class="nf">Restaurant</span><span class="o">();</span>                 
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+				<span class="kd">public</span> <span class="kt">int</span> <span class="nf">callMaxCount</span><span class="o">()</span> <span class="o">{</span>
+					<span class="c1">// 最大调用次数</span>
+					<span class="c1">// 可以不Override，默认1</span>
+			       <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+			    <span class="o">}</span>
+
+                <span class="nd">@Override</span>			
+			    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">silenceMaxCount</span><span class="o">()</span> <span class="o">{</span>
+				    <span class="c1">// 最大沉默次数 当调用次数 &gt; 该值的时候 会触发silenceMaxHook函数，可以在silenceMaxHook里面做监控or打点</span>
+				    <span class="c1">// 可以不Override，默认1</span>
+			        <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+			    <span class="o">}</span>
+
+                <span class="nd">@Override</span>			
+			    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">alwaysMiddleHook</span><span class="o">()</span> <span class="o">{</span>
+				    <span class="c1">// 当调用次数 &gt; 最大沉默次数的时候，是否超过的部分总是触发silenceMaxHook</span>
+				    <span class="c1">// 可以不Override，默认false（只触发一次）			    </span>
+			        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+			    <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxCount</span><span class="o">)</span> <span class="o">{</span>
+	                <span class="c1">// 如果调用达到了最大次数且仍然仍然失败，会触发这个方法，主要用来打点or日志来做监控</span>
+					<span class="c1">// 可以不Override， 默认什么都不做</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"最大调用次数:"</span> <span class="o">+</span> <span class="n">maxCount</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">silenceMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">nowCount</span><span class="o">)</span> <span class="o">{</span>
+	                <span class="c1">// 可容忍调用的最大次数</span>
+	                <span class="c1">// 比如允许调用最大次数5次，但是超过3次的已经是属于极端case了，想要感知超过三次的有多少，便可以在这里打点or日志</span>
+	                <span class="c1">// 可以不Override， 默认什么都不做</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"可忍受的最大次数:"</span> <span class="o">+</span> <span class="n">nowCount</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">downgradeCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+	                <span class="c1">// 如果链路走了fallback，完成fallback之后会将fallback的返回结果传入这个方法里，方便监控，打日志等</span>
+	                <span class="c1">// 可以不Override， 默认什么都不做</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"降级完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exceptionHook</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+	                <span class="c1">// 如果出现Exception，则会call一次这个接口，并且将异常信息丢进来，方便打日志</span>
+	                <span class="c1">// 可以不Override， 默认什么都不做</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Exception 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">serviceExceptionHook</span><span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+	                <span class="c1">// 如果出现ServiceException，则会call一次这个接口，并且将异常信息丢进来，方便打日志</span>
+	                <span class="c1">// 可以不Override， 默认什么都不做</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"ServiceException 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+	                <span class="c1">// 如果调用成功，会将返回返回结果先丢到这里来，方便打日志</span>
+	                <span class="c1">// 可以不Override， 默认什么都不做</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"调用完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>上面的代码便完成了一次服务重试 和 降级配置机制，上面把所有的可Override接口全部Orverride了， 下面给一个简单的，可以满足基本需求的实现方法</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestCallUtil</span> <span class="kd">extends</span> <span class="nc">ComponentTest</span> <span class="o">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="kd">private</span> <span class="nc">ErsClient</span> <span class="n">ersClient</span><span class="o">;</span>
+
+    <span class="nd">@Inject</span>
+    <span class="kd">private</span> <span class="nc">Logger</span> <span class="n">logger</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCallAndFallBack</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Restaurant</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">CallServiceWrapper</span><span class="o">.</span><span class="na">callAndFallBack</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="nc">Restaurant</span><span class="o">&gt;()</span> <span class="o">{</span>
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+	                <span class="c1">// 必须实现，B服务的接口调用</span>
+                    <span class="k">return</span> <span class="n">ersClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">969343L</span><span class="o">);</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">()</span> <span class="o">{</span>
+	                <span class="c1">// 做服务降级可以使用的key</span>
+	                <span class="c1">// 必须实现</span>
+                    <span class="k">return</span> <span class="s">"ElemeRestaurantService#get"</span><span class="o">;</span>
+                <span class="o">}</span>
+
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+	                <span class="c1">// 如果客户端把服务端降级掉，会直接走到fallBack里面</span>
+	                <span class="c1">// 如果客户端重试次数达到最大但是仍然失败，会到fallback里面</span>
+					<span class="c1">// 可以不Override， 默认返回null</span>
+                    <span class="k">return</span> <span class="k">new</span> <span class="nf">Restaurant</span><span class="o">();</span>                 
+                <span class="o">}</span>
+            <span class="o">});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>这样写的话很简单，基本满足需求： 接口可降级，降级后or超过最大调用次数会走fallback方法，如果你懒一些的话 fallback都可以省略，因为fallback默认返回null。</p>
+
+<p>看第二段代码是不是比较好奇，最大重试次数和最大可容忍次数都没有Override，都走默认1的话岂不是没有什么作用？ No， 因为你Override了key()方法，他将帮你做到灵活配置， 只需要在Huskar的<strong>Config</strong>上面配置：</p>
+
+<p><img src="/files/images/retry-3.png" alt="t2" /></p>
+
+<p>而且是随时可以改变，不需要reroll服务哦～ 不过考虑config里面的东西不太可能经常变，所以也可以适当的优化下面的源码，使其在服务初始化的时候加载一次，这样就不用每次都拉huskar config了（这也是为什么我把降级操作从config里面拆出来的一个原因）</p>
+
+<p>另外一个比较方便的地方在于服务降级，肯定也是要可配置的，由于饿了么huskar switch比较适合做开关，所以我并没有把降级开关也配置在huskar config的json里面，而是单独拎出来到switch里面了，配置如图。0 为降级，100 为不降级</p>
+
+<p><img src="/files/images/retry-4.png" alt="t3" /></p>
+
+<p>具体的读取配置逻辑是这样的： 在huskar中配置了的优先读取huskar配置，没有配置的读代码Override，如果连Override都没有，那就走默认值啦。不过强烈建议走huskar，不要Hard Code。</p>
+
+<ul>
+  <li>1 写好run()</li>
+  <li>2 写好key() 注意不要在string里面写<code class="language-plaintext highlighter-rouge">$</code>符号，写了的话也会自动将<code class="language-plaintext highlighter-rouge">$</code>转换为<code class="language-plaintext highlighter-rouge">#</code>，避免和饿了么Soa框架pylon的接口降级冲突</li>
+  <li>3 写好fallback()</li>
+</ul>
+
+<p>做好上面三步之后，便可以很愉快的在客户端把服务端的接口做重试 or  降级（这是客户端降掉服务端，pylon可不支持哦～，也可能是我代码没找到）。</p>
+
+<blockquote>
+  <p>⚠️ 一定要注意，业务里面有些接口是不能降级的，要评估好！</p>
+</blockquote>
+
+<p>下面给个线上的代码Demo</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ReduceDeliveryFeeRespDto</span><span class="o">&gt;</span> <span class="nf">getShopProductPromotionWithUserInfoCanDowngrade</span><span class="o">(</span><span class="nc">DeliveryFeeCalculateResultDTO</span> <span class="n">calculateResult</span><span class="o">,</span> <span class="nc">ShopDTO</span> <span class="n">shopDTO</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ReduceDeliveryFeeRespDto</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+
+    <span class="nc">CartInfoReqDto</span> <span class="n">cartInfoReqDto</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">CartInfoReqDto</span><span class="o">();</span>
+    <span class="n">cartInfoReqDto</span><span class="o">.</span><span class="na">setRestaurant_id</span><span class="o">(</span><span class="n">calculateResult</span><span class="o">.</span><span class="na">getShopId</span><span class="o">());</span>
+    <span class="n">cartInfoReqDto</span><span class="o">.</span><span class="na">setStandardId</span><span class="o">(</span><span class="n">calculateResult</span><span class="o">.</span><span class="na">getProductId</span><span class="o">());</span>
+
+    <span class="nc">ReduceDeliveryFeeRespDto</span> <span class="n">reduceDeliveryFeeRespDto</span> <span class="o">=</span> <span class="n">calculateReduceDeliveryFee</span><span class="o">(</span><span class="n">cartInfoReqDto</span><span class="o">);</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">reduceDeliveryFeeRespDto</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">reduceDeliveryFeeRespDto</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+
+
+<span class="kd">private</span> <span class="nc">ReduceDeliveryFeeRespDto</span> <span class="nf">calculateReduceDeliveryFee</span><span class="o">(</span><span class="nc">CartInfoReqDto</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">request</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nc">ReduceDeliveryFeeRespDto</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">CallServiceWrapper</span><span class="o">.</span><span class="na">callAndFallBack</span><span class="o">(</span>
+        <span class="k">new</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="nc">ReduceDeliveryFeeRespDto</span><span class="o">&gt;()</span> <span class="o">{</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="nc">ReduceDeliveryFeeRespDto</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">marketingActivityPromotionService</span><span class="o">.</span><span class="na">calculateReduceDeliveryFee</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">()</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="s">"MarketingActivityPromotionService#calculateReduceDeliveryFee"</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="nc">ReduceDeliveryFeeRespDto</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">serviceExceptionHook</span><span class="o">(</span><span class="n">me</span><span class="o">.</span><span class="na">ele</span><span class="o">.</span><span class="na">contract</span><span class="o">.</span><span class="na">exception</span><span class="o">.</span><span class="na">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                    <span class="s">"MarketingActivityPromotionService.calculateReduceDeliveryFee ServiceException, request:%s"</span><span class="o">,</span>
+                    <span class="nc">VJson</span><span class="o">.</span><span class="na">writeAsString</span><span class="o">(</span><span class="n">request</span><span class="o">)),</span> <span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exceptionHook</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                    <span class="s">"MarketingActivityPromotionService.calculateReduceDeliveryFee Exception, request:%s"</span><span class="o">,</span>
+                    <span class="nc">VJson</span><span class="o">.</span><span class="na">writeAsString</span><span class="o">(</span><span class="n">request</span><span class="o">)),</span> <span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">downgradeCompleteHook</span><span class="o">(</span><span class="nc">ReduceDeliveryFeeRespDto</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                <span class="nc">Trace</span><span class="o">.</span><span class="na">newCounter</span><span class="o">(</span><span class="s">"calculate-downgrade"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addTag</span><span class="o">(</span><span class="s">"source"</span><span class="o">,</span> <span class="s">"marketing"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addTag</span><span class="o">(</span><span class="s">"method"</span><span class="o">,</span> <span class="s">"calculate-reduce-delivery-fee"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">once</span><span class="o">();</span>
+            <span class="o">}</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">silenceMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">nowCount</span><span class="o">)</span> <span class="o">{</span>
+                <span class="nc">Trace</span><span class="o">.</span><span class="na">newCounter</span><span class="o">(</span><span class="s">"call-silence"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addTag</span><span class="o">(</span><span class="s">"class"</span><span class="o">,</span> <span class="s">"MarketingActivityPromotionService"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addTag</span><span class="o">(</span><span class="s">"method"</span><span class="o">,</span> <span class="s">"calculateReduceDeliveryFee"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addTag</span><span class="o">(</span><span class="s">"count"</span><span class="o">,</span> <span class="n">nowCount</span> <span class="o">+</span> <span class="s">""</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">once</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">});</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="heading-call">call</h3>
+
+<p><strong>不做FallBack的调用</strong></p>
+
+<p>这个与callAndFallBack的区别就是当发生降级操作 or 重试达到调用上限后不会调用fallback函数，直接抛Exception出来。</p>
+
+<ul>
+  <li>降级后的Exception就是 <code class="language-plaintext highlighter-rouge">new Exception(String.format("%s已经降级", key()))</code></li>
+  <li>重试无效后的Exception就是最后失败时run方法抛出来的Exception</li>
+</ul>
+
+<p>使用代码基本没有变</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCall</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Restaurant</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">CallServiceWrapper</span><span class="o">.</span><span class="na">call</span><span class="o">(</span> <span class="c1">//就这里不一样</span>
+                <span class="k">new</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="nc">Restaurant</span><span class="o">&gt;()</span> <span class="o">{</span>
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"ers.get"</span> <span class="o">+</span> <span class="mi">969343L</span><span class="o">);</span>
+                        <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="s">"fuck Exception"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="s">"ElemeRestaurantService#get"</span><span class="o">;</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="k">new</span> <span class="nf">Restaurant</span><span class="o">();</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxCount</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"最大调用次数:"</span> <span class="o">+</span> <span class="n">maxCount</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">silenceMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">nowCount</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"当前调用次数:"</span> <span class="o">+</span> <span class="n">nowCount</span> <span class="o">+</span> <span class="s">", 已经不能忍受"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">downgradeCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"降级完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exceptionHook</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Exception 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">serviceExceptionHook</span><span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"ServiceException 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"调用完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                    <span class="o">}</span>
+                <span class="o">});</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-callnotcoverserviceexception">callNotCoverServiceException</h3>
+
+<p>顾名思义，不去重试ServiceException，如果出新ServiceException，直接中断重试，抛出异常。 其他Exception会继续retry，直到达到retry最大值，将最后一次触发得到的异常抛出来。   <br />
+如果接口被降级，则抛一个<code class="language-plaintext highlighter-rouge">new ServiceException(String.format("%s已经降级", serviceInterfaceContext.key()));</code>， <strong>不会走到fallback里面</strong></p>
+
+<p>使用姿势：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCallNotCoverServiceException</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Restaurant</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">CallServiceWrapper</span><span class="o">.</span><span class="na">callNotCoverServiceException</span><span class="o">(</span>
+                <span class="k">new</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="nc">Restaurant</span><span class="o">&gt;()</span> <span class="o">{</span>
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"ers.get"</span> <span class="o">+</span> <span class="mi">969343L</span><span class="o">);</span>
+                        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ServiceException</span><span class="o">(</span><span class="s">"fuck Service Exception"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="s">"ElemeRestaurantService#get"</span><span class="o">;</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="k">new</span> <span class="nf">Restaurant</span><span class="o">();</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxCount</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"最大调用次数:"</span> <span class="o">+</span> <span class="n">maxCount</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">silenceMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">nowCount</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"当前调用次数:"</span> <span class="o">+</span> <span class="n">nowCount</span> <span class="o">+</span> <span class="s">", 已经不能忍受"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">downgradeCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"降级完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exceptionHook</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Exception 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">serviceExceptionHook</span><span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"ServiceException 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"调用完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                    <span class="o">}</span>
+                <span class="o">});</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-callnotcoverserviceexceptionandfallback">callNotCoverServiceExceptionAndFallBack</h3>
+
+<p>这个就是 不去覆盖ServiceException，但是当出现 其他Exception的时候会做重试，直到重试到最大值后 调用fallback。</p>
+
+<p>当触发接口降级的时候也是调用fallback，并不抛异常</p>
+
+<p>使用姿势：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCallNotCoverServiceExceptionAndFallBack</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Restaurant</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">CallServiceWrapper</span><span class="o">.</span><span class="na">callNotCoverServiceExceptionAndFallBack</span><span class="o">(</span>
+                <span class="k">new</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="nc">Restaurant</span><span class="o">&gt;()</span> <span class="o">{</span>
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"ers.get"</span> <span class="o">+</span> <span class="mi">969343L</span><span class="o">);</span>
+                        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ServiceException</span><span class="o">(</span><span class="s">"fuck Service Exception"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="s">"ElemeRestaurantService#get"</span><span class="o">;</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="nc">Restaurant</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="k">return</span> <span class="k">new</span> <span class="nf">Restaurant</span><span class="o">();</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxCount</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"最大调用次数:"</span> <span class="o">+</span> <span class="n">maxCount</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">silenceMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">nowCount</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"当前调用次数:"</span> <span class="o">+</span> <span class="n">nowCount</span> <span class="o">+</span> <span class="s">", 已经不能忍受"</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">downgradeCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"降级完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exceptionHook</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Exception 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">serviceExceptionHook</span><span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"ServiceException 钩子"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+
+                    <span class="nd">@Override</span>
+                    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callCompleteHook</span><span class="o">(</span><span class="nc">Restaurant</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"调用完成钩子:"</span> <span class="o">+</span> <span class="n">result</span><span class="o">);</span>
+                    <span class="o">}</span>
+                <span class="o">});</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="heading-源码">源码</h2>
+
+<p>源码很简单，各位将代码贴到自己项目里面，可以定制化的修改开发：</p>
+
+<h3 id="heading-callserviceinterfacecontext">CallServiceInterfaceContext</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">me.ele.config.HuskarHandle</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">me.ele.contract.exception.ServiceException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">me.ele.napos.vine.common.json.VJson</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.validation.constraints.NotNull</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="cm">/**
+     * 真正的接口调用，比如实现
+     */</span>
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="no">T</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span><span class="o">;</span>
+
+    <span class="cm">/**
+     * huskar key，为null的话会默认不使用
+     */</span>
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="nc">String</span> <span class="nf">key</span><span class="o">();</span>
+
+    <span class="cm">/**
+     * 降级处理
+     */</span>
+    <span class="kd">public</span> <span class="no">T</span> <span class="nf">fallBack</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 接口调用次数最大值
+     * &lt;p&gt;
+     * return 1: 只允许接口调用一次，就算是这次失败了也不回继续调用
+     * return n (n&gt;1): 允许接口调用n次，如果第1次失败了，还可以重试n-1次
+     */</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">callMaxCount</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 可容忍最大调用次数
+     * &lt;p&gt;
+     * return 1: 当调用服务接口次数超过1, 则超过1的调用触发silenceMaxHook
+     * return n: 当调用服务接口次数超过n, 则超过n的调用触发silenceMaxHook
+     * &lt;p&gt;
+     * 注意当silenceMaxCount&gt;=callMaxCount的时候, 将永远不会触发silenceMaxHook
+     */</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">silenceMaxCount</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 当调用次数 &gt; 可容忍值后是否总是触发 silenceMaxHook
+     * &lt;p&gt;
+     * return false: 超过的部分只会触发一次silenceMaxHook
+     * return true: 超过的部分总是触发silenceMaxHook
+     */</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">alwaysMiddleHook</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+
+
+    <span class="cm">/**
+     * 重试达到最大值后call back
+     * @param maxCount 调用最大值
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxCount</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 超过可容忍最大调用次数 call back
+     * @param nowCount 调用当前次数
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">silenceMaxHook</span><span class="o">(</span><span class="kt">int</span> <span class="n">nowCount</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 降级完成
+     * @param result 如果调用fallBack，则会将fallBack返回值当作result参数
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">downgradeCompleteHook</span><span class="o">(</span><span class="no">T</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 服务异常钩子
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">serviceExceptionHook</span><span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 异常钩子
+     * @param e 异常信息
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exceptionHook</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 服务调用完成钩子
+     * @param result 服务调用结果
+     */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">callCompleteHook</span><span class="o">(</span><span class="no">T</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 获取huskar key
+     */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="nc">String</span> <span class="nf">huskarKey</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// 将所有的$转换成#，避免跟pylon降级冲突</span>
+        <span class="k">return</span> <span class="nf">key</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="s">""</span> <span class="o">:</span> <span class="n">key</span><span class="o">().</span><span class="na">replaceAll</span><span class="o">(</span><span class="s">"\\$"</span><span class="o">,</span> <span class="s">"#"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 降级
+     * &lt;p&gt;
+     * return true: 开启降级
+     * return false: 关闭降级
+     */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">downgrade</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// huskar switch 中 huskarkey的值 &lt; 50, 则降级掉</span>
+        <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="nc">HuskarHandle</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">getMySwitch</span><span class="o">().</span><span class="na">getInt</span><span class="o">(</span><span class="n">huskarKey</span><span class="o">(),</span> <span class="mi">100</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 调用服务配置
+     * 1. 可以根据 huskarKey 配置在huskar config上
+     * 2. 如果huskar中读取不到或者读取错误, 则使用 Override callMaxCount,silenceMaxCount,alwaysMiddleHook
+     */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="nc">CallServiceInterfaceConfig</span> <span class="nf">config</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">huskarValue</span> <span class="o">=</span> <span class="s">""</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">huskarKey</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">huskarKey</span><span class="o">().</span><span class="na">trim</span><span class="o">().</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">huskarValue</span> <span class="o">=</span> <span class="s">""</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">huskarValue</span> <span class="o">=</span> <span class="nc">HuskarHandle</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">getMyConfig</span><span class="o">().</span><span class="na">getProperty</span><span class="o">(</span><span class="n">huskarKey</span><span class="o">(),</span> <span class="s">""</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="nc">CallServiceInterfaceConfig</span> <span class="n">callServiceInterfaceConfig</span> <span class="o">=</span> <span class="nc">CallServiceInterfaceConfig</span><span class="o">.</span><span class="na">getInstanceByJsonString</span><span class="o">(</span><span class="n">huskarValue</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">callServiceInterfaceConfig</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">callServiceInterfaceConfig</span> <span class="o">=</span> <span class="nc">CallServiceInterfaceConfig</span><span class="o">.</span><span class="na">getInstanceByValue</span><span class="o">(</span><span class="n">callMaxCount</span><span class="o">(),</span> <span class="n">silenceMaxCount</span><span class="o">(),</span> <span class="n">alwaysMiddleHook</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">callServiceInterfaceConfig</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">CallServiceInterfaceConfig</span><span class="o">{</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">callMaxCount</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">silenceMaxCount</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">alwaysMiddleHook</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+
+        <span class="kd">private</span> <span class="kt">void</span> <span class="nf">setCallMaxCount</span><span class="o">(</span><span class="kt">int</span> <span class="n">callMaxCount</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">callMaxCount</span> <span class="o">=</span> <span class="n">callMaxCount</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">private</span> <span class="kt">void</span> <span class="nf">setSilenceMaxCount</span><span class="o">(</span><span class="kt">int</span> <span class="n">silenceMaxCount</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">silenceMaxCount</span> <span class="o">=</span> <span class="n">silenceMaxCount</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">private</span> <span class="kt">void</span> <span class="nf">setAlwaysMiddleHook</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">alwaysMiddleHook</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">alwaysMiddleHook</span> <span class="o">=</span> <span class="n">alwaysMiddleHook</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">protected</span> <span class="kt">int</span> <span class="nf">getCallMaxCount</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">callMaxCount</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">protected</span> <span class="kt">int</span> <span class="nf">getSilenceMaxCount</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">silenceMaxCount</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">isAlwaysMiddleHook</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">alwaysMiddleHook</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">private</span> <span class="kd">static</span> <span class="nc">CallServiceInterfaceConfig</span> <span class="nf">getInstanceByJsonString</span><span class="o">(</span><span class="nc">String</span> <span class="n">jsonString</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">jsonString</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">jsonString</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="k">return</span> <span class="nc">VJson</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">jsonString</span><span class="o">,</span> <span class="nc">CallServiceInterfaceConfig</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="kd">private</span> <span class="kd">static</span> <span class="nc">CallServiceInterfaceConfig</span> <span class="nf">getInstanceByValue</span><span class="o">(</span><span class="kt">int</span> <span class="n">callMaxCount</span><span class="o">,</span> <span class="kt">int</span> <span class="n">silenceMaxCount</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">alwaysMiddleHook</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">CallServiceInterfaceConfig</span> <span class="n">callServiceInterfaceConfig</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">CallServiceInterfaceConfig</span><span class="o">();</span>
+            <span class="n">callServiceInterfaceConfig</span><span class="o">.</span><span class="na">setCallMaxCount</span><span class="o">(</span><span class="n">callMaxCount</span><span class="o">);</span>
+            <span class="n">callServiceInterfaceConfig</span><span class="o">.</span><span class="na">setSilenceMaxCount</span><span class="o">(</span><span class="n">silenceMaxCount</span><span class="o">);</span>
+            <span class="n">callServiceInterfaceConfig</span><span class="o">.</span><span class="na">setAlwaysMiddleHook</span><span class="o">(</span><span class="n">alwaysMiddleHook</span><span class="o">);</span>
+
+            <span class="k">return</span> <span class="n">callServiceInterfaceConfig</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h3 id="heading-callservicewrapper">CallServiceWrapper</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">me.ele.contract.exception.ServiceException</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">CallServiceWrapper</span> <span class="o">{</span>
+    <span class="cm">/**
+     * 0 降级开关关闭，服务正常响应，正常返回
+     * 1 降级开关关闭，服务异常，走重试逻辑，重试达到最大值走fallback&amp;hook
+     * 2 降级开关打开，走fallback&amp;hook
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">callAndFallBack</span><span class="o">(</span><span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">serviceInterfaceContext</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgrade</span><span class="o">())</span> <span class="o">{</span>
+
+            <span class="c1">// 接口被降级，则直接callBack，并且触发downgradeCompleteHook</span>
+            <span class="no">T</span> <span class="n">callBackResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">fallBack</span><span class="o">();</span>
+            <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgradeCompleteHook</span><span class="o">(</span><span class="n">callBackResult</span><span class="o">);</span>
+
+            <span class="k">return</span> <span class="n">callBackResult</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">boolean</span> <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="nc">CallServiceInterfaceContext</span><span class="o">.</span><span class="na">CallServiceInterfaceConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">config</span><span class="o">();</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="na">getCallMaxCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="no">T</span> <span class="n">callResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callCompleteHook</span><span class="o">(</span><span class="n">callResult</span><span class="o">);</span>
+
+                <span class="k">return</span> <span class="n">callResult</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">serviceExceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">exceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="c1">// 当调用次数超过可容忍次数后时候触发silenceMaxHook</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="na">getSilenceMaxCount</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">middleHook</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">silenceMaxHook</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                <span class="c1">// 没有打开alwaysMiddleHook的话 只触发一次middleHook</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">config</span><span class="o">.</span><span class="na">isAlwaysMiddleHook</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="c1">// 重试次数达到 retryMaxCount 则触发retryMaxHook</span>
+        <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxHook</span><span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxCount</span><span class="o">());</span>
+
+        <span class="c1">// 重试最大 调用fallBack</span>
+        <span class="no">T</span> <span class="n">callBackResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">fallBack</span><span class="o">();</span>
+        <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgradeCompleteHook</span><span class="o">(</span><span class="n">callBackResult</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">callBackResult</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 0 降级开关关闭，服务正常响应，正常返回
+     * 1 降级开关关闭，服务异常走重试逻辑，重试满只会抛最后一次重试的异常
+     * 2 降级开关打开，抛接口已降级异常
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">call</span><span class="o">(</span><span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">serviceInterfaceContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgrade</span><span class="o">())</span> <span class="o">{</span>
+
+            <span class="c1">// 接口被降级，直接抛Exception</span>
+            <span class="c1">// 这里downgradeCompleteHook传入null， 因为没有结果也没有什么可以传入的</span>
+            <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgradeCompleteHook</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"%s已经降级"</span><span class="o">,</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">huskarKey</span><span class="o">()));</span>
+        <span class="o">}</span>
+
+        <span class="kt">boolean</span> <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="nc">Exception</span> <span class="n">exception</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="nc">CallServiceInterfaceContext</span><span class="o">.</span><span class="na">CallServiceInterfaceConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">config</span><span class="o">();</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="na">getCallMaxCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="no">T</span> <span class="n">callResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callCompleteHook</span><span class="o">(</span><span class="n">callResult</span><span class="o">);</span>
+
+                <span class="k">return</span> <span class="n">callResult</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">serviceExceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="n">exception</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">exceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="n">exception</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="c1">// 当调用次数超过可容忍次数后时候触发silenceMaxHook</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="na">getSilenceMaxCount</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">middleHook</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">silenceMaxHook</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                <span class="c1">// 没有打开alwaysMiddleHook的话 只触发一次middleHook</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">config</span><span class="o">.</span><span class="na">isAlwaysMiddleHook</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="c1">// 重试次数达到 retryMaxCount 则触发retryMaxHook</span>
+        <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxHook</span><span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">getCallMaxCount</span><span class="o">());</span>
+
+        <span class="c1">// 抛出最有一次异常信息</span>
+        <span class="k">throw</span> <span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="k">new</span> <span class="nc">Exception</span><span class="o">(</span><span class="s">"无异常信息"</span><span class="o">)</span> <span class="o">:</span> <span class="n">exception</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 0 降级开关关闭，服务正常响应，正常返回
+     * 1 降级开关关闭，ServiceException 直接抛，Exception走重试，重试满了抛Exception
+     * 2 降级开关打开，抛接口已经降级的ServiceException
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">callNotCoverServiceException</span><span class="o">(</span><span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">serviceInterfaceContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgrade</span><span class="o">())</span> <span class="o">{</span>
+
+            <span class="c1">// 接口被降级，直接抛Exception</span>
+            <span class="c1">// 这里downgradeCompleteHook传入null， 因为没有结果也没有什么可以传入的</span>
+            <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgradeCompleteHook</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">ServiceException</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"%s已经降级"</span><span class="o">,</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">huskarKey</span><span class="o">()));</span>
+        <span class="o">}</span>
+
+        <span class="kt">boolean</span> <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="nc">Exception</span> <span class="n">exception</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="nc">CallServiceInterfaceContext</span><span class="o">.</span><span class="na">CallServiceInterfaceConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">config</span><span class="o">();</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="na">getCallMaxCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="no">T</span> <span class="n">callResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callCompleteHook</span><span class="o">(</span><span class="n">callResult</span><span class="o">);</span>
+
+                <span class="k">return</span> <span class="n">callResult</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">serviceExceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">exceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="n">exception</span> <span class="o">=</span> <span class="n">e</span><span class="o">;</span>
+            <span class="o">}</span>
+
+            <span class="c1">// 当调用次数超过可容忍次数后时候触发silenceMaxHook</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="na">getSilenceMaxCount</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">middleHook</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">silenceMaxHook</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                <span class="c1">// 没有打开alwaysMiddleHook的话 只触发一次middleHook</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">config</span><span class="o">.</span><span class="na">isAlwaysMiddleHook</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="c1">// 重试次数达到 retryMaxCount 则触发retryMaxHook</span>
+        <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxHook</span><span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxCount</span><span class="o">());</span>
+
+        <span class="c1">// 抛出最后一次异常信息</span>
+        <span class="k">throw</span> <span class="n">exception</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="k">new</span> <span class="nc">ServiceException</span><span class="o">(</span><span class="s">"无异常信息"</span><span class="o">)</span> <span class="o">:</span> <span class="n">exception</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**
+     * 0 降级开关关闭，服务正常响应，正常返回
+     * 1 降级开关关闭，ServiceException 直接抛，Exception走重试，重试满了走 ballback&amp;hook
+     * 2 降级开关打开，直接走 fallback&amp;hook
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">callNotCoverServiceExceptionAndFallBack</span><span class="o">(</span><span class="nc">CallServiceInterfaceContext</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">serviceInterfaceContext</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgrade</span><span class="o">())</span> <span class="o">{</span>
+
+            <span class="c1">// 接口被降级，则直接callBack，并且触发downgradeCompleteHook</span>
+            <span class="no">T</span> <span class="n">callBackResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">fallBack</span><span class="o">();</span>
+            <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgradeCompleteHook</span><span class="o">(</span><span class="n">callBackResult</span><span class="o">);</span>
+
+            <span class="k">return</span> <span class="n">callBackResult</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">boolean</span> <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="nc">CallServiceInterfaceContext</span><span class="o">.</span><span class="na">CallServiceInterfaceConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">config</span><span class="o">();</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">config</span><span class="o">.</span><span class="na">getCallMaxCount</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="no">T</span> <span class="n">callResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callCompleteHook</span><span class="o">(</span><span class="n">callResult</span><span class="o">);</span>
+
+                <span class="k">return</span> <span class="n">callResult</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ServiceException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">serviceExceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">exceptionHook</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="c1">// 当调用次数超过可容忍次数后时候触发silenceMaxHook</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="na">getSilenceMaxCount</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">middleHook</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">silenceMaxHook</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                <span class="c1">// 没有打开alwaysMiddleHook的话 只触发一次middleHook</span>
+                <span class="k">if</span> <span class="o">(!</span><span class="n">config</span><span class="o">.</span><span class="na">isAlwaysMiddleHook</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="n">middleHook</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="c1">// 重试次数达到 retryMaxCount 则触发retryMaxHook</span>
+        <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxHook</span><span class="o">(</span><span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">callMaxCount</span><span class="o">());</span>
+
+        <span class="c1">// 重试最大 调用fallBack</span>
+        <span class="no">T</span> <span class="n">callBackResult</span> <span class="o">=</span> <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">fallBack</span><span class="o">();</span>
+        <span class="n">serviceInterfaceContext</span><span class="o">.</span><span class="na">downgradeCompleteHook</span><span class="o">(</span><span class="n">callBackResult</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">callBackResult</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+:ET

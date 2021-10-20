@@ -1,0 +1,134 @@
+I"�2<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-35-search-insert-position" id="markdown-toc-heading-35-search-insert-position">35 Search Insert Position</a></li>
+  <li><a href="#heading-38-count-and-say" id="markdown-toc-heading-38-count-and-say">38 Count and Say</a></li>
+  <li><a href="#heading-53-maximum-subarray" id="markdown-toc-heading-53-maximum-subarray">53 Maximum Subarray</a></li>
+  <li><a href="#heading-58-length-of-last-word" id="markdown-toc-heading-58-length-of-last-word">58 Length of Last Word</a></li>
+</ul>
+
+<h1 id="heading-35-search-insert-position">35 Search Insert Position</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */</span>
+<span class="kd">var</span> <span class="nx">searchInsert</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">nums</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="p">}</span>
+
+    <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">target</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">||</span> <span class="nx">target</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">result</span> <span class="o">=</span> <span class="nx">i</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">result</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">result</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题就非常简单了， 看代码就是了, 看看大神的代码， 只不过是上面的简化版本</p>
+</blockquote>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">searchInsert</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">==</span> <span class="nx">target</span> <span class="o">||</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nx">target</span><span class="p">){</span>
+            <span class="k">return</span> <span class="nx">i</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h1 id="heading-38-count-and-say">38 Count and Say</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {number} n
+ * @return {string}
+ */</span>
+
+<span class="kd">var</span> <span class="nx">say</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">numS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="kd">let</span> <span class="nx">nowNumber</span> <span class="o">=</span> <span class="nx">numS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="kd">let</span> <span class="nx">r</span> <span class="o">=</span> <span class="dl">""</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numS</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+       <span class="k">if</span><span class="p">(</span><span class="nx">nowNumber</span> <span class="o">===</span> <span class="nx">numS</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">r</span> <span class="o">+=</span> <span class="nx">count</span> <span class="o">+</span> <span class="dl">""</span> <span class="o">+</span> <span class="nx">nowNumber</span>
+            <span class="nx">count</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="nx">nowNumber</span> <span class="o">=</span> <span class="nx">numS</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">r</span> <span class="o">+=</span> <span class="nx">count</span> <span class="o">+</span> <span class="dl">""</span> <span class="o">+</span> <span class="nx">nowNumber</span>
+
+    <span class="k">return</span> <span class="nx">r</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">countAndSay</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">n</span> <span class="o">===</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="dl">"</span><span class="s2">1</span><span class="dl">"</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">say</span><span class="p">(</span><span class="nx">countAndSay</span><span class="p">(</span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题难就难在题意上， 我看了几遍也没有看懂， 在网上找的中文讲解:    <br />
+n=1时输出字符串1；n=2时，数上次字符串中的数值个数，因为上次字符串有1个1，所以输出11；n=3时，由于上次字符是11，有2个1，所以输出21；n=4时，由于上次字符串是21，有1个2和1个1，所以输出1211。依次类推，写个countAndSay(n)函数返回字符串。  <br />
+这里题目其实没有表述清楚， 没有说明参数n有多大， 这个关系到需不需要用递归处理</p>
+</blockquote>
+
+<h1 id="heading-53-maximum-subarray">53 Maximum Subarray</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {number[]} nums
+ * @return {number}
+ */</span>
+<span class="kd">var</span> <span class="nx">maxSubArray</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">sum</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="kd">let</span> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">temp</span> <span class="o">+</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">temp</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">temp</span> <span class="o">=</span> <span class="nx">temp</span> <span class="o">+</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">temp</span> <span class="o">&gt;</span> <span class="nx">sum</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">sum</span> <span class="o">=</span> <span class="nx">temp</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">sum</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个得益于我曾经见过这种题， 用两个变量来表示， temp主要是用来做预判的，sum主要是存遍历当前的最大值。</p>
+</blockquote>
+
+<h1 id="heading-58-length-of-last-word">58 Length of Last Word</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">lengthOfLastWord</span><span class="p">(</span><span class="n">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="n">ss</span> <span class="o">:=</span> <span class="n">strings</span><span class="o">.</span><span class="n">Split</span><span class="p">(</span><span class="n">strings</span><span class="o">.</span><span class="n">Trim</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">" "</span><span class="p">),</span> <span class="s">" "</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span><span class="o">-</span><span class="m">1</span><span class="p">])</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>注意'a'和 'a '这种</p>
+</blockquote>
+:ET

@@ -1,0 +1,158 @@
+I"�J<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-常用的压缩解压缩算法" id="markdown-toc-heading-常用的压缩解压缩算法">常用的压缩/解压缩算法</a>    <ul>
+      <li><a href="#heading-lz4" id="markdown-toc-heading-lz4">LZ4</a></li>
+      <li><a href="#heading-gzip" id="markdown-toc-heading-gzip">GZIP</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-常用的压缩解压缩算法">常用的压缩/解压缩算法</h1>
+
+<h2 id="heading-lz4">LZ4</h2>
+
+<pre><code class="language-pom">&lt;dependency&gt;
+    &lt;groupId&gt;org.lz4&lt;/groupId&gt;
+    &lt;artifactId&gt;lz4-java&lt;/artifactId&gt;
+&lt;/dependency&gt;		
+</code></pre>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedisCompressUtil</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">compress</span><span class="o">(</span><span class="nc">String</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">StringUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">data</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">""</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="nc">Base64</span><span class="o">.</span><span class="na">getEncoder</span><span class="o">().</span><span class="na">encodeToString</span><span class="o">(</span><span class="nc">Lz4Util</span><span class="o">.</span><span class="na">compress</span><span class="o">(</span><span class="n">data</span><span class="o">.</span><span class="na">getBytes</span><span class="o">()));</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">decompress</span><span class="o">(</span><span class="nc">String</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">StringUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">data</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">""</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">String</span><span class="o">(</span><span class="nc">Lz4Util</span><span class="o">.</span><span class="na">decompress</span><span class="o">(</span><span class="nc">Base64</span><span class="o">.</span><span class="na">getDecoder</span><span class="o">().</span><span class="na">decode</span><span class="o">(</span><span class="n">data</span><span class="o">)));</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Lz4Util</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kd">static</span> <span class="nc">LZ4Factory</span> <span class="n">factory</span> <span class="o">=</span> <span class="nc">LZ4Factory</span><span class="o">.</span><span class="na">fastestInstance</span><span class="o">();</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kd">static</span> <span class="kt">int</span> <span class="no">BLOCK_SIZE</span> <span class="o">=</span> <span class="mi">2048</span><span class="o">;</span>
+
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">compress</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">LZ4Compressor</span> <span class="n">compressor</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">fastCompressor</span><span class="o">();</span>
+
+        <span class="k">try</span> <span class="o">(</span><span class="nc">ByteArrayOutputStream</span> <span class="n">bos</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayOutputStream</span><span class="o">();</span>
+             <span class="nc">LZ4BlockOutputStream</span> <span class="n">compressedOutput</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LZ4BlockOutputStream</span><span class="o">(</span><span class="n">bos</span><span class="o">,</span> <span class="no">BLOCK_SIZE</span><span class="o">,</span> <span class="n">compressor</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">compressedOutput</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+            <span class="n">compressedOutput</span><span class="o">.</span><span class="na">finish</span><span class="o">();</span>
+            <span class="k">return</span> <span class="n">bos</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">LogUtil</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"compress data error: {}"</span><span class="o">,</span> <span class="nc">StackTraceUtil</span><span class="o">.</span><span class="na">getStackTrace</span><span class="o">(</span><span class="n">e</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">"lz4 compress error"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">decompress</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="nc">LZ4FastDecompressor</span> <span class="n">decompressor</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">fastDecompressor</span><span class="o">();</span>
+
+        <span class="k">try</span> <span class="o">(</span><span class="nc">ByteArrayOutputStream</span> <span class="n">bos</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayOutputStream</span><span class="o">();</span>
+             <span class="nc">ByteArrayInputStream</span> <span class="n">bis</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayInputStream</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+             <span class="nc">LZ4BlockInputStream</span> <span class="n">lzis</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LZ4BlockInputStream</span><span class="o">(</span><span class="n">bis</span><span class="o">,</span> <span class="n">decompressor</span><span class="o">))</span> <span class="o">{</span>
+
+            <span class="kt">int</span> <span class="n">count</span><span class="o">;</span>
+            <span class="kd">final</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="no">BLOCK_SIZE</span><span class="o">];</span>
+
+            <span class="k">while</span> <span class="o">((</span><span class="n">count</span> <span class="o">=</span> <span class="n">lzis</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">))</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">bos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">buffer</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="n">bos</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">LogUtil</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"compress data error: {}"</span><span class="o">,</span> <span class="nc">StackTraceUtil</span><span class="o">.</span><span class="na">getStackTrace</span><span class="o">(</span><span class="n">e</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">"lz4 decompress error"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="heading-gzip">GZIP</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CompressUtil</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="nc">LoggerExchanger</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="nc">CompressUtil</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">encode</span> <span class="o">=</span> <span class="s">"utf-8"</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">setEncode</span><span class="o">(</span><span class="nc">String</span> <span class="n">encode</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">CompressUtil</span><span class="o">.</span><span class="na">encode</span> <span class="o">=</span> <span class="n">encode</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">gzip</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">str</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">ByteArrayOutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayOutputStream</span><span class="o">();</span>
+            <span class="nc">GZIPOutputStream</span> <span class="n">gzipOut</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GZIPOutputStream</span><span class="o">(</span><span class="n">out</span><span class="o">);</span>
+
+            <span class="n">gzipOut</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="n">encode</span><span class="o">));</span>
+
+            <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="n">gzipOut</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+
+            <span class="c1">// gzipOut 在toByteArray之前一定要先close，因为close会flush</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">array</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="nc">Base64</span><span class="o">.</span><span class="na">getEncoder</span><span class="o">().</span><span class="na">encodeToString</span><span class="o">(</span><span class="n">array</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"gzip error %s"</span><span class="o">,</span> <span class="n">str</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">unGzip</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">str</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">bytes</span> <span class="o">=</span> <span class="nc">Base64</span><span class="o">.</span><span class="na">getDecoder</span><span class="o">().</span><span class="na">decode</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+
+            <span class="nc">ByteArrayOutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayOutputStream</span><span class="o">();</span>
+            <span class="nc">ByteArrayInputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteArrayInputStream</span><span class="o">(</span><span class="n">bytes</span><span class="o">);</span>
+
+            <span class="nc">GZIPInputStream</span> <span class="n">gzipIn</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GZIPInputStream</span><span class="o">(</span><span class="n">in</span><span class="o">);</span>
+
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="mi">1024</span><span class="o">];</span>
+            <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="k">while</span> <span class="o">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">gzipIn</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">out</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">buffer</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">n</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+
+            <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="n">in</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="n">gzipIn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">logger</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"un gzip error %s"</span><span class="o">,</span> <span class="n">str</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+:ET

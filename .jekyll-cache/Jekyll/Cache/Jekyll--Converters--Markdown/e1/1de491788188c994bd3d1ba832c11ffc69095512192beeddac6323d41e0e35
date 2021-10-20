@@ -1,0 +1,403 @@
+I"�O<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-阿尔萨斯" id="markdown-toc-heading-阿尔萨斯">阿尔萨斯</a>    <ul>
+      <li><a href="#heading-从圣骑士到巫妖王" id="markdown-toc-heading-从圣骑士到巫妖王">从圣骑士到巫妖王</a></li>
+      <li><a href="#heading-阿里-arthas" id="markdown-toc-heading-阿里-arthas">阿里 Arthas</a></li>
+      <li><a href="#heading-安装" id="markdown-toc-heading-安装">安装</a></li>
+      <li><a href="#heading-命令" id="markdown-toc-heading-命令">命令</a>        <ul>
+          <li><a href="#heading-基本命令" id="markdown-toc-heading-基本命令">基本命令</a></li>
+          <li><a href="#heading-jvm相关命令" id="markdown-toc-heading-jvm相关命令">JVM相关命令</a></li>
+          <li><a href="#heading-classclass-loader-相关命令" id="markdown-toc-heading-classclass-loader-相关命令">class/class loader 相关命令</a></li>
+          <li><a href="#heading-monitorwatchtrace相关" id="markdown-toc-heading-monitorwatchtrace相关">monitor/watch/trace相关</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-ongl" id="markdown-toc-heading-ongl">ONGL</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-阿尔萨斯">阿尔萨斯</h1>
+
+<h2 id="heading-从圣骑士到巫妖王">从圣骑士到巫妖王</h2>
+
+<p><a href="https://zh.wikipedia.org/wiki/%E9%98%BF%E8%96%A9%E6%96%AF%C2%B7%E7%B1%B3%E5%A5%88%E5%B8%8C%E7%88%BE">这里</a>是<code class="language-plaintext highlighter-rouge">阿尔萨斯</code>的故事</p>
+
+<p>冰封王座的主角,  封面上的人物:</p>
+
+<p><img src="/files/images/1561288821405.png" alt="Alt text" /></p>
+
+<h2 id="heading-阿里-arthas">阿里 Arthas</h2>
+
+<p>Alibaba开源的Java诊断工具， 以命令行的方式监控跟踪线上程序运行过程，解决一些棘手的问题。</p>
+
+<p><a href="https://alibaba.github.io/arthas/">这里</a>是<code class="language-plaintext highlighter-rouge">Arthas</code>的官方文档， 本文简单记录一些常用的手段。</p>
+
+<h2 id="heading-安装">安装</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">wget https://alibaba.github.io/arthas/arthas-boot.jar</code>
+    <ul>
+      <li>备用链接 <code class="language-plaintext highlighter-rouge">wget https://arthas.gitee.io/arthas-boot.jar</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">java -jar arthas-boot.jar</code>
+    <ul>
+      <li>备用运行姿势 <code class="language-plaintext highlighter-rouge">java -jar arthas-boot.jar --repo-mirror aliyun --use-http</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="heading-命令">命令</h2>
+
+<h3 id="heading-基本命令">基本命令</h3>
+
+<h4 id="heading-help">help</h4>
+<p>查看帮助
+<img src="/files/images/1561289708375.png" alt="Alt text" /></p>
+
+<h4 id="heading-cls">cls</h4>
+<p>清屏</p>
+<h4 id="heading-session">session</h4>
+<p>当前会话</p>
+<h4 id="heading-reset">reset</h4>
+<p>重置增强类， shutdown的时候也会被reset</p>
+<h4 id="heading-shutdown">shutdown</h4>
+<p>关闭服务端</p>
+<h4 id="heading-quit">quit</h4>
+<p>关闭当前客户端</p>
+<h4 id="heading-history">history</h4>
+<p>历史命令</p>
+<h4 id="heading-version">version</h4>
+<p>版本</p>
+<h4 id="heading-keymap">keymap</h4>
+<p>自定义快捷键</p>
+
+<h3 id="heading-jvm相关命令">JVM相关命令</h3>
+
+<h4 id="heading-dashboard">dashboard</h4>
+
+<p><img src="/files/images/1561289746925.png" alt="Alt text" /></p>
+
+<h4 id="heading-thread">thread</h4>
+
+<p>查看当前线程信息，查看线程的堆栈</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/thread.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>thread 查看所有线程概览</li>
+  <li>thread id 查看id线程的堆栈
+    <ul>
+      <li>thread 1</li>
+    </ul>
+  </li>
+  <li>thread -n value 打印最忙的前value个线程的堆栈
+    <ul>
+      <li>thread -n 3</li>
+    </ul>
+  </li>
+  <li>thread -b 打印阻塞其他线程的那个线程</li>
+  <li>thread -i value 打印统计value ms 后的cpu占比
+    <ul>
+      <li>thread -i 1000</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="heading-jvm">jvm</h4>
+<p>查看jvm的信息</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/jvm.html">doc</a></p>
+</blockquote>
+
+<h4 id="heading-sysprop">sysprop</h4>
+<p>查看和修改当前JVM的系统属性</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/sysprop.html">doc</a></p>
+</blockquote>
+
+<h4 id="heading-sysenv">sysenv</h4>
+<p>查看jvm的环境变量</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/sysenv.html">doc</a></p>
+</blockquote>
+
+<h4 id="heading-getstatic">getstatic</h4>
+<p>查看静态变量</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/getstatic.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>getstatic  class绝对路径  静态变量</li>
+  <li>getstatic  class绝对路径  静态变量  'OGNL表达式'</li>
+</ul>
+
+<p><img src="/files/images/1561290829610.png" alt="Alt text" /></p>
+
+<h4 id="heading-ognl">ognl</h4>
+<p>执行ognl 表达式</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/ognl.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>ognl 'express' [-c classLoadHashCode] [-x value]
+    <ul>
+      <li>-c 执行表达式的 ClassLoader 的 hashcode，默认值是SystemClassLoader</li>
+      <li>-x 结果对象的展开层次，默认值1</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="heading-classclass-loader-相关命令">class/class loader 相关命令</h3>
+
+<h4 id="heading-sc">sc</h4>
+
+<p>查看JVM已加载的类信息</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/sc.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>sc class-partten [method-partten] [-d] [-E] [-f] [-x value]
+    <ul>
+      <li>-d 详细信息</li>
+      <li>-f 当前类的成员变量</li>
+      <li>-E 开启正则（默认通配符）</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="heading-sm">sm</h4>
+<p>查看JVM已加载的方法信息</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/sm.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>sm class-pattern [method-pattern] [-d] [-E]
+    <ul>
+      <li>-d 详细</li>
+      <li>-E 开启正则</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="/files/images/1561291687919.png" alt="Alt text" /></p>
+
+<h4 id="heading-jad">jad</h4>
+<p>反编译已加载的指定类</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/jad.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>jad class-pattern [method-pattern] [-c classLoadHashCode] [-E] [–source-only]</li>
+</ul>
+
+<h4 id="heading-mc">mc</h4>
+<p>内存编译</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/mc.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>mc xxx.java [-d value]
+    <ul>
+      <li>-d 生成class输出到 value</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="heading-redifine">redifine</h4>
+<p>替换已经加载的class文件</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/redefine.html">doc</a></p>
+</blockquote>
+
+<h3 id="heading-monitorwatchtrace相关">monitor/watch/trace相关</h3>
+
+<h4 id="heading-monitor">monitor</h4>
+<p>方法监控</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/monitor.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>monitor class-patterm method-pattern [-c value] [-E]
+    <ul>
+      <li>-c 统计周期为value</li>
+      <li>-E 开启正则表达式</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="heading-watch">watch</h4>
+<p>方法执行数据监控</p>
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/watch.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>watch class-pattern method-pattern 'express' ['condition-express'] [-b] [-e] [-s] [-f] [-E] [-x value] [-n value]
+    <ul>
+      <li>-b 在方法调用之前观察</li>
+      <li>-e 在方法异常之后观察</li>
+      <li>-s 在方法返回之后观察</li>
+      <li>-f 在方法结束之后观察</li>
+      <li>-x 对输出结果的遍历深度</li>
+      <li>-n 输出几次之后自动结束</li>
+    </ul>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">这里要注意方法入参和方法出参的区别，有可能在中间被修改导致前后不一致，除了 -b 事件点 params 代表方法入参外，其余事件都代表方法出参</code></p>
+
+<p>下面是核心变量</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Advice</span> <span class="o">{</span>
+ 
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">ClassLoader</span> <span class="n">loader</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Class</span><span class="o">&lt;?&gt;</span> <span class="n">clazz</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">ArthasMethod</span> <span class="n">method</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Object</span> <span class="n">target</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Object</span><span class="o">[]</span> <span class="n">params</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Object</span> <span class="n">returnObj</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Throwable</span> <span class="n">throwExp</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">isBefore</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">isThrow</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">isReturn</span><span class="o">;</span>
+    
+    <span class="c1">// getter/setter  </span>
+<span class="o">}</span>  
+</code></pre></div></div>
+
+<h4 id="heading-trace">trace</h4>
+<p>方法内部调用路径，并输出方法路径上的每个节点上耗时</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/trace.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>trace class-pattern method-pattern ['condition-express'] [-E] [-n value]</li>
+</ul>
+
+<h4 id="heading-stack">stack</h4>
+<p>输出当前方法被调用的调用路径</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/stack.html">doc</a></p>
+</blockquote>
+
+<ul>
+  <li>stack class-pattern method-pattern ['condition-express'] [-E] [-n value]</li>
+</ul>
+
+<h4 id="heading-tt">tt</h4>
+
+<p>方法执行数据的时空隧道，记录下指定方法每次调用的入参和返回信息，并能对这些不同的时间下调用进行观测</p>
+
+<blockquote>
+  <p><a href="https://alibaba.github.io/arthas/tt.html">doc</a></p>
+</blockquote>
+
+<h2 id="heading-ongl">ONGL</h2>
+
+<p>OGNL 是 Object-Graph Navigation Language 的缩写，从语言角度来说：它是一个功能强大的表达式语言，用来获取和设置 java 对象的属性 , 它旨在提供一个更高抽象度语法来对 java 对象图进行导航</p>
+
+<blockquote>
+  <ul>
+    <li><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-ognl/index.html">doc</a></li>
+    <li><a href="https://commons.apache.org/proper/commons-ognl/language-guide.html">官网</a></li>
+  </ul>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">ongltest</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">ognl.Ognl</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">ognl.OgnlException</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.HashMap</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">OgnlException</span> <span class="o">{</span>
+        <span class="nc">Student</span> <span class="n">student</span> <span class="o">=</span> <span class="nc">TotalFactory</span><span class="o">.</span><span class="na">genStudent1</span><span class="o">();</span>
+
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Object</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"student1"</span><span class="o">,</span> <span class="n">student</span><span class="o">);</span>
+        <span class="cm">/**
+         * &lt;pre&gt;
+         * 1.ognl 缺省的上下文只有root和context
+         * 2.#root 来显示的指定使用root还是使用context
+         *
+         * &lt;/pre&gt;
+         */</span>
+        <span class="c1">// 获取student的name</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#root.name"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+
+        <span class="cm">/**
+         * &lt;pre&gt;
+         *     ognl可以写成链式的
+         * &lt;/pre&gt;
+         */</span>
+        <span class="c1">// 获取student的name的大写</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"name.toUpperCase()"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+
+        <span class="cm">/**
+         * &lt;pre&gt;
+         *     ognl 可以显示的指定使用context or root
+         * &lt;/pre&gt;
+         */</span>
+        <span class="c1">// 设置一个上下文</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#context.student1.name"</span><span class="o">,</span> <span class="n">map</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#root.name"</span><span class="o">,</span> <span class="n">map</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+
+        <span class="cm">/**
+         * &lt;pre&gt;
+         *     context如果被添加之后， context里面的map都会变成跟root一个级别
+         * &lt;/pre&gt;
+         */</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#student1.name"</span><span class="o">,</span> <span class="n">map</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+
+        <span class="cm">/**
+         * &lt;pre&gt;
+         * 常量
+         * 属性的引用 例如：user.name
+         * 变量的引用 例如：#name
+         * 静态变量的访问 使用 @class@field
+         * 静态方法的调用 使用 @class@method(args), 如果没有指定 class 那么默认就使用 java.lang.Math.
+         * 构造函数的调用 例如：new java.util.ArrayList();
+         * &lt;/pre&gt;
+         */</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"@ongltest.Student@CODE"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"@java.lang.Math@abs(-1)"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+
+        <span class="cm">/**
+         * &lt;pre&gt;
+         *  ognl可以set值
+         * &lt;/pre&gt;
+         */</span>
+        <span class="nc">Ognl</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="n">student</span><span class="o">,</span> <span class="s">"gc2"</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+
+        <span class="cm">/**
+         * &lt;pre&gt;
+         *     ognl 还可以使用表达式判断
+         * &lt;/pre&gt;
+         */</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#root.phone.{? #this.equals('12345')}"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#root.phone.{? #this.equals('12345')}[0]"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Ognl</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="s">"#root.{ #this.phone.size &gt; 1 ? #this.phone[1] : #this.phone[0] }"</span><span class="o">,</span> <span class="n">student</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+:ET

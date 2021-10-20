@@ -1,0 +1,459 @@
+I"��<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-94-二叉树的中序遍历" id="markdown-toc-heading-94-二叉树的中序遍历">94 二叉树的中序遍历</a></li>
+  <li><a href="#heading-95-不同的二叉搜索树ii" id="markdown-toc-heading-95-不同的二叉搜索树ii">95 不同的二叉搜索树II</a></li>
+  <li><a href="#heading-96-不同的二叉搜索树" id="markdown-toc-heading-96-不同的二叉搜索树">96 不同的二叉搜索树</a></li>
+  <li><a href="#heading-98-验证二叉搜索树" id="markdown-toc-heading-98-验证二叉搜索树">98 验证二叉搜索树</a></li>
+  <li><a href="#heading-100-相同的树" id="markdown-toc-heading-100-相同的树">100 相同的树</a></li>
+  <li><a href="#heading-99-恢复二叉树" id="markdown-toc-heading-99-恢复二叉树">99 恢复二叉树</a></li>
+  <li><a href="#heading-101-对称二叉树" id="markdown-toc-heading-101-对称二叉树">101 对称二叉树</a></li>
+  <li><a href="#heading-102-二叉树的层次遍历" id="markdown-toc-heading-102-二叉树的层次遍历">102. 二叉树的层次遍历</a></li>
+  <li><a href="#heading-103-二叉树的矩形遍历" id="markdown-toc-heading-103-二叉树的矩形遍历">103 二叉树的矩形遍历</a></li>
+  <li><a href="#heading-104-二叉树的最大深度" id="markdown-toc-heading-104-二叉树的最大深度">104 二叉树的最大深度</a></li>
+  <li><a href="#heading-110-平衡二叉树" id="markdown-toc-heading-110-平衡二叉树">110 平衡二叉树</a></li>
+</ul>
+
+<h1 id="heading-94-二叉树的中序遍历">94 二叉树的中序遍历</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="n">TreeNode</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">Val</span>   <span class="kt">int</span>
+	<span class="n">Left</span>  <span class="o">*</span><span class="n">TreeNode</span>
+	<span class="n">Right</span> <span class="o">*</span><span class="n">TreeNode</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">[]</span><span class="kt">int</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">result</span>
+	<span class="p">}</span>
+
+	<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-95-不同的二叉搜索树ii">95 不同的二叉搜索树II</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">generateTreesMore</span><span class="p">(</span><span class="n">points</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">[]</span><span class="o">*</span><span class="n">TreeNode</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">TreeNode</span><span class="p">{</span><span class="n">points</span><span class="p">[</span><span class="m">0</span><span class="p">],</span> <span class="no">nil</span><span class="p">,</span> <span class="no">nil</span><span class="p">})</span>
+		<span class="k">return</span> <span class="n">result</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">result</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">points</span> <span class="p">{</span>
+		<span class="n">leftTrees</span> <span class="o">:=</span> <span class="n">generateTreesMore</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">:</span><span class="n">i</span><span class="p">])</span>
+		<span class="n">rightTrees</span> <span class="o">:=</span> <span class="n">generateTreesMore</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="m">1</span><span class="o">:</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">leftTrees</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">rightTrees</span> <span class="p">{</span>
+				<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">TreeNode</span><span class="p">{</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="no">nil</span><span class="p">,</span> <span class="n">v</span><span class="p">})</span>
+			<span class="p">}</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rightTrees</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">leftTrees</span> <span class="p">{</span>
+				<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">TreeNode</span><span class="p">{</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">v</span><span class="p">,</span> <span class="no">nil</span><span class="p">})</span>
+			<span class="p">}</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">l</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">leftTrees</span> <span class="p">{</span>
+				<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">rightTrees</span> <span class="p">{</span>
+					<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">TreeNode</span><span class="p">{</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">})</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">generateTrees</span><span class="p">(</span><span class="n">n</span> <span class="kt">int</span><span class="p">)</span> <span class="p">[]</span><span class="o">*</span><span class="n">TreeNode</span> <span class="p">{</span>
+	<span class="n">points</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">points</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">generateTreesMore</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<blockquote>
+  <p>自己A的，牛逼的不得了</p>
+</blockquote>
+
+<h1 id="heading-96-不同的二叉搜索树">96 不同的二叉搜索树</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">generateTreesMoreNum</span><span class="p">(</span><span class="n">points</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">1</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">0</span>
+	<span class="p">}</span>
+
+	<span class="n">result</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">points</span> <span class="p">{</span>
+		<span class="n">leftResult</span> <span class="o">:=</span> <span class="n">generateTreesMoreNum</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">:</span><span class="n">i</span><span class="p">])</span>
+		<span class="n">rightResult</span> <span class="o">:=</span> <span class="n">generateTreesMoreNum</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="m">1</span><span class="o">:</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="n">leftResult</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">result</span> <span class="o">+=</span> <span class="n">rightResult</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">rightResult</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">result</span> <span class="o">+=</span> <span class="n">leftResult</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">result</span> <span class="o">+=</span> <span class="n">leftResult</span> <span class="o">*</span> <span class="n">rightResult</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">numTrees</span><span class="p">(</span><span class="n">n</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="n">points</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">points</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">generateTreesMoreNum</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-98-验证二叉搜索树">98 验证二叉搜索树</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="k">func</span> <span class="n">midShow</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">[]</span><span class="kt">int</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">midShow</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">midShow</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">isValidBST</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="n">l</span> <span class="o">:=</span> <span class="n">midShow</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">true</span>
+	<span class="p">}</span>
+
+	<span class="n">min</span> <span class="o">:=</span> <span class="n">l</span><span class="p">[</span><span class="m">0</span><span class="p">]</span>
+	<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">l</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="p">]</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="n">min</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="no">false</span>
+		<span class="p">}</span>
+		<span class="n">min</span> <span class="o">=</span> <span class="n">v</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="no">true</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-100-相同的树">100 相同的树</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">isSameTree</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="n">q</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">q</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">true</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">q</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">q</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">p</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">Val</span> <span class="o">!=</span> <span class="n">p</span><span class="o">.</span><span class="n">Val</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">isSameTree</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">Left</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">isSameTree</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">Right</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-99-恢复二叉树">99 恢复二叉树</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="k">func</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">nodeResult</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="n">intResult</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+		<span class="n">intResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">intResult</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">nodeResult</span><span class="p">,</span> <span class="n">intResult</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">:=</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+		<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">a</span><span class="o">...</span><span class="p">)</span>
+		<span class="n">intResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">intResult</span><span class="p">,</span> <span class="n">b</span><span class="o">...</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+	<span class="n">intResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">intResult</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">:=</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+		<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">a</span><span class="o">...</span><span class="p">)</span>
+		<span class="n">intResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">intResult</span><span class="p">,</span> <span class="n">b</span><span class="o">...</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">nodeResult</span><span class="p">,</span> <span class="n">intResult</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">recoverTree</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">midShowList</span><span class="p">,</span> <span class="n">midIntList</span> <span class="o">:=</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+	<span class="n">sort</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="n">midIntList</span><span class="p">)</span>
+	<span class="n">errorAI</span> <span class="o">:=</span> <span class="o">-</span><span class="m">1</span>
+	<span class="n">errorBI</span> <span class="o">:=</span> <span class="o">-</span><span class="m">1</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">midIntList</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="o">!=</span> <span class="n">midIntList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">errorAI</span> <span class="o">==</span> <span class="o">-</span><span class="m">1</span> <span class="p">{</span>
+				<span class="n">errorAI</span> <span class="o">=</span> <span class="n">i</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="n">errorBI</span> <span class="o">=</span> <span class="n">i</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">midShowList</span><span class="p">[</span><span class="n">errorAI</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span><span class="p">,</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">errorBI</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="o">=</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">errorBI</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span><span class="p">,</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">errorAI</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这里有个空间复杂度是常数的</p>
+</blockquote>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="k">func</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">[]</span><span class="o">*</span><span class="n">TreeNode</span> <span class="p">{</span>
+	<span class="n">nodeResult</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">nodeResult</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">a</span> <span class="o">:=</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+		<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">a</span><span class="o">...</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">a</span> <span class="o">:=</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+		<span class="n">nodeResult</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeResult</span><span class="p">,</span> <span class="n">a</span><span class="o">...</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">nodeResult</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">recoverTree</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">midShowList</span> <span class="o">:=</span> <span class="n">midShowForNode</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+	<span class="k">var</span> <span class="n">errorNode1</span> <span class="o">*</span><span class="n">TreeNode</span> <span class="o">=</span> <span class="no">nil</span>
+	<span class="k">var</span> <span class="n">errorNode2</span> <span class="o">*</span><span class="n">TreeNode</span> <span class="o">=</span> <span class="no">nil</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">midShowList</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="k">continue</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="n">errorNode1</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="m">1</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="o">&gt;</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="p">{</span>
+			<span class="n">errorNode1</span> <span class="o">=</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="m">1</span><span class="p">]</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">errorNode1</span> <span class="o">!=</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="m">1</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="o">&gt;</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="p">{</span>
+			<span class="n">errorNode2</span> <span class="o">=</span> <span class="n">midShowList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">errorNode1</span><span class="o">.</span><span class="n">Val</span><span class="p">,</span> <span class="n">errorNode2</span><span class="o">.</span><span class="n">Val</span> <span class="o">=</span> <span class="n">errorNode2</span><span class="o">.</span><span class="n">Val</span><span class="p">,</span> <span class="n">errorNode1</span><span class="o">.</span><span class="n">Val</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-101-对称二叉树">101 对称二叉树</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">isSymmetric</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">true</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">isImageTree</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">isImageTree</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="n">q</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">q</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">true</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="n">q</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">||</span> <span class="n">p</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">q</span><span class="o">.</span><span class="n">Val</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">Val</span> <span class="o">&amp;&amp;</span> <span class="n">isImageTree</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">Left</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">isImageTree</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">Left</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>这么简单的问题， 递归 左和右一致就行</p>
+</blockquote>
+
+<h1 id="heading-102-二叉树的层次遍历">102. 二叉树的层次遍历</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">levelOrder</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">[][]</span><span class="kt">int</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="n">allNode</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">result</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="c">// 初始化第一个root</span>
+		<span class="n">group</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+		<span class="n">group</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">allNode</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">allNode</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">allNode</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">allNode</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+		<span class="p">}</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="p">;</span> <span class="nb">len</span><span class="p">(</span><span class="n">allNode</span><span class="p">)</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">;</span> <span class="p">{</span>
+		<span class="n">group</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+		<span class="n">allNodeTemp</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">allNode</span> <span class="p">{</span>
+			<span class="n">group</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">Left</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+				<span class="n">allNodeTemp</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">allNodeTemp</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">Right</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+				<span class="n">allNodeTemp</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">allNodeTemp</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+
+		<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+		<span class="n">allNode</span> <span class="o">=</span> <span class="n">allNodeTemp</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-103-二叉树的矩形遍历">103 二叉树的矩形遍历</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">zigzagLevelOrder</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="p">[][]</span><span class="kt">int</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">result</span>
+	<span class="p">}</span>
+
+	<span class="n">stack</span> <span class="o">:=</span> <span class="n">list</span><span class="o">.</span><span class="n">New</span><span class="p">()</span>
+	<span class="n">stack</span><span class="o">.</span><span class="n">PushBack</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+	<span class="n">forwad</span> <span class="o">:=</span> <span class="no">true</span>
+	<span class="k">for</span> <span class="p">;</span> <span class="n">stack</span><span class="o">.</span><span class="n">Len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">;</span> <span class="p">{</span>
+		<span class="n">childs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+		<span class="n">group</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+		<span class="k">for</span> <span class="p">;</span> <span class="n">stack</span><span class="o">.</span><span class="n">Len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">;</span> <span class="p">{</span>
+			<span class="n">back</span> <span class="o">:=</span> <span class="n">stack</span><span class="o">.</span><span class="n">Back</span><span class="p">()</span>
+			<span class="n">stack</span><span class="o">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">back</span><span class="p">)</span>
+			<span class="n">oneNode</span> <span class="o">:=</span> <span class="n">back</span><span class="o">.</span><span class="n">Value</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span>
+			<span class="n">group</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Val</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="n">forwad</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Left</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+					<span class="n">childs</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">childs</span><span class="p">,</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+				<span class="p">}</span>
+				<span class="k">if</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Right</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+					<span class="n">childs</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">childs</span><span class="p">,</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+				<span class="p">}</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Right</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+					<span class="n">childs</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">childs</span><span class="p">,</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+				<span class="p">}</span>
+				<span class="k">if</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Left</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+					<span class="n">childs</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">childs</span><span class="p">,</span> <span class="n">oneNode</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">forwad</span> <span class="o">=</span> <span class="o">!</span><span class="n">forwad</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">childs</span> <span class="p">{</span>
+			<span class="n">stack</span><span class="o">.</span><span class="n">PushBack</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<blockquote>
+  <p>这里有个点特别注意 在golang中 强制类型转换<code class="language-plaintext highlighter-rouge">back.Value.(*TreeNode)</code></p>
+</blockquote>
+
+<h1 id="heading-104-二叉树的最大深度">104 二叉树的最大深度</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">maxDepth</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">0</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">Left</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">root</span><span class="o">.</span><span class="n">Right</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">1</span>
+	<span class="p">}</span>
+
+	<span class="n">leftMaxDepth</span> <span class="o">:=</span> <span class="n">maxDepth</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+	<span class="n">rightMaxDepth</span> <span class="o">:=</span> <span class="n">maxDepth</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="kt">int</span><span class="p">(</span><span class="m">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">leftMaxDepth</span><span class="p">),</span> <span class="kt">float64</span><span class="p">(</span><span class="n">rightMaxDepth</span><span class="p">)))</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-110-平衡二叉树">110 平衡二叉树</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">isBalanced</span><span class="p">(</span><span class="n">root</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">true</span>
+	<span class="p">}</span>
+
+	<span class="n">maxLeftDepth</span> <span class="o">:=</span> <span class="n">MaxDepth</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+	<span class="n">maxRightDepth</span> <span class="o">:=</span> <span class="n">MaxDepth</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">Abs</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">maxLeftDepth</span><span class="p">)</span><span class="o">-</span><span class="kt">float64</span><span class="p">(</span><span class="n">maxRightDepth</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="m">1.0</span> <span class="o">&amp;&amp;</span> <span class="n">isBalanced</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">isBalanced</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">MaxDepth</span><span class="p">(</span><span class="n">tree</span> <span class="o">*</span><span class="n">TreeNode</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">tree</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">0</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">Left</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">tree</span><span class="o">.</span><span class="n">Right</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">1</span>
+	<span class="p">}</span>
+
+	<span class="n">leftMaxDepth</span> <span class="o">:=</span> <span class="n">MaxDepth</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">Left</span><span class="p">)</span>
+	<span class="n">rightMaxDepth</span> <span class="o">:=</span> <span class="n">MaxDepth</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">Right</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="kt">int</span><span class="p">(</span><span class="m">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">leftMaxDepth</span><span class="p">),</span> <span class="kt">float64</span><span class="p">(</span><span class="n">rightMaxDepth</span><span class="p">)))</span>
+<span class="p">}</span>
+</code></pre></div></div>
+:ET

@@ -1,0 +1,426 @@
+I"µ<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-java加密技术一" id="markdown-toc-heading-java加密技术一">java加密技术（一）</a>    <ul>
+      <li><a href="#heading-1-java安全介绍" id="markdown-toc-heading-1-java安全介绍">1 java安全介绍</a>        <ul>
+          <li><a href="#heading-11-java安全组成" id="markdown-toc-heading-11-java安全组成">1.1 java安全组成</a></li>
+          <li><a href="#heading-12-相关java包" id="markdown-toc-heading-12-相关java包">1.2 相关java包</a></li>
+          <li><a href="#heading-13-扩展jar包" id="markdown-toc-heading-13-扩展jar包">1.3 扩展jar包</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-2-base64加密" id="markdown-toc-heading-2-base64加密">2 Base64加密</a>        <ul>
+          <li><a href="#heading-21-base64介绍" id="markdown-toc-heading-21-base64介绍">2.1 Base64介绍</a></li>
+          <li><a href="#heading-22-代码实现" id="markdown-toc-heading-22-代码实现">2.2 代码实现</a></li>
+          <li><a href="#heading-23-base64应用场景" id="markdown-toc-heading-23-base64应用场景">2.3 Base64应用场景</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-3-消息摘要md" id="markdown-toc-heading-3-消息摘要md">3 消息摘要–MD</a>        <ul>
+          <li><a href="#heading-31-介绍" id="markdown-toc-heading-31-介绍">3.1 介绍</a></li>
+          <li><a href="#heading-32-代码实现" id="markdown-toc-heading-32-代码实现">3.2 代码实现</a></li>
+          <li><a href="#heading-33-md5的应用" id="markdown-toc-heading-33-md5的应用">3.3 MD5的应用</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-4-sha消息摘要" id="markdown-toc-heading-4-sha消息摘要">4 SHA消息摘要</a>        <ul>
+          <li><a href="#heading-41-介绍" id="markdown-toc-heading-41-介绍">4.1 介绍</a></li>
+          <li><a href="#heading-42-代码实现" id="markdown-toc-heading-42-代码实现">4,2 代码实现</a></li>
+          <li><a href="#heading-43-应用" id="markdown-toc-heading-43-应用">4.3 应用</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-java加密技术一">java加密技术（一）</h1>
+
+<h2 id="heading-1-java安全介绍">1 java安全介绍</h2>
+<h3 id="heading-11-java安全组成">1.1 java安全组成</h3>
+<ul>
+  <li>JCA (java Cryptography Architecture) java加密体系结构</li>
+  <li>JCE (java Cryptography Extension) java加密扩展包</li>
+  <li>JSSE(java Secure Socket Extension) java安全套接字的扩展包</li>
+  <li>JAAS (java Authentication and Authentication Service) java鉴别与安全服务
+    <h3 id="heading-12-相关java包">1.2 相关java包</h3>
+  </li>
+  <li>java.security :信息摘要相关的包</li>
+  <li>javax.crypto: 安全消息摘要,消息验证码</li>
+  <li>java.net.ssl : 安全套接字
+    <h3 id="heading-13-扩展jar包">1.3 扩展jar包</h3>
+  </li>
+  <li>Bouncy Castle</li>
+  <li>Commons Codec (Apache提供; Base64,二进制,十六进制, 字符集编码; Url编码/解码) <br />
+***
+    <h2 id="heading-2-base64加密">2 Base64加密</h2>
+    <h3 id="heading-21-base64介绍">2.1 Base64介绍</h3>
+    <p>严格意义上,Base64算法不算是加解密算法,主要是进行编码工作,它可以将特殊字符编码成非特殊字符.但是存储空间会比加密之前的文件存储空间多出1/3.</p>
+    <h3 id="heading-22-代码实现">2.2 代码实现</h3>
+    <blockquote>
+      <p>下面我们简称java提供的jar包实现叫做jdk实现,Bouncy Castle的实现叫做BC实现, Commons Codec实现叫做CC实现.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">screte</span><span class="o">;</span>
+
+    <span class="kn">import</span> <span class="nn">java.util.Base64</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">java.util.Base64.Decoder</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">java.util.Base64.Encoder</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Base64Test</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span> <span class="s">"i am gc base64"</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//jdk对Base64编码的支持</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====jdkBase64编码测试====="</span><span class="o">);</span>
+        <span class="n">jdkBase64</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=========================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====CommonsCodec的Base64实现====="</span><span class="o">);</span>
+        <span class="n">commonsCodecBase64</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=========================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====BouncyCastle的Base64实现====="</span><span class="o">);</span>
+        <span class="n">bouncyCastleBase64</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=========================="</span><span class="o">);</span>
+        
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkBase64</span><span class="o">(){</span>
+        <span class="c1">//加密</span>
+        <span class="c1">//获取Encoder对象</span>
+        <span class="nc">Encoder</span> <span class="n">encoder</span> <span class="o">=</span> <span class="nc">Base64</span><span class="o">.</span><span class="na">getEncoder</span><span class="o">();</span> 
+        <span class="c1">//用Encoder对象对字符串进行加密</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base64编码之后::"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        
+        <span class="c1">//解密</span>
+        <span class="c1">//获取Decoder对象</span>
+        <span class="nc">Decoder</span> <span class="n">decoder</span> <span class="o">=</span> <span class="nc">Base64</span><span class="o">.</span><span class="na">getDecoder</span><span class="o">();</span>
+        <span class="c1">//用Decoder对象对加密之后的文件进行解密</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="na">decode</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"将result解码之后:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">commonsCodecBase64</span><span class="o">(){</span>
+        <span class="c1">//commonscodec的方便之处在于直接用Base64.encoderBase64和Base64.decoderBase64进行加解密</span>
+        <span class="c1">//加密</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">commons</span><span class="o">.</span><span class="na">codec</span><span class="o">.</span><span class="na">binary</span><span class="o">.</span><span class="na">Base64</span><span class="o">.</span><span class="na">encodeBase64</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base64编码之后:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        <span class="c1">//解密</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">commons</span><span class="o">.</span><span class="na">codec</span><span class="o">.</span><span class="na">binary</span><span class="o">.</span><span class="na">Base64</span><span class="o">.</span><span class="na">decodeBase64</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base64解密之后:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bouncyCastleBase64</span><span class="o">(){</span>
+         <span class="c1">//加密</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">org</span><span class="o">.</span><span class="na">bouncycastle</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">encoders</span><span class="o">.</span><span class="na">Base64</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base64编码之后:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        <span class="c1">//解密</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">org</span><span class="o">.</span><span class="na">bouncycastle</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">encoders</span><span class="o">.</span><span class="na">Base64</span><span class="o">.</span><span class="na">decode</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base64解密之后:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    <span class="o">}</span>
+    
+    <span class="c1">//运行结果如下</span>
+    <span class="cm">/*
+            =====jdkBase64编码测试=====
+            Base64编码之后::aSBhbSBnYyBiYXNlNjQ=
+            将result解码之后:i am gc base64
+            ==========================
+            =====CommonsCodec的Base64实现=====
+            Base64编码之后:aSBhbSBnYyBiYXNlNjQ=
+            Base64解密之后:i am gc base64
+            ==========================
+            =====BouncyCastle的Base64实现=====
+            Base64编码之后:aSBhbSBnYyBiYXNlNjQ=
+            Base64解密之后:i am gc base64
+            ==========================
+     */</span>
+    <span class="o">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>其实无论是bc或者cc都提供了static方法对Base64加解密进行很好的操作支持  <br />
+不建议使用jdk提供的方法进行操作</p>
+</blockquote>
+
+<h3 id="heading-23-base64应用场景">2.3 Base64应用场景</h3>
+<p>base64其实不算是加密,可以说是一种转码.比如对一些特殊字符的处理; 对文件内容的转码等.  <br />
+***</p>
+<h2 id="heading-3-消息摘要md">3 消息摘要–MD</h2>
+<h3 id="heading-31-介绍">3.1 介绍</h3>
+<p>MD家族包括MD2, MD4, MD5,他们生成的消息摘要都是128位. 安全性上的比较也是越来越安全.  <br />
+JDK仅仅提供了MD2,MD5的实现.</p>
+<h3 id="heading-32-代码实现">3.2 代码实现</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">secret</span><span class="o">;</span>
+
+    <span class="kn">import</span> <span class="nn">java.security.MessageDigest</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">java.security.NoSuchAlgorithmException</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Hex</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.digest.DigestUtils</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.crypto.Digest</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.crypto.digests.MD4Digest</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.crypto.digests.MD5Digest</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MDTest</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span> <span class="s">"i am gc MD"</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====jdk提供的MD5====="</span><span class="o">);</span>
+        <span class="n">jdkMD5</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====jdk提供的MD2====="</span><span class="o">);</span>
+        <span class="n">jdkMD2</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====BC提供的MD4====="</span><span class="o">);</span>
+        <span class="n">bcMD4</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====BC提供的MD5====="</span><span class="o">);</span>
+        <span class="n">bcMD5</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====CC提供的MD5====="</span><span class="o">);</span>
+        <span class="n">ccMD5</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====CC提供的MD2====="</span><span class="o">);</span>
+        <span class="n">ccMD2</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+        
+        
+        <span class="c1">//运行结果</span>
+        <span class="cm">/*=====jdk提供的MD5=====
+            信息摘要之后的src: 8a63f68d49d7acfa716602e9ab620394
+            =====================
+            =====jdk提供的MD2=====
+            信息摘要之后的src: 2d2df5c04ceeaac31bdffb019ccd03c8
+            =====================
+            =====BC提供的MD4=====
+            信息摘要之后的src: 5ff5d77df559660ed4ff19ac2f5e2e2a
+            =====================
+            =====BC提供的MD5=====
+            信息摘要之后的src: 8a63f68d49d7acfa716602e9ab620394
+            =====================
+            =====CC提供的MD5=====
+            信息摘要之后的src: 8a63f68d49d7acfa716602e9ab620394
+            =====================
+            =====CC提供的MD2=====
+            信息摘要之后的src: 2d2df5c04ceeaac31bdffb019ccd03c8
+            =====================
+         */</span>
+    <span class="o">}</span>
+    <span class="cm">/*
+     * jdkMD5方法
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkMD5</span><span class="o">(){</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="c1">//jdk提供的MessageDegest类 创建对象时候需要传入参数,可以是MD5, MD2</span>
+            <span class="nc">MessageDigest</span> <span class="n">md</span> <span class="o">=</span> <span class="nc">MessageDigest</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"MD5"</span><span class="o">);</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="na">digest</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+            <span class="c1">//因为digest方法返回的使一个byte数组,如果想输出字符串,必须将byte数组转化成16进制等,但是jdk并没有提供这样的方法,所以你可以选择自己写或者使用bc或cc提供的方法</span>
+            <span class="c1">//现在我们借助cc提供的方法</span>
+            <span class="c1">//输出32位16进制数</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"信息摘要之后的src: "</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="cm">/*
+     * jdkMD2信息摘要
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkMD2</span><span class="o">(){</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="c1">//jdk提供的MessageDegest类 创建对象时候需要传入参数,可以是MD5, MD2</span>
+            <span class="nc">MessageDigest</span> <span class="n">md</span> <span class="o">=</span> <span class="nc">MessageDigest</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"MD2"</span><span class="o">);</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="na">digest</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+            <span class="c1">//因为digest方法返回的使一个byte数组,如果想输出字符串,必须将byte数组转化成16进制等,但是jdk并没有提供这样的方法,所以你可以选择自己写或者使用bc或cc提供的方法</span>
+            <span class="c1">//现在我们借助cc提供的方法</span>
+            <span class="c1">//输出32位16进制数</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"信息摘要之后的src: "</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    
+    <span class="c1">//bc实现MD4</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bcMD4</span><span class="o">(){</span>
+        <span class="c1">//Digest是一个借口,MD4Degist仅仅是一个实现类</span>
+        <span class="nc">Digest</span> <span class="n">digest</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MD4Digest</span><span class="o">();</span>
+        <span class="c1">//进行摘要</span>
+        <span class="n">digest</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(),</span> <span class="mi">0</span> <span class="o">,</span> <span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">().</span><span class="na">length</span><span class="o">);</span>
+        <span class="c1">//获取算法摘要出来的长度</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">digest</span><span class="o">.</span><span class="na">getDigestSize</span><span class="o">()];</span>
+        <span class="c1">//摘要的输出到变量里</span>
+        <span class="n">digest</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="c1">//进行转换输出</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"信息摘要之后的src: "</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    <span class="o">}</span>
+    
+    <span class="cm">/*
+     * bc实现MD5
+     * 跟bc实现MD4相似,在此不再加注释
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bcMD5</span><span class="o">(){</span>
+        <span class="nc">Digest</span> <span class="n">digest</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MD5Digest</span><span class="o">();</span>
+        <span class="n">digest</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(),</span> <span class="mi">0</span><span class="o">,</span> <span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">().</span><span class="na">length</span><span class="o">);</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">digest</span><span class="o">.</span><span class="na">getDigestSize</span><span class="o">()];</span>
+        <span class="n">digest</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"信息摘要之后的src: "</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    <span class="o">}</span>
+    
+    <span class="cm">/*
+     * cc对MD5的实现
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">ccMD5</span><span class="o">(){</span>
+        <span class="c1">//说实话.CC提供的DegistUtils工具类对信息摘要的实现真的是简单至极</span>
+        <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">DigestUtils</span><span class="o">.</span><span class="na">md5Hex</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"信息摘要之后的src: "</span><span class="o">+</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="cm">/*
+     * cc对MD2的实现
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">ccMD2</span><span class="o">(){</span>
+        <span class="c1">//说实话.CC提供的DegistUtils工具类对信息摘要的实现真的是简单至极</span>
+        <span class="c1">//但是CC做了个偷工减料的地方,CC仅仅是对jdk中MessageDegist的简单包装,所以CC中支持md4的实现</span>
+        <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">DigestUtils</span><span class="o">.</span><span class="na">md2Hex</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"信息摘要之后的src: "</span><span class="o">+</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">}</span>
+
+</code></pre></div></div>
+
+<h3 id="heading-33-md5的应用">3.3 MD5的应用</h3>
+<p>可以对用户注册的注册密码进行MD5消息摘要处理,然后再存数据库.当用户登陆时候,对用户输入的密码再次进行MD5,之后在与数据库中的MD5码进行比对.这样能够很好的对密码进行保护.但是要记住:MD5仅仅是单向的,不可逆的.  <br />
+***</p>
+<h2 id="heading-4-sha消息摘要">4 SHA消息摘要</h2>
+<h3 id="heading-41-介绍">4.1 介绍</h3>
+<p>SHA是一种安全散列算法,也是固定长度的消息摘要. 包括:SHA-1, SHA-2(SHA-224,SHA-256, SHA-384, SHA-512)  <br />
+她是在MD4演变出来的</p>
+<blockquote>
+  <p>SHA-224等等后面的数字都使摘要的长度,比如SHA-224摘要出来的长度就是224位  <br />
+这里面只有SHA-224 jdk没有提供实现</p>
+</blockquote>
+
+<h3 id="heading-42-代码实现">4,2 代码实现</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">secret</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">java.security.MessageDigest</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Hex</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.digest.DigestUtils</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.crypto.Digest</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.crypto.digests.SHA1Digest</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.crypto.digests.SHA224Digest</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">SHATest</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span> <span class="s">"i am gc SHA"</span><span class="o">;</span>
+    
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====jdk提供的SHA1====="</span><span class="o">);</span>
+            <span class="n">jdkSHA1</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====bc提供的SHA1====="</span><span class="o">);</span>
+            <span class="n">bcSHA1</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====cc提供的SHA1====="</span><span class="o">);</span>
+            <span class="n">ccSHA1</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====bc提供的SHA-256====="</span><span class="o">);</span>
+            <span class="n">jdkSHA256</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"=====bc提供的SHA224====="</span><span class="o">);</span>
+            <span class="n">bcSHA224</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====================="</span><span class="o">);</span>
+
+            <span class="c1">//运行结果</span>
+            <span class="cm">/*
+                =====jdk提供的SHA1=====
+                消息摘要之后:02470457fc2738acb459ee266dd66976324ee5b8
+                =====================
+                =====bc提供的SHA1=====
+                消息摘要之后:02470457fc2738acb459ee266dd66976324ee5b8
+                =====================
+                =====cc提供的SHA1=====
+                消息摘要之后:02470457fc2738acb459ee266dd66976324ee5b8
+                =====================
+                =====bc提供的SHA-256=====
+                消息摘要之后:dd855bed3dce767ad1ce3f051b8d6fba12a0c00fe2feaa142ca37f2ae88fbca3
+                =====================
+                =====bc提供的SHA224=====
+                消息摘要之后:f2a63bc30d2d8fcebc9b5aa4f660b6f422328731588346dbd55a1a2f
+                =====================
+             */</span>
+        <span class="o">}</span>
+    
+        <span class="cm">/*
+         * jdk对SHA算法实现
+         */</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkSHA1</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span><span class="o">;</span>
+                <span class="nc">MessageDigest</span> <span class="n">digest</span> <span class="o">=</span> <span class="nc">MessageDigest</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"SHA1"</span><span class="o">);</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">digest</span><span class="o">.</span><span class="na">digest</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"消息摘要之后:"</span> <span class="o">+</span> <span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    
+        <span class="cm">/*
+         * bc实现SHA1
+         */</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bcSHA1</span><span class="o">()</span> <span class="o">{</span>
+            <span class="c1">// 因为都是用Digest接口里的方法,在MD代码里已经注释了,这里就不再叙述</span>
+            <span class="nc">Digest</span> <span class="n">digest</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SHA1Digest</span><span class="o">();</span>
+            <span class="n">digest</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(),</span> <span class="mi">0</span><span class="o">,</span> <span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">().</span><span class="na">length</span><span class="o">);</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">digest</span><span class="o">.</span><span class="na">getDigestSize</span><span class="o">()];</span>
+            <span class="n">digest</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"消息摘要之后:"</span> <span class="o">+</span> <span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        <span class="o">}</span>
+    
+        <span class="cm">/*
+         * jdk对SHA-256的支持
+         */</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkSHA256</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span><span class="o">;</span>
+                <span class="nc">MessageDigest</span> <span class="n">digest</span> <span class="o">=</span> <span class="nc">MessageDigest</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"SHA-256"</span><span class="o">);</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">digest</span><span class="o">.</span><span class="na">digest</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"消息摘要之后:"</span> <span class="o">+</span> <span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    
+        <span class="cm">/*
+         * bc实现SHA224
+         */</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bcSHA224</span><span class="o">()</span> <span class="o">{</span>
+            <span class="c1">// 因为都是用Digest接口里的方法,在MD代码里已经注释了,这里就不再叙述</span>
+            <span class="nc">Digest</span> <span class="n">digest</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SHA224Digest</span><span class="o">();</span>
+            <span class="n">digest</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(),</span> <span class="mi">0</span><span class="o">,</span> <span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">().</span><span class="na">length</span><span class="o">);</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">digest</span><span class="o">.</span><span class="na">getDigestSize</span><span class="o">()];</span>
+            <span class="n">digest</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"消息摘要之后:"</span> <span class="o">+</span> <span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+        <span class="o">}</span>
+        
+        <span class="cm">/*
+         * cc对SHA1的实现
+         * 其实也是对jdk的包装
+         */</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">ccSHA1</span><span class="o">(){</span>
+            <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">DigestUtils</span><span class="o">.</span><span class="na">sha1Hex</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"消息摘要之后:"</span> <span class="o">+</span><span class="n">result</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="cm">/*
+         * 其余的SHA实现都与上面的方法相同
+         */</span>
+    <span class="o">}</span>
+
+</code></pre></div></div>
+
+<h3 id="heading-43-应用">4.3 应用</h3>
+<p>一些证书中的指纹摘要  <br />
+对发送的消息进行验证,消息是否被篡改  <br />
+***</p>
+<blockquote>
+  <ul>
+    <li>文章中避免不了错误的出现,如果有读者发现文章中的错误,或者有疑问的地方,请留言/Email To Gc</li>
+    <li>请转发OR复制的同学,标注出处,尊重作者劳动成果,谢谢亲
+博客迁移自 <a href="http://blog.csdn.net/GC_chao">GC-CSDN</a></li>
+  </ul>
+</blockquote>
+
+:ET

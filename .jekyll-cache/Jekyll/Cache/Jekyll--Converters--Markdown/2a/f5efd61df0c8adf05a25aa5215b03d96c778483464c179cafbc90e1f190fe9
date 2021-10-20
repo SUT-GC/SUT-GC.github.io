@@ -1,0 +1,249 @@
+I"�_<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-背景" id="markdown-toc-heading-背景">背景</a></li>
+  <li><a href="#heading-解决办法" id="markdown-toc-heading-解决办法">解决办法</a>    <ul>
+      <li><a href="#heading-办法-1" id="markdown-toc-heading-办法-1">办法 1</a></li>
+      <li><a href="#heading-办法-2" id="markdown-toc-heading-办法-2">办法 2</a></li>
+      <li><a href="#heading-办法-3" id="markdown-toc-heading-办法-3">办法 3</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-参考资料" id="markdown-toc-heading-参考资料">参考资料</a></li>
+</ul>
+
+<h1 id="heading-背景">背景</h1>
+
+<p>身为一个笨拙的程序员, 最近一直在刷leetcode, leetcode 的<a href="https://leetcode.com/problems/implement-strstr/description/">第28题目</a> 题目是这样的:</p>
+
+<p>实现strStr(string haystack, string needle)函数， 函数会接受两个参数, 判断needle是否为haystack的子串， 如果是，则返回needle的首字母在haystack中的索引，如果否，则返回 -1</p>
+
+<h1 id="heading-解决办法">解决办法</h1>
+
+<h2 id="heading-办法-1">办法 1</h2>
+
+<p>最容易想到的就是暴力解决（这个也许是人们惯用的思维方式， 遇到问题， 要想个通用的办法， 一般第一个想到的就是尽可能的模拟人的思维方式， 即 模拟 or 暴力 解决)</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">isStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">true</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">hayIndex</span> <span class="o">&gt;=</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="nx">hayIndex</span> <span class="o">&lt;</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="nx">hayIndex</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">-</span> <span class="nx">hayIndex</span> <span class="o">&gt;=</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!==</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">i</span> <span class="o">-</span> <span class="nx">hayIndex</span><span class="p">])</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">strStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="kd">let</span> <span class="nx">findIndex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">hayIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">&lt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">isStr</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">needle</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">findIndex</span> <span class="o">=</span> <span class="nx">hayIndex</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">findIndex</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>暴力解决是ok的。但是效率会比较差， 上面代码的时间复杂度为 O(m * n)</p>
+
+<h2 id="heading-办法-2">办法 2</h2>
+
+<p>稍微往深了想一想，就能想到优化的地方， 比如 下面这种情况就不需要进行比对了。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>haystack:   a b c d e f g h
+needle  :           l m b o p
+</code></pre></div></div>
+
+<p>当 needle[0] 与 haystack[i] 进行比较的时候, 如果 len(needle) &gt; len(haystack) - i + 1 的时候，就不需要继续匹配了。</p>
+
+<p>顺便再利用下string的分割方法， 可以将代码写为:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">strStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span> <span class="o">===</span> <span class="dl">""</span> <span class="o">||</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">hayIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">+</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">sub</span> <span class="o">=</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">hayIndex</span> <span class="o">+</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">sub</span> <span class="o">===</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">hayIndex</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>时间复杂度 变成了 O(len(haystack) - len(needle))<em>len(haystack) 暂且算为 O(n-m)</em>m, 确实比上面的算法 少了m*m的 复杂度</p>
+
+<h2 id="heading-办法-3">办法 3</h2>
+
+<p>这个办法就是我在网上查的了， 人家大佬们就是比我这种人强， 能想出那么牛逼的办法，把时间复杂度降低到了 O(n), 严格来说是 O(2*m) + O(n)</p>
+
+<p>这个办法就是KMP算法。 KMP的算法宗旨是 再不回溯haystack的位置情况下找出问题的解决办法</p>
+
+<p>下面我们举个例子</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hasytack:   a g c d a g c e a 
+needle  :   a g c e
+</code></pre></div></div>
+
+<p>当比对到 d != e 的时候，使用KMP算法可以快速移动needle, 使得一下子就成为以下状态</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hasytack:   a g c d a g c e a 
+needle  :         a g c e
+</code></pre></div></div>
+
+<p>我们可以把移动抽象成一个函数出来，写出来的代码效果应该是这样的:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kd">var</span> <span class="nx">next</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">needle</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 巴拉巴拉</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">strStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">let</span> <span class="nx">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span><span class="p">(</span><span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span> <span class="o">&amp;&amp;</span> <span class="nx">j</span> <span class="o">&lt;</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">j</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">i</span> <span class="o">++</span>
+            <span class="nx">j</span> <span class="o">++</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">j</span> <span class="o">=</span> <span class="nx">next</span><span class="p">(</span><span class="nx">needle</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">j</span> <span class="o">==</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">i</span> <span class="o">-</span> <span class="nx">j</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>所以最终就是要想怎么解决<code class="language-plaintext highlighter-rouge">next</code>函数的问题。。。。</p>
+
+<p>先抛开next函数不谈， 我们继续讨论 <code class="language-plaintext highlighter-rouge">当比对到 d != e 的时候，使用KMP算法可以快速移动needle, 使得一下子就成为以下状态</code> 这句话</p>
+
+<p>假设 haystack[i] != needle[j] ,则 肯定有 haystack[i-j] ~ haystack[i-1] === needle[0] ~ needle[j-1]</p>
+
+<p>假设 needle中存在一个位置k, 使得 needle[0] ~ needle[k] === haystack[i-1-k] ~ haystack[i-1], 则needle[0] ~ needle[k]一定和needle[j-1-k]~needle[j-1] 相等，即 needle[0]~needle[k] === needle[i-1-k]~needle[j-1]</p>
+
+<p>所以只要知道这个k值， 就可以把needle串向后移动k个那么长， 也就是把j像前移动j-k的位置，便是j的新位置。</p>
+
+<p>计算needle穿的k值如下:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">calculateK</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">needle</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">()</span>
+    <span class="nx">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// k 是子串的长度</span>
+        <span class="kd">let</span> <span class="nx">k</span> <span class="o">=</span> <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="nx">needle</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">k</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">k</span> <span class="o">=</span> <span class="nx">result</span><span class="p">[</span><span class="nx">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">==</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">k</span><span class="o">+</span><span class="mi">1</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">result</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>我们把上面两个算法整合一下，结果是</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">calculateK</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">needle</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">()</span>
+    <span class="nx">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// k 是子串的长度</span>
+        <span class="kd">let</span> <span class="nx">k</span> <span class="o">=</span> <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="nx">needle</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">k</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">k</span> <span class="o">=</span> <span class="nx">result</span><span class="p">[</span><span class="nx">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">==</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">k</span><span class="o">+</span><span class="mi">1</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">result</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">result</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">strStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">let</span> <span class="nx">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nx">next</span> <span class="o">=</span> <span class="nx">calculateK</span><span class="p">(</span><span class="nx">needle</span><span class="p">)</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span> <span class="o">&amp;&amp;</span> <span class="nx">j</span> <span class="o">&lt;</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">j</span><span class="p">])</span> <span class="p">{</span>
+            <span class="nx">i</span> <span class="o">++</span>
+            <span class="nx">j</span> <span class="o">++</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">j</span> <span class="o">===</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="nx">i</span> <span class="o">++</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">j</span> <span class="o">=</span> <span class="nx">next</span><span class="p">[</span><span class="nx">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">j</span> <span class="o">==</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">i</span> <span class="o">-</span> <span class="nx">j</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-参考资料">参考资料</h1>
+
+<blockquote>
+  <p><a href="https://blog.csdn.net/yearn520/article/details/6729426">KMP算法的前缀next数组最通俗的解释，如果看不懂我也没辙了</a>    <br />
+<a href="https://blog.csdn.net/v_july_v/article/details/7041827">从头到尾彻底理解KMP</a>    <br />
+<a href="http://www.ruanyifeng.com/blog/2013/05/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm.html">字符串匹配的KMP算法</a></p>
+</blockquote>
+:ET

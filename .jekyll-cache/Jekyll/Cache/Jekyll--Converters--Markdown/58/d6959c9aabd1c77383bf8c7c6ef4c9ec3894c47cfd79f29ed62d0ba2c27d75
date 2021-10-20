@@ -1,0 +1,491 @@
+I"�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-java文档自动化生成" id="markdown-toc-heading-java文档自动化生成">Java文档自动化生成</a>    <ul>
+      <li><a href="#heading-0-问题" id="markdown-toc-heading-0-问题">0. 问题</a></li>
+      <li><a href="#heading-1-设想" id="markdown-toc-heading-1-设想">1. 设想</a></li>
+      <li><a href="#heading-2-研究" id="markdown-toc-heading-2-研究">2. 研究</a>        <ul>
+          <li><a href="#heading-21-push-代码到gitlab后gitlab怎么将信号给到server" id="markdown-toc-heading-21-push-代码到gitlab后gitlab怎么将信号给到server">2.1 push 代码到gitlab后，gitlab怎么将信号给到server？</a></li>
+          <li><a href="#heading-22-server接受到信号后怎么根据信号生成文档" id="markdown-toc-heading-22-server接受到信号后怎么根据信号生成文档">2.2 server接受到信号后怎么根据信号生成文档？</a></li>
+          <li><a href="#heading-23-生成文档后怎么将文档部署成web页面" id="markdown-toc-heading-23-生成文档后怎么将文档部署成web页面">2.3 生成文档后怎么将文档部署成web页面？</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-3-开做" id="markdown-toc-heading-3-开做">3. 开做</a>        <ul>
+          <li><a href="#heading-31-找个服务器安装gitlab-runner" id="markdown-toc-heading-31-找个服务器安装gitlab-runner">3.1 找个服务器安装gitlab runner</a></li>
+          <li><a href="#heading-32-将项目注册到自己的runner上" id="markdown-toc-heading-32-将项目注册到自己的runner上">3.2 将项目注册到自己的runner上</a></li>
+          <li><a href="#heading-33-修改gradle文件-方便生成javadoc" id="markdown-toc-heading-33-修改gradle文件-方便生成javadoc">3.3 修改gradle文件， 方便生成javadoc</a></li>
+          <li><a href="#heading-34-将生成文档的步骤自动化起来" id="markdown-toc-heading-34-将生成文档的步骤自动化起来">3.4 将生成文档的步骤自动化起来</a></li>
+          <li><a href="#heading-35-配置nginx文件服务" id="markdown-toc-heading-35-配置nginx文件服务">3.5 配置nginx文件服务</a></li>
+          <li><a href="#heading-36-构建一个索引界面" id="markdown-toc-heading-36-构建一个索引界面">3.6 构建一个索引界面</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-4-结果" id="markdown-toc-heading-4-结果">4. 结果</a>        <ul>
+          <li><a href="#heading-41-push代码" id="markdown-toc-heading-41-push代码">4.1 push代码</a></li>
+          <li><a href="#heading-42-触发pipline" id="markdown-toc-heading-42-触发pipline">4.2 触发pipline</a></li>
+          <li><a href="#heading-43-查看文档" id="markdown-toc-heading-43-查看文档">4.3 查看文档</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-java文档自动化生成">Java文档自动化生成</h1>
+
+<h2 id="heading-0-问题">0. 问题</h2>
+
+<p>我们组作为基础数据组，很多服务大都是对外提供基础数据的操作， 接口非常多， 接入方也非常多。</p>
+
+<p>现在提供接口文档的方式是 在wiki中开一个页面，用来手写这个服务的接口文档， 比如像下面这样：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kn">package</span> <span class="nn">xxxx.xxxx</span>
+  
+ 
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">XxxxSoaService</span> <span class="o">{</span>
+    <span class="cm">/**
+     * 根据XxxID查询
+     *
+     * @param Xxxx参数
+     * @return Xxxx信息
+     */</span>
+    <span class="nc">XxxxDTO</span> <span class="nf">getXxxxInfo</span><span class="o">(</span><span class="kt">long</span> <span class="nc">Xxxx</span><span class="o">);</span>
+<span class="o">}</span>
+  
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">XxxxDTO</span> <span class="o">{</span>
+    <span class="cm">/**
+     * XxxxID
+     */</span>
+    <span class="kd">private</span> <span class="kt">long</span> <span class="nc">Xxxxx</span><span class="o">;</span>
+  
+    <span class="cm">/**
+     * Xxxx名称
+     */</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="cm">/**
+     * Xxxx有效无效状态
+     */</span>
+    <span class="kd">private</span> <span class="nc">DataStatusDTO</span> <span class="n">dataStatusDTO</span><span class="o">;</span>
+  
+    <span class="cm">/**
+     * Xxxx类型
+     */</span>
+    <span class="kd">private</span> <span class="nc">ShopTypeDTO</span> <span class="n">shopTypeDTO</span><span class="o">;</span>
+<span class="o">}</span>
+  
+  
+<span class="kd">public</span> <span class="kd">enum</span>  <span class="nc">DataStatusDTO</span> <span class="o">{</span>
+    <span class="no">VALID</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="s">"有效"</span><span class="o">),</span>
+    <span class="no">INVALID</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="s">"无效"</span><span class="o">);</span>
+  
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">code</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="n">description</span><span class="o">;</span>
+<span class="o">}</span>
+  
+<span class="kd">public</span> <span class="kd">enum</span> <span class="nc">ShopTypeDTO</span> <span class="o">{</span>
+    <span class="no">NORMAL</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="s">"正式"</span><span class="o">),</span>
+    <span class="no">TEST</span><span class="o">(</span><span class="mi">100</span><span class="o">,</span> <span class="s">"测试"</span><span class="o">);</span>
+  
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">code</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="n">description</span><span class="o">;</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+<p>每次给外部提供一个新接口，都要手写这些东西， 每次更新了接口信息，也要手动更新wiki里面的文档， 如果忘记更新了，那么就会坑别人。 着实费事！</p>
+
+<h2 id="heading-1-设想">1. 设想</h2>
+
+<p>如果每次编写完代码并提交代码后， 文档会自动生成到一个地方并且通过web的方式展现出来，那该多好， 以后的接口文档里面就可以写成这样子：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 服务依赖说明
+ 
+ 
+## ALPHA
+## BETA
+## PROD
+ 
+ 
+# 服务集群说明
+巴拉巴拉
+ 
+ 
+# 包依赖
+巴拉巴拉
+ 
+ 
+# 接口定义
+## XXXX功能接口
+`xxxx.xxxx.XxxxSoaService.getXxxxInfo` 详情见下面JavaDoc
+ 
+ 
+# JavaDoc
+url: xxxxxxxx
+</code></pre></div></div>
+
+<p>只需要在文档里面给出服务依赖相关的内容， 和某个功能的接口是什么， 具体接口详情看javadoc就好了</p>
+
+<p>期望具体生成文档的流程自动化成下面的样子</p>
+
+<p><img src="/files/images/image2018-12-2_13-19-43.png" alt="image" /></p>
+
+<p>开发人员在个人PC上面push代码到gitlab， gitlab通知Server生成文档， server生成文档后部署页面，最终将web页面展现给个人PC</p>
+
+<h2 id="heading-2-研究">2. 研究</h2>
+
+<p>针对上面的问题，有几个点需要确认， 如果确认好下面这几个点， 整个流程就通了</p>
+
+<h3 id="heading-21-push-代码到gitlab后gitlab怎么将信号给到server">2.1 push 代码到gitlab后，gitlab怎么将信号给到server？</h3>
+
+<p>这一点有两种办法：</p>
+
+<p>一种是通过jenkins,  我之前也玩过，具体玩法可以参考以前写的一篇博客：http://int32.me/blog/2017/09/18/jenkins/， 这种玩法需要安装jenkins， 而且比较笨重</p>
+
+<p>另一种是通过gitlab自带的CI/CD工具 runner， 具体什么是runner可以参考下面几篇文章:</p>
+
+<ul>
+  <li>https://www.cnblogs.com/cnundefined/p/7095368.html</li>
+  <li>https://blog.csdn.net/u011215669/article/details/80446624</li>
+  <li>https://www.jianshu.com/p/306cf4c6789a</li>
+</ul>
+
+<h3 id="heading-22-server接受到信号后怎么根据信号生成文档">2.2 server接受到信号后怎么根据信号生成文档？</h3>
+
+<p>当server接受到信号后，怎么生成文档呢？ 我最终选择javadoc形式， 但是javadoc必须要有java代码才能生成文档， 所以就好从gitlab上把java代码clone下来， 不过不需要担心这个， 因为 gitlab的CI/CD 和 jenkins都有这样的功能， 把代码clone到一个临时空间， 当执行完所有动作后便将代码删除。</p>
+
+<p>那么新的问题来了， 如何根据java代码生成java doc， 这个也好解决， 因为我们项目都是gradle的项目， 所以根据gradle集成的doc命令就可以将java代码生成javadoc</p>
+
+<h3 id="heading-23-生成文档后怎么将文档部署成web页面">2.3 生成文档后怎么将文档部署成web页面？</h3>
+
+<p>这个最终我选择了nginx， 因为javadoc是现成的html文档， 所以怎么将html文档显示出来就是要考虑的了， 而nginx正好能做到这一点。</p>
+
+<p>在考虑这一问题的时候， 如果要简单方便， 就将生成的javadoc文档直接放在nginx读取的目录下就行了， 但是这块可以做的更好， 比如有所有文档根据 项目 → 分支 → 文档 的顺序存放，然后提供一个索引页面</p>
+
+<p>这样每次生成文档， 都是生成在项目/分支下， 每个人的文档都不会相互冲突， 方便管理查看。 这个也有办法接口， 使用nginx天生的文件服务的功能。</p>
+
+<h2 id="heading-3-开做">3. 开做</h2>
+
+<h3 id="heading-31-找个服务器安装gitlab-runner">3.1 找个服务器安装gitlab runner</h3>
+
+<p><a href="https://docs.gitlab.com/runner/install/">gitlab官方安装链接</a></p>
+
+<p>这里只给出centos的安装方式</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+# 1 下载runner
+` sudo wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64`
+
+# 2 修改权限
+`sudo chmod +x /usr/local/bin/gitlab-runner`
+
+# 3 创建用户
+`sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash`
+
+# 4 安装server
+`sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner`
+
+# 5 起送runenr
+`sudo gitlab-runner start`
+# 6 注册runner
+`sudo gitlab-runner register`
+
+# 7 根据提示输入相关信息 
+这里url 和 token 可以在gitlab-&gt;Project-&gt;Settings-&gt;CI/CD -&gt; runner信息中找到
+</code></pre></div></div>
+<p><img src="/files/images/image2018-12-2_15-32-19.png" alt="image" /></p>
+
+<h3 id="heading-32-将项目注册到自己的runner上">3.2 将项目注册到自己的runner上</h3>
+
+<p>上面runner注册成功后， 便能发现自己的项目上会出现刚刚注册的runner</p>
+
+<p><img src="/files/images/image2018-12-2_15-49-48.png" alt="image" /></p>
+
+<h3 id="heading-33-修改gradle文件-方便生成javadoc">3.3 修改gradle文件， 方便生成javadoc</h3>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">configurations</span> <span class="o">{</span>
+    <span class="n">doc</span> <span class="o">{</span>
+        <span class="n">transitive</span> <span class="kc">false</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+  
+  
+<span class="n">javadoc</span> <span class="o">{</span>
+    <span class="n">options</span><span class="o">.</span><span class="na">charSet</span> <span class="o">=</span> <span class="s1">'UTF-8'</span>
+    <span class="n">source</span> <span class="n">configurations</span><span class="o">.</span><span class="na">doc</span><span class="o">.</span><span class="na">collect</span> <span class="o">{</span> <span class="n">zipTree</span><span class="o">(</span><span class="n">it</span><span class="o">)</span> <span class="o">}</span>
+    <span class="n">options</span><span class="o">.</span><span class="na">memberLevel</span> <span class="o">=</span> <span class="n">JavadocMemberLevel</span><span class="o">.</span><span class="na">PRIVATE</span>
+    <span class="n">include</span> <span class="s1">'**/*.java'</span>
+    <span class="n">options</span><span class="o">.</span><span class="na">addStringOption</span><span class="o">(</span><span class="s1">'Xdoclint:none'</span><span class="o">,</span> <span class="s1">'-quiet'</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>将api模块（如果么有api模块，在总项目目录下配置即可）中的 build.gradle 文件增加如上内容。</p>
+
+<p>增加之后， 进入该模块目录，运行 gradle javadoc 看下是否可以生成javadoc文件</p>
+
+<p><img src="/files/images/image2018-12-2_16-18-19.png" alt="image" /></p>
+
+<h3 id="heading-34-将生成文档的步骤自动化起来">3.4 将生成文档的步骤自动化起来</h3>
+
+<p>上面的步骤都完成后，我们就开始想办法把生成文档的步骤自动化起来：</p>
+
+<p>在项目根目录下增加 .gitlab-ci.yml, 内容如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>stages:
+- gendoc
+ 
+genJavaDoc:
+  stage: gendoc
+  script:
+  - "ls -al"
+  - "export APPID=appid_xx" # appid_xx 唯一标示 可以修改成自己的
+  - "export API_PATH=api_modle" # api_modle api模块的路径 根据自己项目填写
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # No need to change the following Env Variables
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - "export ROOT_FOLDER=/data/javadoc" #javadoc的根目录
+  - "export PROJECT_FOLDER=$ROOT_FOLDER/$APPID" # 项目目录
+  - "export CURRENT_GIT_BRANCH=$CI_BUILD_REF_NAME" # 当前分支
+  - "export TARGET_DOC_FOLDER=$PROJECT_FOLDER/${CURRENT_GIT_BRANCH//\\//-}" # 文档目录 我把分支中的/替换成了-
+  - "cd $API_PATH" # 进入api模块的路径
+  - "gradle clean javadoc" # 运行 gradle clean javadoc 生成文档
+  - "mkdir -p $TARGET_DOC_FOLDER"
+  - "rm -rf $TARGET_DOC_FOLDER/*"
+  - "mv ./build/docs/javadoc/* $TARGET_DOC_FOLDER" # 把生成出来的文档移动到对应的文档目录
+ 
+  tags:
+  - gc-java-doc
+</code></pre></div></div>
+
+<p>配置完这些， 基本可以做到 对这个项目push代码， 然后会在服务器对应的目录下生成文档了，但是还不能被查看到</p>
+
+<h3 id="heading-35-配置nginx文件服务">3.5 配置nginx文件服务</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>server {
+    listen       80;
+ 
+    autoindex on; # 开启文件目录索引
+    autoindex_exact_size on; # 展示文件大小
+    autoindex_localtime on; # 展示文件时间
+ 
+    location / {
+        root   /data/javadoc/; # 目录
+    }
+}
+</code></pre></div></div>
+
+<p>现在的页面应该长这个样子</p>
+
+<p><img src="/files/images/image2018-12-2_16-47-15.png" alt="image" /></p>
+
+<h3 id="heading-36-构建一个索引界面">3.6 构建一个索引界面</h3>
+
+<p>我们做个页面优化下:</p>
+
+<p>在doc根目录 /data/javadoc 下面建立 <code class="language-plaintext highlighter-rouge">index.html.template</code> 这个文件， 内容如下</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+    <span class="nt">&lt;head&gt;</span>
+        <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
+        <span class="c">&lt;!-- import CSS --&gt;</span>
+        <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"https://unpkg.com/element-ui/lib/theme-chalk/index.css"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/head&gt;</span>
+    <span class="nt">&lt;body&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"app"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;el-container&gt;</span>
+                <span class="nt">&lt;el-header</span> <span class="na">class=</span><span class="s">"doc-header"</span> <span class="na">height=</span><span class="s">"150px"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"header-title"</span><span class="nt">&gt;</span>
+                        店铺信息组JavaDoc
+                    <span class="nt">&lt;/div&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"header-desc"</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;/el-header&gt;</span>
+                <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"spilt-line"</span><span class="nt">&gt;&lt;/div&gt;</span>
+                <span class="nt">&lt;el-container&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"appid"</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;el-aside</span> <span class="na">width=</span><span class="s">"300px"</span><span class="nt">&gt;</span>
+                            <span class="nt">&lt;el-menu</span> <span class="na">:default-active=</span><span class="s">"activityIndex"</span> <span class="na">class=</span><span class="s">"el-menu-vertical-demo"</span> <span class="na">v-for=</span><span class="s">"(item, index) in file_dir"</span> <span class="err">@</span><span class="na">select=</span><span class="s">"handleSelect"</span><span class="nt">&gt;</span>
+                                <span class="nt">&lt;el-menu-item</span> <span class="na">:index=</span><span class="s">"index+''"</span><span class="nt">&gt;</span>
+                                    <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"el-icon-menu"</span><span class="nt">&gt;&lt;/i&gt;</span>
+                                    <span class="nt">&lt;span</span> <span class="na">slot=</span><span class="s">"title"</span><span class="nt">&gt;&lt;/span&gt;</span>
+                                <span class="nt">&lt;/el-menu-item&gt;</span>
+                            <span class="nt">&lt;/el-menu&gt;</span>
+                        <span class="nt">&lt;/el-aside&gt;</span>
+                    <span class="nt">&lt;/div&gt;</span>
+                    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"appid_branch"</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;el-main&gt;</span>
+                            <span class="nt">&lt;el-table</span> <span class="na">:data=</span><span class="s">"activity_appid_branch_info"</span> <span class="na">style=</span><span class="s">"width: 100%"</span><span class="nt">&gt;</span>
+                                <span class="nt">&lt;el-table-column</span> <span class="na">label=</span><span class="s">"分支"</span> <span class="nt">&gt;</span>
+                                    <span class="nt">&lt;template</span> <span class="na">class=</span><span class="s">"branc_name"</span> <span class="na">slot-scope=</span><span class="s">"scope"</span><span class="nt">&gt;</span>
+                                        <span class="nt">&lt;a</span> <span class="na">:href=</span><span class="s">"activity_appid_info+'/'+scope.row.name"</span><span class="nt">&gt;&lt;/a&gt;</span>
+                                    <span class="nt">&lt;/template&gt;</span>
+                                <span class="nt">&lt;/el-table-column&gt;</span>
+                            <span class="nt">&lt;/el-table&gt;</span>
+                        <span class="nt">&lt;/el-main&gt;</span>
+                    <span class="nt">&lt;/div&gt;</span>
+                <span class="nt">&lt;/el-container&gt;</span>
+            <span class="nt">&lt;/el-container&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/body&gt;</span>
+    <span class="c">&lt;!-- import Vue before Element --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://unpkg.com/vue/dist/vue.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="c">&lt;!-- import JavaScript --&gt;</span>
+    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://unpkg.com/element-ui/lib/index.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+    <span class="nt">&lt;script&gt;</span>
+        <span class="k">new</span> <span class="nx">Vue</span><span class="p">({</span>
+            <span class="na">el</span><span class="p">:</span> <span class="dl">'</span><span class="s1">#app</span><span class="dl">'</span><span class="p">,</span>
+            <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="na">file_dir</span><span class="p">:</span> <span class="nx">GC_JAVA_DOC_FILE_DIR</span><span class="p">,</span>
+                    <span class="na">activityIndex</span><span class="p">:</span> <span class="dl">'</span><span class="s1">0</span><span class="dl">'</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">activity_appid_branch_info</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">file_dir</span><span class="p">[</span><span class="nb">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)][</span><span class="dl">'</span><span class="s1">branch</span><span class="dl">'</span><span class="p">]</span>
+                <span class="p">},</span>
+                <span class="na">activity_appid_info</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">file_dir</span><span class="p">[</span><span class="nb">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)][</span><span class="dl">'</span><span class="s1">appid</span><span class="dl">'</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="na">methods</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nx">handleSelect</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">keyPath</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="o">+</span><span class="dl">''</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">})</span>
+    <span class="nt">&lt;/script&gt;</span>
+    <span class="nt">&lt;style </span><span class="na">scop</span><span class="nt">&gt;</span>
+        <span class="nf">#app</span> <span class="p">{</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nc">.spilt-line</span> <span class="p">{</span>
+            <span class="nl">height</span><span class="p">:</span> <span class="m">1px</span><span class="p">;</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+            <span class="nl">background-color</span><span class="p">:</span> <span class="m">#e6e6e6</span><span class="p">;</span>
+            <span class="nl">margin</span><span class="p">:</span> <span class="m">0px</span> <span class="m">0px</span> <span class="m">30px</span> <span class="m">0px</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nc">.doc-header</span> <span class="p">{</span>
+            <span class="nl">margin</span><span class="p">:</span> <span class="m">10px</span><span class="p">;</span>
+            <span class="nl">position</span><span class="p">:</span> <span class="nb">relative</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nc">.header-title</span> <span class="p">{</span>
+            <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+            <span class="nl">font-size</span><span class="p">:</span> <span class="m">30px</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nc">.header-desc</span> <span class="p">{</span>
+            <span class="nl">font-size</span><span class="p">:</span> <span class="m">15px</span><span class="p">;</span>
+            <span class="nl">position</span><span class="p">:</span> <span class="nb">absolute</span><span class="p">;</span>
+            <span class="nl">bottom</span><span class="p">:</span> <span class="m">0px</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nc">.appid_branch</span> <span class="p">{</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+            <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nc">.branc_name</span> <span class="p">{</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+            <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nt">el-table-column</span> <span class="p">{</span>
+            <span class="nl">font-size</span><span class="p">:</span> <span class="m">100px</span><span class="p">;</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+            <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="nt">&lt;/style&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>再加一个<code class="language-plaintext highlighter-rouge">replace_template.py</code>文件， 内容如下:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#! -*- coding:utf8 -*-
+</span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+ 
+<span class="nb">reload</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
+<span class="n">sys</span><span class="p">.</span><span class="n">setdefaultencoding</span><span class="p">(</span><span class="s">"utf-8"</span><span class="p">)</span>
+ 
+<span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">file_dir</span><span class="p">):</span>
+    <span class="n">index_template_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"index.html.template"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span>
+    <span class="n">index_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"index.html"</span><span class="p">,</span> <span class="s">"w+"</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">'relace:'</span><span class="p">,</span> <span class="n">file_dir</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">index_template_file</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+ 
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"GC_JAVA_DOC_FILE_DIR"</span><span class="p">,</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">file_dir</span><span class="p">))</span>
+        <span class="n">index_file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+ 
+    <span class="n">index_file</span><span class="p">.</span><span class="n">flush</span><span class="p">()</span>
+ 
+<span class="k">def</span> <span class="nf">list_dir</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
+    <span class="s">'''
+        build dir struct
+    '''</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">file_names</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">file_names</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s">'/'</span> <span class="o">+</span> <span class="n">file_name</span>
+        <span class="k">if</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="n">one_info</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">one_info</span><span class="p">[</span><span class="s">'appid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+            <span class="n">one_info</span><span class="p">[</span><span class="s">'branch'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">child_file_names</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">child_file_name</span> <span class="ow">in</span> <span class="n">child_file_names</span><span class="p">:</span>
+                <span class="n">one_info</span><span class="p">[</span><span class="s">'branch'</span><span class="p">].</span><span class="n">append</span><span class="p">({</span><span class="s">"name"</span><span class="p">:</span> <span class="n">child_file_name</span><span class="p">})</span>
+ 
+            <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">one_info</span><span class="p">)</span>
+ 
+    <span class="k">return</span> <span class="n">result</span>
+ 
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">file_dir</span> <span class="o">=</span> <span class="n">list_dir</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+    <span class="n">replace</span><span class="p">(</span><span class="n">file_dir</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>然后修改 .gitlab-ci.yml</p>
+
+<div class="language-yml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">stages</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">gendoc</span>
+ 
+<span class="na">genJavaDoc</span><span class="pi">:</span>
+  <span class="na">stage</span><span class="pi">:</span> <span class="s">gendoc</span>
+  <span class="na">script</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">ls</span><span class="nv"> </span><span class="s">-al"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">export</span><span class="nv"> </span><span class="s">APPID=appid_xx"</span> <span class="c1"># appid_xx 唯一标示 可以修改成自己的</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">export</span><span class="nv"> </span><span class="s">API_PATH=api_modle"</span> <span class="c1"># api_modle api模块的路径 根据自己项目填写</span>
+  <span class="c1"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+  <span class="c1"># No need to change the following Env Variables</span>
+  <span class="c1"># ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">export</span><span class="nv"> </span><span class="s">ROOT_FOLDER=/data/javadoc"</span> <span class="c1">#javadoc的根目录</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">export</span><span class="nv"> </span><span class="s">PROJECT_FOLDER=$ROOT_FOLDER/$APPID"</span> <span class="c1"># 项目目录</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">export</span><span class="nv"> </span><span class="s">CURRENT_GIT_BRANCH=$CI_BUILD_REF_NAME"</span> <span class="c1"># 当前分支</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">export</span><span class="nv"> </span><span class="s">TARGET_DOC_FOLDER=$PROJECT_FOLDER/${CURRENT_GIT_BRANCH//</span><span class="se">\\</span><span class="s">//-}"</span> <span class="c1"># 文档目录 我把分支中的/替换成了-</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">cd</span><span class="nv"> </span><span class="s">$API_PATH"</span> <span class="c1"># 进入api模块的路径</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">gradle</span><span class="nv"> </span><span class="s">clean</span><span class="nv"> </span><span class="s">javadoc"</span> <span class="c1"># 运行 gradle clean javadoc 生成文档</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">mkdir</span><span class="nv"> </span><span class="s">-p</span><span class="nv"> </span><span class="s">$TARGET_DOC_FOLDER"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">rm</span><span class="nv"> </span><span class="s">-rf</span><span class="nv"> </span><span class="s">$TARGET_DOC_FOLDER/*"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">mv</span><span class="nv"> </span><span class="s">./build/docs/javadoc/*</span><span class="nv"> </span><span class="s">$TARGET_DOC_FOLDER"</span> <span class="c1"># 把生成出来的文档移动到对应的文档目录</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">cd</span><span class="nv"> </span><span class="s">$ROOT_FOLDER"</span> <span class="c1"># 进入项目根目录</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">python</span><span class="nv"> </span><span class="s">replace_template.py"</span> <span class="c1"># 运行这个python脚本</span>
+ 
+  <span class="na">tags</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">gc-java-doc</span>
+</code></pre></div></div>
+
+<p>好大功告成，看下面的结果</p>
+
+<h2 id="heading-4-结果">4. 结果</h2>
+
+<h3 id="heading-41-push代码">4.1 push代码</h3>
+
+<p><img src="/files/images/image2018-12-2_17-5-1.png" alt="image" /></p>
+
+<h3 id="heading-42-触发pipline">4.2 触发pipline</h3>
+
+<p><img src="/files/images/image2018-12-2_17-5-39.png" alt="image" /></p>
+
+<h3 id="heading-43-查看文档">4.3 查看文档</h3>
+
+<p><img src="/files/images/image2018-12-2_17-6-32.png" alt="image" /></p>
+
+:ET

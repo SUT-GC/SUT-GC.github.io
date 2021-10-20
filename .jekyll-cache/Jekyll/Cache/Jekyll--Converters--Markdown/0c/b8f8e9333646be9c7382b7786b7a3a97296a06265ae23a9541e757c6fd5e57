@@ -1,0 +1,693 @@
+I"�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-go-学习笔记一" id="markdown-toc-heading-go-学习笔记一">GO 学习笔记（一）</a>    <ul>
+      <li><a href="#heading-命令基础" id="markdown-toc-heading-命令基础">命令基础</a>        <ul>
+          <li><a href="#heading-go-run" id="markdown-toc-heading-go-run">go run</a></li>
+          <li><a href="#heading-go-build" id="markdown-toc-heading-go-build">go build</a></li>
+          <li><a href="#heading-go-install" id="markdown-toc-heading-go-install">go install</a></li>
+          <li><a href="#heading-go-get" id="markdown-toc-heading-go-get">go get</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-基本数据类型" id="markdown-toc-heading-基本数据类型">基本数据类型</a>        <ul>
+          <li><a href="#heading-go-的int类型一共有10个" id="markdown-toc-heading-go-的int类型一共有10个">go 的int类型一共有10个</a></li>
+          <li><a href="#heading-go-的浮点类型" id="markdown-toc-heading-go-的浮点类型">go 的浮点类型</a></li>
+          <li><a href="#heading-go-的复数类型" id="markdown-toc-heading-go-的复数类型">go 的复数类型</a></li>
+          <li><a href="#heading-go-的字符" id="markdown-toc-heading-go-的字符">go 的字符</a></li>
+          <li><a href="#heading-go-的字符串" id="markdown-toc-heading-go-的字符串">go 的字符串</a></li>
+          <li><a href="#heading-go-的数组" id="markdown-toc-heading-go-的数组">go 的数组</a></li>
+          <li><a href="#heading-go-的切片类型" id="markdown-toc-heading-go-的切片类型">go 的切片类型</a></li>
+          <li><a href="#heading-go-的字典类型" id="markdown-toc-heading-go-的字典类型">go 的字典类型</a></li>
+          <li><a href="#heading-go-的通道类型" id="markdown-toc-heading-go-的通道类型">go 的通道类型</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-高级数据类型" id="markdown-toc-heading-高级数据类型">高级数据类型</a>        <ul>
+          <li><a href="#heading-函数" id="markdown-toc-heading-函数">函数</a></li>
+          <li><a href="#heading-go-的结构体" id="markdown-toc-heading-go-的结构体">go 的结构体</a></li>
+          <li><a href="#heading-go-的接口类型" id="markdown-toc-heading-go-的接口类型">go 的接口类型</a></li>
+          <li><a href="#heading-go-的指针" id="markdown-toc-heading-go-的指针">go 的指针</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-基本流程控制" id="markdown-toc-heading-基本流程控制">基本流程控制</a>        <ul>
+          <li><a href="#heading-go-语言中的if" id="markdown-toc-heading-go-语言中的if">go 语言中的if</a></li>
+          <li><a href="#heading-go-语言中的switch" id="markdown-toc-heading-go-语言中的switch">go 语言中的switch</a></li>
+          <li><a href="#heading-go-语言的for" id="markdown-toc-heading-go-语言的for">go 语言的for</a></li>
+          <li><a href="#heading-go-语言的select" id="markdown-toc-heading-go-语言的select">go 语言的select</a></li>
+          <li><a href="#heading-go-语言defer" id="markdown-toc-heading-go-语言defer">go 语言defer</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-go-语言异常处理" id="markdown-toc-heading-go-语言异常处理">go 语言异常处理</a>        <ul>
+          <li><a href="#heading-error" id="markdown-toc-heading-error">error</a></li>
+          <li><a href="#heading-panic" id="markdown-toc-heading-panic">panic</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-go-语句初探" id="markdown-toc-heading-go-语句初探">go 语句初探</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-go-学习笔记一">GO 学习笔记（一）</h1>
+
+<h2 id="heading-命令基础">命令基础</h2>
+
+<h3 id="heading-go-run">go run</h3>
+
+<blockquote>
+  <p>用于运行命令源码文件</p>
+</blockquote>
+
+<p>只能接受一个命令源码文件以及多个库源码文件作为参数</p>
+
+<p>它先编译源码文件，然后把编译好的放在/tmp下，然后运行编译文件</p>
+
+<p><strong>常用参数</strong></p>
+
+<ul>
+  <li>-a 强制编译相关代码</li>
+  <li>-n 打印编译过程中相关的运行命令，不真正执行</li>
+  <li>-p 并行编译 -p 4： 4个并行编译</li>
+  <li>-v 列出编译代码包的名称
+    <ul>
+      <li>1.3 会列出标准库</li>
+      <li>1.4 不会列出标准库</li>
+    </ul>
+  </li>
+  <li>-work 显示临时文件路径，并且不删除这个临时文件</li>
+  <li>-x 打印编译过程中所运行的命令， 但此为真正执行</li>
+</ul>
+
+<h3 id="heading-go-build">go build</h3>
+
+<blockquote>
+  <p>用于编译源码文件或代码包</p>
+</blockquote>
+
+<p>编译任何非命令源码文件不会产生任何结果  <br />
+编译命令文件会在该目录下产生一条可执行文件</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">go build hello.go</code> 编译 hello.go , 如果它是命令文件，则会生成一个可执行文件</li>
+  <li><code class="language-plaintext highlighter-rouge">go build</code> 把当前目录作为代码包进行编译</li>
+  <li><code class="language-plaintext highlighter-rouge">go build packtool</code> 编译其代码包和其依赖的代码包</li>
+</ul>
+
+<h3 id="heading-go-install">go install</h3>
+
+<blockquote>
+  <p>编译并且安装代码包或者源码文件</p>
+</blockquote>
+
+<p>安装代码包会在当前工作区的 pkg/<平台相关目录> 下生成归档文件    
+安装命令源码文件，将会在当前工作区的bin目录或者$GOBIN目录下生成可执行文件</平台相关目录></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">go install</code> 试图把当前目录作为代码包安装</li>
+  <li><code class="language-plaintext highlighter-rouge">go install pkg</code> 该代码包和其依赖进行安装</li>
+  <li><code class="language-plaintext highlighter-rouge">go install hello.go</code> 只会安装hello.go</li>
+</ul>
+
+<h3 id="heading-go-get">go get</h3>
+
+<blockquote>
+  <p>从远程代码仓库上下载并且安装代码包（如github）</p>
+</blockquote>
+
+<ul>
+  <li>go get github.com/go-errors/errors  (安装github上的代码包)</li>
+  <li>将代码包下载到$GOPATH下的第一个目录的src目录下</li>
+  <li>
+    <p>将代码包安装到$GOPATH下的第一个目录下的pkg目录下</p>
+  </li>
+  <li>-d 只执行下载动作，不执行安装动作</li>
+  <li>-fix 先执行修正动作，然后执行安装</li>
+  <li>-u 更新本地的代码包</li>
+</ul>
+
+<h2 id="heading-基本数据类型">基本数据类型</h2>
+
+<p>任何Go语言源码文件都由若干个程序实体组成的。在Go语言中，变量、常量、函数、结构体和接口被统称为“程序实体”，而它们的名字被统称为“标识符”。</p>
+
+<p>在Go语言中，我们对程序实体的访问权限控制只能通过它们的名字来实现。名字首字母为大写的程序实体可以被任何代码包中的代码访问到。而名字首字母为小写的程序实体则只能被同一个代码包中的代码所访问。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+    <span class="s">"fmt"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="n">num1</span> <span class="kt">int</span>
+    <span class="k">var</span> <span class="n">num2</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">2</span>
+    <span class="k">var</span> <span class="n">num3</span><span class="p">,</span> <span class="n">num4</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">3</span><span class="p">,</span> <span class="m">4</span>
+    <span class="k">var</span> <span class="p">(</span>
+        <span class="n">num5</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">5</span>
+        <span class="n">num6</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">6</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c">// 这里也可以把var 替换成 const ，但用const必须在变量声明处初始化</span>
+</code></pre></div></div>
+
+<h3 id="heading-go-的int类型一共有10个">go 的int类型一共有10个</h3>
+
+<ul>
+  <li>int</li>
+  <li>uint</li>
+  <li>int8</li>
+  <li>uint8</li>
+  <li>int16</li>
+  <li>uint16</li>
+  <li>int32</li>
+  <li>uint32</li>
+  <li>int64</li>
+  <li>uint64</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">var</span> <span class="n">num1</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">10</span> <span class="c">//10进制 </span>
+<span class="k">var</span> <span class="n">num2</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">02</span> <span class="c">//8进制 </span>
+<span class="k">var</span> <span class="n">num3</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">0xC</span> <span class="c">//16进制</span>
+</code></pre></div></div>
+
+<h3 id="heading-go-的浮点类型">go 的浮点类型</h3>
+
+<ul>
+  <li>float32</li>
+  <li>float64</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">var</span> <span class="n">f1</span> <span class="kt">float32</span> <span class="o">=</span> <span class="m">1.0</span>
+<span class="k">var</span> <span class="n">f2</span> <span class="kt">float64</span> <span class="o">=</span> <span class="m">1.2E-2</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p><a href="https://github.com/polaris1119/The-Golang-Standard-Library-by-Example/blob/master/chapter01/01.3.md">格式化IO fmt</a></p>
+</blockquote>
+
+<h3 id="heading-go-的复数类型">go 的复数类型</h3>
+
+<ul>
+  <li>complex64</li>
+  <li>complex128</li>
+</ul>
+
+<p>complex64类型的值会由两个float32类型的值分别表示复数的实数部分和虚数部分。而complex128类型的值会由两个float64类型的值分别表示复数的实数部分和虚数部分</p>
+
+<p>复数类型的值一般由浮点数表示的实数部分、加号“+”、浮点数表示的虚数部分，以及小写字母“i”组成。比如，3.7E+1 + 5.98E-2i。正因为复数类型的值由两个浮点数类型值组成，所以其表示法的规则自然需遵从浮点数类型的值表示法的相关规则。</p>
+
+<h3 id="heading-go-的字符">go 的字符</h3>
+
+<ul>
+  <li>byte (==uint8)</li>
+  <li>rune (==int32)</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">var</span> <span class="n">b</span> <span class="kt">byte</span> <span class="o">=</span> <span class="m">0</span>
+<span class="k">var</span> <span class="n">c</span> <span class="kt">rune</span> <span class="o">=</span> <span class="sc">'好'</span>
+</code></pre></div></div>
+
+<h3 id="heading-go-的字符串">go 的字符串</h3>
+
+<ul>
+  <li>""  普通字符串</li>
+  <li>``  原生字符串</li>
+</ul>
+
+<h3 id="heading-go-的数组">go 的数组</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">var arr = [3]int{1,2,3}</code></li>
+  <li><code class="language-plaintext highlighter-rouge">var arr2 [3]int</code></li>
+  <li><code class="language-plaintext highlighter-rouge">var arr3 = [...]int{1,2,3}</code></li>
+</ul>
+
+<h3 id="heading-go-的切片类型">go 的切片类型</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">var cap1 = []int{1,2,3}</code></li>
+</ul>
+
+<p>对数组做切片操作返回的也是切片类型：<code class="language-plaintext highlighter-rouge">arr[1:2] -&gt;返回切片类型</code></p>
+
+<p>个切片值的容量即为它的第一个元素值在其底层数组中的索引值与该数组长度的差值的绝对值。为了获取数组、切片或通道类型的值的容量，我们可以使用内建函数cap</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">var</span> <span class="n">arr1</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span><span class="kt">int</span><span class="p">{</span><span class="m">0</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">3</span><span class="p">}</span>
+<span class="k">var</span> <span class="n">cap1</span> <span class="p">[]</span><span class="kt">int</span> <span class="o">=</span> <span class="n">arr1</span><span class="p">[</span><span class="m">3</span><span class="o">:</span><span class="m">3</span><span class="p">]</span>
+<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="nb">cap</span><span class="p">(</span><span class="n">cap1</span><span class="p">))</span> <span class="c">// 1</span>
+<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cap1</span><span class="p">))</span> <span class="c">// 0</span>
+</code></pre></div></div>
+<h3 id="heading-go-的字典类型">go 的字典类型</h3>
+
+<p>go的字典类型无非是对hash表的一种实现</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+    <span class="s">"fmt"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="k">var</span> <span class="n">map1</span> <span class="o">=</span> <span class="k">map</span><span class="p">[</span><span class="kt">int</span><span class="p">]</span><span class="kt">string</span> <span class="p">{</span><span class="m">1</span><span class="o">:</span><span class="s">"a"</span><span class="p">,</span> <span class="m">2</span><span class="o">:</span><span class="s">"b"</span><span class="p">,</span> <span class="m">3</span><span class="o">:</span><span class="s">"c"</span><span class="p">}</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">map1</span><span class="p">[</span><span class="m">1</span><span class="p">])</span> <span class="c">//a</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">map1</span><span class="p">[</span><span class="m">4</span><span class="p">])</span> <span class="c">//""</span>
+    <span class="k">var</span> <span class="n">v1</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">map1</span><span class="p">[</span><span class="m">4</span><span class="p">]</span><span class="o">-</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ok</span><span class="p">)</span> <span class="c">//"" false</span>
+<span class="p">}</span>
+
+<span class="c">// 如果不存在这个key， 他的value则为该类型的默认空，如value的string类型的，则默认空为“”， `var v1, ok = map1[4]` 这里如果没有这个key， 则返回第二个参数为bool类型的-&gt; false    </span>
+</code></pre></div></div>
+
+<h3 id="heading-go-的通道类型">go 的通道类型</h3>
+
+<p>通道（Channel）是Go语言中一种非常独特的数据结构。它可用于在不同Goroutine之间传递类型化的数据，并且是并发安全的。相比之下，我们之前介绍的那些数据类型都不是并发安全的。这一点需要特别注意。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+    <span class="s">"fmt"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="k">var</span> <span class="n">chan1</span> <span class="k">chan</span> <span class="kt">int</span> <span class="o">=</span> <span class="nb">make</span><span class="p">(</span><span class="k">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+    <span class="k">go</span> <span class="k">func</span><span class="p">(){</span>
+        <span class="n">chan1</span> <span class="o">&lt;-</span> <span class="m">1</span>
+    <span class="p">}()</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="n">chan1</span><span class="p">)</span> <span class="c">//1</span>
+    <span class="nb">close</span><span class="p">(</span><span class="n">chan1</span><span class="p">)</span>
+    <span class="k">var</span> <span class="n">a</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="o">&lt;-</span><span class="n">chan1</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ok</span><span class="p">)</span> <span class="c">// 0, false</span>
+<span class="p">}</span>
+<span class="c">// go func(){chan1&lt;-1}() ： go后面运行一个匿名函数    </span>
+<span class="c">// 如果通道中没有元素，则会等待下去， 如果通道被关闭，则&lt;-操作会取出默认值并且返回false标示    </span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">make(chan int, 1)</code> 创建一个缓冲通道， 则直到缓冲区满了才会阻塞  <br />
+<code class="language-plaintext highlighter-rouge">make(chan int, 0)</code> 创建一个非缓冲通道，放入一个元素便阻塞</p>
+
+<p>通常情况下，我们定义的都是双向通道，当然，我们也可以声明单向通道</p>
+
+<p><code class="language-plaintext highlighter-rouge">var simpleChan chan&lt;-int </code>  只能放入数据的通道  <br />
+<code class="language-plaintext highlighter-rouge">car simpleChan &lt;-chan int</code> 只能取数据的通道</p>
+
+<p>我们可以把一个双向通道赋值给单向通道，以用来约束对通道的使用</p>
+
+<h2 id="heading-高级数据类型">高级数据类型</h2>
+
+<h3 id="heading-函数">函数</h3>
+
+<p>在go语言中，函数为一等公民， 这意味着，我们可以把函数作为值来传递和使用。函数代表着这样一个过程：它接受若干输入（参数），并经过一些步骤（语句）的执行之后再返回输出（结果）。特别的是，Go语言中的函数可以返回多个结果。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+    <span class="s">"fmt"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">func1</span> <span class="p">(</span><span class="n">arg1</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">arg1</span> <span class="o">+</span> <span class="s">"world"</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">func2</span> <span class="p">(</span><span class="n">arg1</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="n">result</span> <span class="kt">string</span><span class="p">){</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">arg1</span> <span class="o">+</span> <span class="s">"world"</span>
+    <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="k">var</span> <span class="n">func3</span> <span class="o">=</span> <span class="k">func</span><span class="p">(</span><span class="n">arg1</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span><span class="p">{</span>
+        <span class="k">return</span> <span class="n">arg1</span><span class="o">+</span><span class="s">"world"</span>
+    <span class="p">}</span>
+    <span class="k">var</span> <span class="n">func4</span> <span class="k">func</span><span class="p">(</span><span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="o">=</span> <span class="n">func3</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">func1</span><span class="p">(</span><span class="s">"hello"</span><span class="p">))</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">func2</span><span class="p">(</span><span class="s">"hello"</span><span class="p">))</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">func3</span><span class="p">(</span><span class="s">"hello"</span><span class="p">))</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">func4</span><span class="p">(</span><span class="s">"hello"</span><span class="p">))</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="k">func</span><span class="p">(</span><span class="n">arg1</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span><span class="k">return</span> <span class="n">arg1</span> <span class="o">+</span> <span class="s">"world"</span> <span class="p">}(</span><span class="s">"hello"</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="heading-go-的结构体">go 的结构体</h3>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="s">"fmt"</span>
+
+<span class="k">type</span> <span class="n">Person</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="n">Name</span>    <span class="kt">string</span>
+    <span class="n">Gender</span>  <span class="kt">string</span>
+    <span class="n">Age</span>     <span class="kt">uint8</span>
+    <span class="n">Address</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c">// 这里的*号代表这是址赋值而不是值赋值</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">person</span> <span class="o">*</span><span class="n">Person</span><span class="p">)</span> <span class="n">Move</span><span class="p">(</span><span class="n">address</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span><span class="p">{</span>
+    <span class="k">var</span> <span class="n">old</span> <span class="kt">string</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">Address</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">Address</span> <span class="o">=</span> <span class="n">address</span>
+    <span class="k">return</span> <span class="n">old</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">p</span> <span class="o">:=</span> <span class="n">Person</span><span class="p">{</span><span class="s">"Robert"</span><span class="p">,</span> <span class="s">"Male"</span><span class="p">,</span> <span class="m">33</span><span class="p">,</span> <span class="s">"Beijing"</span><span class="p">}</span>
+    <span class="n">oldAddress</span> <span class="o">:=</span> <span class="n">p</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="s">"San Francisco"</span><span class="p">)</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%s moved from %s to %s.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span> <span class="n">oldAddress</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">Address</span><span class="p">)</span>
+    <span class="c">//Robert moved from Beijing to San Francisco.</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Go语言的结构体类型（Struct）比函数类型更加灵活。它可以封装属性和操作。前者即是结构体类型中的字段，而后者则是结构体类型所拥有的方法。</p>
+
+<p>注意，与对象不同的是，结构体类型（以及任何类型）之间都不可能存在继承关系。实际上，在Go语言中并没有继承的概念。</p>
+
+<p>结构体类型属于值类型， 所以与引用类型不同得是，结构体的空值则为每个属性对应类型的空值</p>
+
+<h3 id="heading-go-的接口类型">go 的接口类型</h3>
+
+<p>在Go语言中，一个接口类型总是代表着某一种类型（即所有实现它的类型）的行为。一个接口类型的声明通常会包含关键字type、类型名称、关键字interface以及由花括号包裹的若干方法声明</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="n">Animal</span> <span class="k">interface</span> <span class="p">{</span>
+    <span class="n">Grow</span><span class="p">()</span>
+    <span class="n">Move</span><span class="p">(</span><span class="kt">string</span><span class="p">)</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>注意，接口类型中的方法声明是普通的方法声明的简化形式。它们只包括方法名称、参数声明列表和结果声明列表。其中的参数的名称和结果的名称都可以被省略。不过，出于文档化的目的，我还是建议大家在这里写上它们。因此，Move方法的声明至少应该是这样的：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Move</span><span class="p">(</span><span class="nb">new</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="n">old</span> <span class="kt">string</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>如果一个数据类型所拥有的方法集合中包含了某一个接口类型中的所有方法声明的实现，那么就可以说这个数据类型实现了那个接口类型。所谓实现一个接口中的方法是指，具有与该方法相同的声明并且添加了实现部分（由花括号包裹的若干条语句）。相同的方法声明意味着完全一致的名称、参数类型列表和结果类型列表。其中，参数类型列表即为参数声明列表中除去参数名称的部分。一致的参数类型列表意味着其长度以及顺序的完全相同。对于结果类型列表也是如此。</p>
+
+<p>你可能已经意识到，我们无需在一个数据类型中声明它实现了哪个接口。只要满足了“方法集合为其超集”的条件，就建立了“实现”关系。这是典型的无侵入式的接口实现方法。</p>
+
+<p>在go语言中，如果一个类完全实现了一个接口中的所有函数，那么就可以说这个类型实现了这个接口了么？ 编译器是不知道的，在Go语言中，这种判定可以用类型断言来实现。不过，在这里，我们是不能在一个非接口类型的值上应用类型断言来判定它是否属于某一个接口类型的。我们必须先把前者转换成空接口类型的值。这又涉及到了Go语言的类型转换</p>
+
+<p>Go语言的类型转换规则定义了是否能够以及怎样可以把一个类型的值转换另一个类型的值。另一方面，所谓空接口类型即是不包含任何方法声明的接口类型，用interface{}表示，常简称为空接口。正因为空接口的定义，Go语言中的包含预定义的任何数据类型都可以被看做是空接口的实现。我们可以直接使用类型转换表达式把一个*Person类型转换成空接口类型的值，就像这样：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">:=</span> <span class="n">Person</span><span class="p">{</span><span class="s">"Robert"</span><span class="p">,</span> <span class="s">"Male"</span><span class="p">,</span> <span class="m">33</span><span class="p">,</span> <span class="s">"Beijing"</span><span class="p">}</span>
+<span class="n">v</span> <span class="o">:=</span> <span class="k">interface</span><span class="p">{}(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>这里，我们把Person类型转换成了接口类型</p>
+
+<p>然后我们就可以用接口断言判断是否属于这个接口类型</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">animal</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="k">interface</span><span class="p">{}(</span><span class="o">&amp;</span><span class="n">myCat</span><span class="p">)</span><span class="o">.</span><span class="p">(</span><span class="n">Animal</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>.(Animal) 是断言，判断是否是Animal 的值, 这里的 animal 是转换之后的值，ok是一个是否转换成功的标识符</p>
+
+<h3 id="heading-go-的指针">go 的指针</h3>
+
+<p>又到了 <code class="language-plaintext highlighter-rouge">&amp;</code> 和 <code class="language-plaintext highlighter-rouge">*</code> 区别论的时候</p>
+
+<p><code class="language-plaintext highlighter-rouge">&amp;</code> 是取址操作符  <br />
+<code class="language-plaintext highlighter-rouge">*</code> 是取值操作符</p>
+
+<p>初次接触，感觉与c/c++的一样， 看下面代码：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+    <span class="s">"fmt"</span>
+<span class="p">)</span>
+
+<span class="k">type</span> <span class="n">Person</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="n">name</span> <span class="kt">string</span>
+    <span class="n">age</span>  <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">func1</span> <span class="p">(</span><span class="n">person</span> <span class="o">*</span><span class="n">Person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">age</span> <span class="o">++</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="k">var</span> <span class="n">person</span> <span class="n">Person</span> <span class="o">=</span> <span class="n">Person</span><span class="p">{</span><span class="s">"gc"</span><span class="p">,</span> <span class="m">22</span><span class="p">}</span>
+    <span class="n">func1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">person</span><span class="p">)</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">age</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c">//23</span>
+</code></pre></div></div>
+
+<h2 id="heading-基本流程控制">基本流程控制</h2>
+
+<h3 id="heading-go-语言中的if">go 语言中的if</h3>
+
+<p>if语句一般会由关键字if、条件表达式和由花括号包裹的代码块组成。所谓代码块，即是包含了若干表达式和语句的序列。在Go语言中，代码块必须由花括号包裹。另外，这里的条件表达式是指其结果类型是bool的表达式。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="s">"fmt"</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="n">number</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">5</span>
+	<span class="k">if</span> <span class="n">number</span> <span class="o">+=</span> <span class="m">4</span><span class="p">;</span> <span class="m">10</span> <span class="o">&gt;</span> <span class="n">number</span> <span class="p">{</span>
+		<span class="n">number</span> <span class="o">*=</span> <span class="m">4</span>
+		<span class="n">number</span> <span class="o">+=</span> <span class="m">3</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="m">10</span> <span class="o">&lt;</span> <span class="n">number</span> <span class="p">{</span>
+		<span class="n">number</span> <span class="o">-=</span> <span class="m">2</span>
+		<span class="n">fmt</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-go-语言中的switch">go 语言中的switch</h3>
+
+<p>与串联的if语句类似，switch语句提供了一个多分支条件执行的方法。不过在这里用一个专有名词来代表分支——case。每一个case可以携带一个表达式或一个类型说明符。前者又可被简称为case表达式。因此，Go语言的switch语句又分为表达式switch语句和类型switch语句。</p>
+
+<p>先说表达式switch语句。在此类switch语句中，每个case会携带一个表达式。与if语句中的条件表达式不同，这里的case表达式的结果类型并不一定是bool。不过，它们的结果类型需要与switch表达式的结果类型一致。所谓switch表达式是指switch语句中要被判定的那个表达式。switch语句会依据该表达式的结果与各个case表达式的结果是否相同来决定执行哪个分支。请看下面的示例：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">var</span> <span class="n">name</span> <span class="kt">string</span>
+<span class="c">// 省略若干条语句</span>
+<span class="k">switch</span> <span class="n">name</span> <span class="p">{</span>
+<span class="k">case</span> <span class="s">"Golang"</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"A programming language from Google."</span><span class="p">)</span>
+<span class="k">case</span> <span class="s">"Rust"</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"A programming language from Mozilla."</span><span class="p">)</span>
+<span class="k">default</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Unknown!"</span><span class="p">)</span>
+<span class="p">}</span>  
+</code></pre></div></div>
+
+<p>好了，我们已经对switch语句的一般形式——表达式switch语句——有所了解了。下面我们来说说类型switch语句。它与一般形式有两点差别。第一点，紧随case关键字的不是表达式，而是类型说明符。类型说明符由若干个类型字面量组成，且多个类型字面量之间由英文逗号分隔。第二点，它的switch表达式是非常特殊的。这种特殊的表达式也起到了类型断言的作用，但其表现形式很特殊，如：v.(type)，其中v必须代表一个接口类型的值。注意，该类表达式只能出现在类型switch语句中，且只能充当switch表达式。一个类型switch语句的示例如下</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">v</span> <span class="o">:=</span> <span class="m">11</span>
+<span class="k">switch</span> <span class="n">i</span> <span class="o">:=</span> <span class="k">interface</span><span class="p">{}(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="p">(</span><span class="k">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">int8</span><span class="p">,</span> <span class="kt">int16</span><span class="p">,</span> <span class="kt">int32</span><span class="p">,</span> <span class="kt">int64</span><span class="o">:</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"A signed integer: %d. The type is %T. </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="k">case</span> <span class="kt">uint</span><span class="p">,</span> <span class="kt">uint8</span><span class="p">,</span> <span class="kt">uint16</span><span class="p">,</span> <span class="kt">uint32</span><span class="p">,</span> <span class="kt">uint64</span><span class="o">:</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"A unsigned integer: %d. The type is %T. </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="k">default</span><span class="o">:</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Unknown!"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-go-语言的for">go 语言的for</h3>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="m">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s">" "</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="s">"Go语言"</span> <span class="p">{</span>
+    <span class="c">// 这里的i 是索引，v是值</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%d: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="p">}</span>   
+
+<span class="n">map1</span> <span class="o">:=</span> <span class="k">map</span><span class="p">[</span><span class="kt">int</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="m">1</span><span class="o">:</span> <span class="s">"Golang"</span><span class="p">,</span> <span class="m">2</span><span class="o">:</span> <span class="s">"Java"</span><span class="p">,</span> <span class="m">3</span><span class="o">:</span> <span class="s">"Python"</span><span class="p">,</span> <span class="m">4</span><span class="o">:</span> <span class="s">"C"</span><span class="p">}</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">map1</span> <span class="p">{</span>
+   <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%d:%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c">// 关键字range以及range表达式。其中，range表达式的结果值的类型应该是能够被迭代的，包括：字符串类型、数组类型、数组的指针类型、切片类型、字典类型和通道类型</span>
+
+</code></pre></div></div>
+
+<h3 id="heading-go-语言的select">go 语言的select</h3>
+
+<p>select语句属于条件分支流程控制方法，不过它只能用于通道。它可以包含若干条case语句，并根据条件选择其中的一个执行。进一步说，select语句中的case关键字只能后跟用于通道的发送操作的表达式以及接收操作的表达式或语句。示例如下：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ch1</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="k">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+<span class="n">ch2</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="k">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+<span class="c">// 省略若干条语句</span>
+<span class="k">select</span> <span class="p">{</span>
+<span class="k">case</span> <span class="n">e1</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="n">ch1</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"1th case is selected. e1=%v.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">e1</span><span class="p">)</span>
+<span class="k">case</span> <span class="n">e2</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="n">ch2</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"2th case is selected. e2=%v.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">e2</span><span class="p">)</span>
+<span class="k">default</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"No data!"</span><span class="p">)</span>
+<span class="p">}</span> 
+</code></pre></div></div>
+
+<p>如果该select语句被执行时通道ch1和ch2中都没有任何数据，那么肯定只有default case会被执行。但是，只要有一个通道在当时有数据就不会轮到default case执行了。显然，对于包含通道接收操作的case来讲，其执行条件就是通道中存在数据（或者说通道未空）。如果在当时有数据的通道多于一个，那么Go语言会通过一种伪随机的算法来决定哪一个case将被执行。</p>
+
+<p>另一方面，对于包含通道发送操作的case来讲，其执行条件就是通道中至少还能缓冲一个数据（或者说通道未满）。类似的，当有多个case中的通道未满时，它们会被随机选择。请看下面的示例：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ch3</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="k">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="m">100</span><span class="p">)</span>
+<span class="c">// 省略若干条语句</span>
+<span class="k">select</span> <span class="p">{</span>
+<span class="k">case</span> <span class="n">ch3</span> <span class="o">&lt;-</span> <span class="m">1</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Sent %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+<span class="k">case</span> <span class="n">ch3</span> <span class="o">&lt;-</span> <span class="m">2</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Sent %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+<span class="k">default</span><span class="o">:</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"Full channel!"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>请注意，如果一条select语句中不存在default case， 并且在被执行时其中的所有case都不满足执行条件，那么它的执行将会被阻塞！当前流程的进行也会因此而停滞。直到其中一个case满足了执行条件，执行才会继续。我们一直在说case执行条件的满足与否取决于其操作的通道在当时的状态。这里特别强调一点，即：未被初始化的通道会使操作它的case永远满足不了执行条件。对于针对它的发送操作和接收操作来说都是如此。</p>
+
+<p>最后提一句，break语句也可以被包含在select语句中的case语句中。它的作用是立即结束当前的select语句的执行，不论其所属的case语句中是否还有未被执行的语句。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="s">"fmt"</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">ch4</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="k">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="m">4</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">select</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="n">e</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="n">ch4</span><span class="o">:</span>
+			<span class="k">if</span> <span class="o">!</span><span class="n">ok</span> <span class="p">{</span>
+				<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"End."</span><span class="p">)</span>
+				<span class="k">return</span>
+			<span class="p">}</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+			<span class="nb">close</span><span class="p">(</span><span class="n">ch4</span><span class="p">)</span>
+			
+		<span class="k">default</span><span class="o">:</span>
+			<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"No Data!"</span><span class="p">)</span>
+			<span class="n">ch4</span> <span class="o">&lt;-</span> <span class="m">1</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">//No Data!</span>
+<span class="c">//1</span>
+<span class="c">//End.</span>
+</code></pre></div></div>
+
+<h3 id="heading-go-语言defer">go 语言defer</h3>
+
+<p>与select语句一样，Go语言中的defer语句也非常独特，而且比前者有过之而无不及。defer语句仅能被放置在函数或方法中。它由关键字defer和一个调用表达式组成。注意，这里的调用表达式所表示的既不能是对Go语言内建函数的调用也不能是对Go语言标准库代码包unsafe中的那些函数的调用。实际上，满足上述条件的调用表达式被称为表达式语句。请看下面的示例</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="p">(</span>
+    <span class="s">"fmt"</span>
+<span class="p">)</span>
+
+<span class="k">func</span> <span class="n">func1</span><span class="p">(){</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"func1"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">func2</span><span class="p">(){</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"func2"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">function</span><span class="p">(){</span>
+    <span class="k">defer</span> <span class="n">func1</span><span class="p">()</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="s">"function"</span><span class="p">)</span>
+    <span class="k">defer</span> <span class="n">func2</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">readFile</span><span class="p">(</span><span class="n">path</span> <span class="kt">string</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">file</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">os</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+    <span class="k">defer</span> <span class="n">file</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ioutil</span><span class="o">.</span><span class="n">ReadAll</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">(){</span>
+    <span class="n">function</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c">//function</span>
+<span class="c">//func2</span>
+<span class="c">//func1</span>
+<span class="c">//defer 如字面意思一样，将会在退出函数之前执行， 所以defer关键字必须放在函数里且修饰一个表达式    </span>
+</code></pre></div></div>
+
+<ul>
+  <li>refer 标示的表达式一定会最后执行</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">deferIt3</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">f</span> <span class="o">:=</span> <span class="k">func</span><span class="p">(</span><span class="n">i</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%d "</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">i</span> <span class="o">*</span> <span class="m">10</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="m">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="k">defer</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%d "</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c">//1 2 3 4 40 30 20 10</span>
+</code></pre></div></div>
+
+<ul>
+  <li>refer 标示的表达式一定会最后执行，且用依赖变量的最后状态</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">deferIt4</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="m">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="k">defer</span> <span class="k">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">}()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c">//输出是5555 而不是4321     </span>
+</code></pre></div></div>
+
+<h2 id="heading-go-语言异常处理">go 语言异常处理</h2>
+
+<h3 id="heading-error">error</h3>
+
+<p>Go语言的函数可以一次返回多个结果。这就为我们温和地报告错误提供了语言级别的支持。实际上，这也是Go语言中处理错误的惯用法之一</p>
+
+<p>error是Go语言内置的一个接口类型。它的声明是这样的：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="kt">error</span> <span class="k">interface</span> <span class="p">{</span> 
+    <span class="n">Error</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>下面代码展示了go语言中对err的处理方式，在Go语言中，函数与其调用方之间温和地传递错误的方法即是如此。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">parentPath</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">os</span><span class="o">.</span><span class="n">Getwd</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+	<span class="p">}</span>
+</code></pre></div></div>
+
+<p>创造异常并且向外传递：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s">""</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">New</span><span class="p">(</span><span class="s">"The parameter is invalid!"</span><span class="p">)</span>
+<span class="p">}</span>   
+</code></pre></div></div>
+
+<p>errors.New是一个很常用的函数。在Go语言标准库的代码包中有很多由此函数创建出来的错误值，比如os.ErrPermission、io.EOF等变量的值。我们可以很方便地用操作符==来判断一个error类型的值与这些变量的值是否相等，从而来确定错误的具体类别。就拿io.EOF来说，它代表了一个信号。该信号用于通知数据读取方已无更多数据可读。我们在得到这样一个错误的时候不应该把它看成一个真正的错误，而应该只去结束相应的读取操作。请看下面的示例：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">br</span> <span class="o">:=</span> <span class="n">bufio</span><span class="o">.</span><span class="n">NewReader</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="k">var</span> <span class="n">buf</span> <span class="n">bytes</span><span class="o">.</span><span class="n">Buffer</span>
+<span class="k">for</span> <span class="p">{</span>
+    <span class="n">ba</span><span class="p">,</span> <span class="n">isPrefix</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">br</span><span class="o">.</span><span class="n">ReadLine</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="n">io</span><span class="o">.</span><span class="n">EOF</span> <span class="p">{</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Error: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="k">break</span>
+    <span class="p">}</span>
+    <span class="n">buf</span><span class="o">.</span><span class="n">Write</span><span class="p">(</span><span class="n">ba</span><span class="p">)</span>
+    <span class="k">if</span> <span class="o">!</span><span class="n">isPrefix</span> <span class="p">{</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">WriteByte</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>总之，只要能够善用error接口、errors.New函数和比较操作符==，我们就可以玩儿转Go语言中的一般错误处理。</p>
+
+<h3 id="heading-panic">panic</h3>
+
+<h2 id="heading-go-语句初探">go 语句初探</h2>
+
+:ET

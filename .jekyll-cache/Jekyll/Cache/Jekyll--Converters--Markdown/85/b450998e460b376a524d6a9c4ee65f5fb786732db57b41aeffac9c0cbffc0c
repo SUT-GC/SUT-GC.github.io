@@ -1,0 +1,397 @@
+I"dF<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-markdown-入门指南及网站整合" id="markdown-toc-heading-markdown-入门指南及网站整合">Markdown-入门指南及网站整合</a>    <ul>
+      <li><a href="#heading-一markdown介绍" id="markdown-toc-heading-一markdown介绍">一.Markdown介绍</a></li>
+      <li><a href="#heading-二markdown编辑器" id="markdown-toc-heading-二markdown编辑器">二.Markdown编辑器</a>        <ul>
+          <li><a href="#heading-21-在线编辑器类" id="markdown-toc-heading-21-在线编辑器类">2.1 在线编辑器类</a></li>
+          <li><a href="#heading-22-chrome插件类" id="markdown-toc-heading-22-chrome插件类">2.2 Chrome插件类</a></li>
+          <li><a href="#heading-23-windows平台" id="markdown-toc-heading-23-windows平台">2.3 Windows平台</a></li>
+          <li><a href="#heading-24-mac-os平台" id="markdown-toc-heading-24-mac-os平台">2.4 Mac OS平台</a></li>
+          <li><a href="#heading-25-linux-平台" id="markdown-toc-heading-25-linux-平台">2.5 Linux 平台</a></li>
+          <li><a href="#heading-当然很多文本编辑器提供了对markdown插件的集成如sublime-test可以自己安装支持markdown插件" id="markdown-toc-heading-当然很多文本编辑器提供了对markdown插件的集成如sublime-test可以自己安装支持markdown插件">当然很多文本编辑器提供了对Markdown插件的集成,如Sublime Test,可以自己安装支持Markdown插件</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-三markdown语法" id="markdown-toc-heading-三markdown语法">三.Markdown语法</a>        <ul>
+          <li><a href="#heading-31-标题" id="markdown-toc-heading-31-标题">3.1 标题</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#heading-一级标题" id="markdown-toc-heading-一级标题">一级标题</a>    <ul>
+      <li><a href="#heading-二级标题" id="markdown-toc-heading-二级标题">二级标题</a>        <ul>
+          <li><a href="#heading-三级标题" id="markdown-toc-heading-三级标题">三级标题</a></li>
+          <li><a href="#heading-32-列表" id="markdown-toc-heading-32-列表">3.2 列表</a></li>
+          <li><a href="#heading-33-文本粗体与斜体的控制" id="markdown-toc-heading-33-文本粗体与斜体的控制">3.3 文本<strong>粗体</strong>与<em>斜体</em>的控制</a></li>
+          <li><a href="#heading-34-代码框的实现也就是html里的code标签" id="markdown-toc-heading-34-代码框的实现也就是html里的code标签">3.4 代码框的实现(也就是Html里的&lt;code&gt;标签)</a></li>
+          <li><a href="#heading-35-引用的实现" id="markdown-toc-heading-35-引用的实现">3.5 引用的实现</a></li>
+          <li><a href="#heading-36-html里的pre标签的实现" id="markdown-toc-heading-36-html里的pre标签的实现">3.6 Html里的<code class="language-plaintext highlighter-rouge">&lt;pre&gt;</code>标签的实现</a></li>
+          <li><a href="#heading-37-分割线" id="markdown-toc-heading-37-分割线">3.7 分割线</a></li>
+          <li><a href="#heading-38-markdown语法中还支持对图片的插入与连接的插入" id="markdown-toc-heading-38-markdown语法中还支持对图片的插入与连接的插入">3.8 Markdown语法中还支持对图片的插入与连接的插入</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-四网站整合markdown" id="markdown-toc-heading-四网站整合markdown">四.网站整合Markdown</a>        <ul>
+          <li><a href="#heading-本片文章到此已经对markdown的相内容介绍完毕了你是不是也心动了呢赶快让你的网站支持markdown吧" id="markdown-toc-heading-本片文章到此已经对markdown的相内容介绍完毕了你是不是也心动了呢赶快让你的网站支持markdown吧">本片文章到此已经对Markdown的相内容介绍完毕了,你是不是也心动了呢?赶快让你的网站支持Markdown吧…</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-markdown-入门指南及网站整合">Markdown-入门指南及网站整合</h1>
+
+<h2 id="heading-一markdown介绍">一.Markdown介绍</h2>
+<p><a href="http://baike.baidu.com/link?url=5HEDK6nklffOeIGB_UFTAteXgbVTnIi4R-E5yY9AYPVG4Mw97fNd8yjtzcFXE1YI0iwM-rGm2xpXB9QRHJJbYq">Markdown</a> 是一种用来写作的轻量级「标记语言」，它用简洁的语法代替排版，而不像一般我们用的字处理软件 <a href="">Word</a> 或 <a href="">Pages</a> 有大量的排版、字体设置。它使我们专心于码字，用「标记」语法，来代替常见的排版格式。例如此文从内容到格式，甚至插图，键盘就可以通通搞定了。目前来看，支持 Markdown 语法的编辑器有很多，包括很多网站（例如<a href="http://www.jianshu.com/">简书</a>）也支持了 Markdown 的文字录入。Markdown 从写作到完成，导出格式随心所欲，你可以导出 HTML 格式的文件用来网站发布，也可以十分方便的导出 PDF 格式，这种格式写出的简历更能得到 HR 的好感。甚至可以利用 <a href="https://portal.qiniu.com/">七牛</a> 这种云服务工具直接上传至网页用来分享你的文章，全球最大的轻博客平台 Tumblr，也支持使用 Mou 这类 Markdown 工具进行编辑并直接上传,同时<a href="https://github.com/">GitHub</a>也支持Markdown语法进行文本编辑。</p>
+<blockquote>
+  <p>下面我们可以看见官方的Markdown语法规则,不过后面我也会介绍语法规则给大家</p>
+
+  <ul>
+    <li>
+      <p><a href="http://daringfireball.net/projects/markdown/syntax">创始人 John Gruber 的 Markdown 语法说明</a></p>
+    </li>
+    <li>
+      <p><a href="http://wowubuntu.com/markdown/#list">Markdown 中文版语法说明</a></p>
+    </li>
+  </ul>
+</blockquote>
+
+<hr />
+
+<h2 id="heading-二markdown编辑器">二.Markdown编辑器</h2>
+<h3 id="heading-21-在线编辑器类">2.1 在线编辑器类</h3>
+
+<p>1.dillinger 漂亮强大，支持md, html, pdf 文件导出。支持dropbox, onedrive，google drive, github. 来自国外，可能不够稳定.<br />
+<img src="http://7xoguv.com1.z0.glb.clouddn.com/igoucdillinger.jpg" alt="dillinger" /></p>
+
+<p>2.<a href="http://www.jianshu.com/">简书</a> 一个非常不错的博客平台，每几秒钟便会自动存入一个备份。可以直接从本地拖入照片生成链接，一直在不断优化。作为一个博客平台，需要注册账号后方能进行写作.<br />
+<img src="http://7xoguv.com1.z0.glb.clouddn.com/igouclinanshu.jpg" alt="简书" /></p>
+
+<h3 id="heading-22-chrome插件类">2.2 Chrome插件类</h3>
+<p>1.<a href="https://maxiang.io/">Marxico</a>中文名马克飞象，因为印象笔记不支持Markdown，而这款可以直接把文本存到印象笔记的编辑器对于重度印象笔记用户是个不错的选择。付费软件，可以免费试用。<br />
+<img src="http://7xoguv.com1.z0.glb.clouddn.com/igoucmarxico.jpg" alt="Marxico" /></p>
+
+<h3 id="heading-23-windows平台">2.3 Windows平台</h3>
+<p>1.<a href="http://www.markdownpad.com/">MarkdownPad</a>一款全功能的编辑器，被很多人称赞为windows 平台最好用的markdown编辑器.<br />
+<img src="http://7xoguv.com1.z0.glb.clouddn.com/igoucMarkdownpad.jpg" alt="MarkdownPad" /></p>
+
+<h3 id="heading-24-mac-os平台">2.4 Mac OS平台</h3>
+<p>1.<a href="https://mouapp.com">Mou</a>这款免费且十分好用的 Markdown 编辑器，它支持实时预览，既左边是你编辑 Markdown 语言，右边会实时的生成预览效果，笔者文章就是 Mou 这款应用写出来的。<br />
+<img src="http://7xoguv.com1.z0.glb.clouddn.com/igoucmouapp.jpg" alt="Mou" /></p>
+
+<h3 id="heading-25-linux-平台">2.5 Linux 平台</h3>
+<p>1.<a href="">Remarkable</a>是Linux平台用的Markdown编辑器,支持PDF,Html等相关文档的生成.
+<img src="http://7xoguv.com1.z0.glb.clouddn.com/igoucremarkable.png" alt="Remarkable" /></p>
+
+<h3 id="heading-当然很多文本编辑器提供了对markdown插件的集成如sublime-test可以自己安装支持markdown插件">当然很多文本编辑器提供了对Markdown插件的集成,如<a href="http://download.sublimetext.com/">Sublime Test</a>,可以自己安装支持Markdown插件</h3>
+<blockquote>
+  <p>本模块借鉴了:</p>
+
+  <ul>
+    <li>
+      <p><a href="http://www.williamlong.info/">月光博客</a>的文章:<a href="http://www.williamlong.info/archives/4319.html">好用的Markdown编辑器一览</a></p>
+    </li>
+    <li>
+      <p><a href="">少数派</a>的文章:<a href="http://sspai.com/25137">认识与入门</a></p>
+    </li>
+  </ul>
+</blockquote>
+
+<hr />
+
+<h2 id="heading-三markdown语法">三.Markdown语法</h2>
+
+<h3 id="heading-31-标题">3.1 标题</h3>
+
+<p>标题是每一篇文章都需要也是最常用的文本格式,Markdown提供了很好的语法支持:</p>
+
+<p>#　一级标题 <br />
+##　二级标题 <br />
+### 三级标题 <br />
+.…
+显示效果如下</p>
+<h1 id="heading-一级标题">一级标题</h1>
+<h2 id="heading-二级标题">二级标题</h2>
+<h3 id="heading-三级标题">三级标题</h3>
+
+<p><strong>Markdown共有六级标题,建议在井号后面添加一个空格,这是标准的Markdown语法.</strong></p>
+
+<h3 id="heading-32-列表">3.2 列表</h3>
+<p>学过Html的同学都知道列表分为 <em>有序列表</em> 和 <em>无序列表</em>.
+在Markdown中,列表的显示只需要在文字前加上 * 即可.</p>
+
+<blockquote>
+  <p>无序列表写法如下:</p>
+</blockquote>
+
+<p>* 1 <br />
+* 2 <br />
+Tab +  * 2.1 <br />
+* 3</p>
+
+<blockquote>
+  <p>无序列表显示如下</p>
+</blockquote>
+
+<ul>
+  <li>1</li>
+  <li>2
+    <ul>
+      <li>2.1</li>
+    </ul>
+  </li>
+  <li>3</li>
+</ul>
+
+<blockquote>
+  <p>有序列表写法如下:</p>
+</blockquote>
+
+<p>\1. 1 <br />
+\2. 2 <br />
+Tab +  \1.  2.1 <br />
+\3. 3</p>
+
+<blockquote>
+  <p>有序列表显示如下</p>
+</blockquote>
+
+<ol>
+  <li>1</li>
+  <li>2
+    <ol>
+      <li>2.1</li>
+    </ol>
+  </li>
+  <li>3</li>
+</ol>
+
+<p><strong>* 或者 1. 与文字之间要有空格</strong></p>
+
+<h3 id="heading-33-文本粗体与斜体的控制">3.3 文本<strong>粗体</strong>与<em>斜体</em>的控制</h3>
+
+<p>Markdown语法也支持文本粗体与斜体的控制</p>
+
+<blockquote>
+  <p>实现粗体的写法:</p>
+</blockquote>
+
+<p>** 粗体文本 **</p>
+
+<blockquote>
+  <p>显示如下:</p>
+</blockquote>
+
+<p><strong>粗体文本</strong></p>
+
+<blockquote>
+  <p>实现斜体的写法:</p>
+</blockquote>
+
+<p>* 斜体文本 *</p>
+
+<blockquote>
+  <p>显示如下:</p>
+</blockquote>
+
+<p><em>斜体文本</em></p>
+
+<h3 id="heading-34-代码框的实现也就是html里的code标签">3.4 代码框的实现(也就是Html里的&lt;code&gt;标签)</h3>
+
+<blockquote>
+  <p>代码框实现的写法:只需要用两个`(~线的按钮)把中间的代码包裹起来就好了</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>` #include &lt;iostream\&gt; `
+</code></pre></div></div>
+
+<blockquote>
+  <p>显示如下</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">#include&lt;iostream&gt;</code></p>
+
+<h3 id="heading-35-引用的实现">3.5 引用的实现</h3>
+
+<blockquote>
+  <p>如果你需要引用一小段别处的句子,或者需要到引用的格式,可以这样写</p>
+</blockquote>
+
+<p>&gt; 这是引用</p>
+
+<p>显示如下:</p>
+
+<blockquote>
+  <p>这是引用</p>
+</blockquote>
+
+<h3 id="heading-36-html里的pre标签的实现">3.6 Html里的<code class="language-plaintext highlighter-rouge">&lt;pre&gt;</code>标签的实现</h3>
+
+<p><code class="language-plaintext highlighter-rouge">&lt;pre&gt;</code>标签可以格式化显示文本,Markdown只需要这样做即可实现<code class="language-plaintext highlighter-rouge">&lt;pre&gt;</code>标签的样式显示</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">&lt;pre&gt;</code>标签,Markdown实现只需要在文本前输入<code class="language-plaintext highlighter-rouge">4个空格</code>或者<code class="language-plaintext highlighter-rouge">1个制表符</code>(Tab键)</p>
+</blockquote>
+
+<p>(Tab +) 测试文本</p>
+
+<blockquote>
+  <p>效果如下</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>测试文本
+</code></pre></div></div>
+
+<h3 id="heading-37-分割线">3.7 分割线</h3>
+
+<p>Markdown中实现了分割线的显示.语法中只要单独一行输入3个*即可出现Html里的<code class="language-plaintext highlighter-rouge">&lt;hr /&gt;</code></p>
+
+<blockquote>
+  <p>测试分割线</p>
+</blockquote>
+
+<p>***</p>
+
+<blockquote>
+  <p>显示效果</p>
+</blockquote>
+
+<hr />
+
+<h3 id="heading-38-markdown语法中还支持对图片的插入与连接的插入">3.8 Markdown语法中还支持对图片的插入与连接的插入</h3>
+
+<p><strong>连接插入</strong></p>
+
+<p>插入连接的格式<code class="language-plaintext highlighter-rouge">[连接显示文本](连接Url)</code></p>
+
+<blockquote>
+  <p>测试连接文本</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[GC博客](http://int32.me)
+</code></pre></div></div>
+
+<blockquote>
+  <p>显示结果</p>
+</blockquote>
+
+<p><a href="http://int32.me">GC博客</a></p>
+
+<p><strong>图片插入</strong></p>
+
+<p>插入图片跟插入连接的格式特别相似,只需要在插入连接的方式前加 ! 即可</p>
+
+<blockquote>
+  <p>插入图片测试</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>![Markdown](http://7xoguv.com1.z0.glb.clouddn.com/igoucmarkdown.jpg)
+</code></pre></div></div>
+
+<blockquote>
+  <p>显示结果</p>
+</blockquote>
+
+<p><img src="http://7xoguv.com1.z0.glb.clouddn.com/igoucmarkdown.jpg" alt="Markdown" /></p>
+
+<blockquote>
+  <p>本部分内容仅仅是写了Markdown常用的语法,其中中划线,表格等特殊的语法并不是所有的Markdown编辑器都能支持,所有不再叙述.
+本部分借鉴<a href="http://www.jianshu.com/users/ea86ff9520da/latest_articles">Te_Lee</a>的<a href="http://www.jianshu.com/p/1e402922ee32/">Markdown-入门指南</a></p>
+</blockquote>
+
+<hr />
+
+<h2 id="heading-四网站整合markdown">四.网站整合Markdown</h2>
+
+<p>既然Markdown这么好用,可以在无格式文本编辑器里写出<a href="">Word</a> 或 <a href="">Pages</a> 的排版、字体设置,能使我们专心于码字.那么你的网站是不是也想整合Markdown来显示你的文本呢? 下面,我们来学习如果在网站上整合Markdown.</p>
+
+<ol>
+  <li><strong>如何整合Markdown?</strong></li>
+</ol>
+
+<p>整合Markdown其实就是在文本显示页面增加<a href="">Markdown解释器</a>,将符合Markdown语法的文本解释成Html标签, 以此来实现文本多彩的显示.</p>
+
+<ol>
+  <li>
+    <p><strong>如何在文本显示页面添加Markdown解释器?</strong></p>
+
+    <ol>
+      <li>首先,你应该去下载解释器<a href="https://github.com/SUT-GC/showdown">showdown.js</a></li>
+      <li>在你的文本显示页面引入该js文件</li>
+      <li>
+        <p>js代码框里添加如下代码:</p>
+
+        <p>var converter = new showdown.Converter(),
+         text      = '你想显示的符合Markdown格式的文本',
+         html     =  converter.makeHtml(text);</p>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<p>经过上面的转换,变量html里面装的则是经过Markdow解释器showdown.js解释的文本了.直接将该变量的值显示出来即可</p>
+
+<p><strong>下面是一段测试代码</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;MarkDown&lt;/title&gt;
+    &lt;script type="text/javascript" src="showdown.min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;style&gt;
+    body {
+      font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;
+     font-size: 16px;
+      line-height: 1.42857143;
+      color: #333;
+      background-color: #fff;
+    }
+    ul li {
+        line-height: 24px;
+    }
+    blockquote {
+        border-left:#eee solid 5px;
+        padding-left:20px;
+    }
+    code {
+        color:#D34B62;
+        background: #F9F2F4;
+    }
+&lt;/style&gt;
+&lt;body&gt;
+&lt;div&gt;
+    &lt;textarea id="content" style="height:400px;width:600px;" onkeyup="compile()"&gt;&lt;/textarea&gt;
+    &lt;div id="result"&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;script type="text/javascript"&gt;
+function compile(){
+    var text = document.getElementById("content").value;
+    var converter = new showdown.Converter();
+    var html = converter.makeHtml(text);
+    document.getElementById("result").innerHTML = html;
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div></div>
+
+<blockquote>
+  <p>本部分借鉴<a href="http://www.cnblogs.com/yunfeifei/">雲霏霏 </a>的<a href="www.tuicool.com/articles/Yr2AruM">让你的站点也支持MarkDown</a></p>
+</blockquote>
+
+<h3 id="heading-本片文章到此已经对markdown的相内容介绍完毕了你是不是也心动了呢赶快让你的网站支持markdown吧">本片文章到此已经对Markdown的相内容介绍完毕了,你是不是也心动了呢?赶快让你的网站支持Markdown吧…</h3>
+<blockquote>
+  <ul>
+    <li>
+      <p>本片内容为GC纯手敲的,其中的部分内容借鉴了一些大神们的博客,也在内容中标注出来了.再次感谢这些大神提供的资源共享.</p>
+    </li>
+    <li>
+      <p>文章中避免不了错误的出现,如果有读者发现文章中的错误,或者有疑问的地方,请留言/Email To Gc</p>
+    </li>
+    <li>
+      <p>请转发OR复制的同学,标注出处,尊重作者劳动成果,谢谢亲</p>
+    </li>
+  </ul>
+
+  <p>博客迁移自 <a href="http://blog.csdn.net/gc_chao/article/details/51518639">GC-CSDN</a></p>
+</blockquote>
+:ET

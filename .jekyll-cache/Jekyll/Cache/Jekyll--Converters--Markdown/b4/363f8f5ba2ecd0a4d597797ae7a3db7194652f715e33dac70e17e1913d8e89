@@ -1,0 +1,445 @@
+I"ͼ<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-20-valid-parentheses" id="markdown-toc-heading-20-valid-parentheses">20 Valid Parentheses</a></li>
+  <li><a href="#heading-21-merge-two-sorted-lists" id="markdown-toc-heading-21-merge-two-sorted-lists">21 Merge Two Sorted Lists</a></li>
+  <li><a href="#heading-26-remove-duplicates-from-sorted-array" id="markdown-toc-heading-26-remove-duplicates-from-sorted-array">26 Remove Duplicates from Sorted Array</a></li>
+  <li><a href="#heading-27-remove-element" id="markdown-toc-heading-27-remove-element">27 Remove Element</a></li>
+  <li><a href="#heading-28-implement-strstr" id="markdown-toc-heading-28-implement-strstr">28 Implement strStr()</a></li>
+</ul>
+
+<h1 id="heading-20-valid-parentheses">20 Valid Parentheses</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">Stack</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">()</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">push</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">++</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">peek</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">pop</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">--</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">clear</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">isEmpty</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">===</span> <span class="mi">0</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getStackSize</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">size</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getStackArray</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">printStack</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">stackArray</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">maps</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">'</span><span class="s1">}</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">{</span><span class="dl">'</span><span class="p">,</span>
+    <span class="dl">'</span><span class="s1">)</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">(</span><span class="dl">'</span><span class="p">,</span>
+    <span class="dl">'</span><span class="s1">]</span><span class="dl">'</span><span class="p">:</span><span class="dl">'</span><span class="s1">[</span><span class="dl">'</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * @param {string} s
+ * @return {boolean}
+ */</span>
+<span class="kd">var</span> <span class="nx">isValid</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">stack</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Stack</span><span class="p">()</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">stack</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="nx">stackPeek</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">peek</span><span class="p">()</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">stackPeek</span> <span class="o">===</span> <span class="nx">maps</span><span class="p">[</span><span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">]]){</span>
+                <span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">()</span>
+<span class="p">};</span>
+
+<span class="nx">result</span> <span class="o">=</span> <span class="nx">isValid</span><span class="p">(</span><span class="dl">"</span><span class="s2">([{}]){}</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>初学javascript，没有找到现成的栈包，自己简单的实现了一个，使用栈做这题很简单</p>
+</blockquote>
+
+<h1 id="heading-21-merge-two-sorted-lists">21 Merge Two Sorted Lists</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Definition for singly-linked list.
+ */</span>
+<span class="kd">function</span> <span class="nx">ListNode</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">next</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">NodeList</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span> <span class="o">=</span> <span class="kc">null</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">=</span> <span class="kc">null</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">initByListNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">l1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span> <span class="o">=</span> <span class="nx">l1</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">initNowNode</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">headNode</span><span class="p">)</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">initSize</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">headNode</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">initSize</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">l1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="kd">var</span> <span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">l1</span>
+        <span class="k">while</span><span class="p">(</span><span class="nx">nowNode</span> <span class="o">!==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">size</span> <span class="o">++</span>
+            <span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">nowNode</span><span class="p">.</span><span class="nx">next</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">size</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">initNowNode</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">l1</span><span class="p">){</span>
+        <span class="kd">var</span> <span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">l1</span>
+        <span class="k">while</span> <span class="p">(</span><span class="nx">nowNode</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">nowNode</span><span class="p">.</span><span class="nx">next</span> <span class="o">!==</span> <span class="kc">null</span><span class="p">){</span>
+            <span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">nowNode</span><span class="p">.</span><span class="nx">next</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">nowNode</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">pushNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">newNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ListNode</span><span class="p">()</span>
+        <span class="nx">newNode</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">val</span>
+        <span class="nx">newNode</span><span class="p">.</span><span class="nx">next</span> <span class="o">=</span> <span class="kc">null</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">newNode</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">++</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span><span class="p">.</span><span class="nx">next</span> <span class="o">=</span> <span class="nx">newNode</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span><span class="p">.</span><span class="nx">next</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">++</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">pushListNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">l</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">===</span> <span class="kc">null</span><span class="p">){</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span> <span class="o">=</span> <span class="nx">l</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">()</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">l</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">()</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span><span class="p">.</span><span class="nx">next</span> <span class="o">=</span> <span class="nx">l</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">()</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span> <span class="o">=</span> <span class="nx">l</span><span class="p">.</span><span class="nx">getNowNode</span><span class="p">()</span>
+        <span class="p">}</span>
+        
+        <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">+=</span> <span class="nx">l</span><span class="p">.</span><span class="nx">getListSize</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">printList</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">printNowNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span>
+        <span class="k">while</span><span class="p">(</span><span class="nx">printNowNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">printNowNode</span><span class="p">.</span><span class="nx">val</span><span class="p">)</span>
+            <span class="nx">printNowNode</span> <span class="o">=</span> <span class="nx">printNowNode</span><span class="p">.</span><span class="nx">next</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getHeadNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getListSize</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">size</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getFirstNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getNowNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">nowNode</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">getContentToList</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(){</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="kd">var</span> <span class="nx">printNowNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span>
+        <span class="k">while</span><span class="p">(</span><span class="nx">printNowNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">printNowNode</span><span class="p">.</span><span class="nx">val</span><span class="p">)</span>
+            <span class="nx">printNowNode</span> <span class="o">=</span> <span class="nx">printNowNode</span><span class="p">.</span><span class="nx">next</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">result</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">popFirstNode</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">firstNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">headNode</span><span class="p">.</span><span class="nx">next</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">size</span> <span class="o">--</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">firstNode</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * @param {ListNode} l1
+ * @param {ListNode} l2
+ * @return {ListNode}
+ */</span>
+<span class="kd">var</span> <span class="nx">mergeTwoLists</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">l1</span><span class="p">,</span> <span class="nx">l2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">resultList</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">NodeList</span><span class="p">()</span>
+
+    <span class="kd">var</span> <span class="nx">l1NodeList</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">NodeList</span><span class="p">()</span>
+    <span class="nx">l1NodeList</span><span class="p">.</span><span class="nx">initByListNode</span><span class="p">(</span><span class="nx">l1</span><span class="p">)</span>
+
+    <span class="kd">var</span> <span class="nx">l2NodeList</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">NodeList</span><span class="p">()</span>
+    <span class="nx">l2NodeList</span><span class="p">.</span><span class="nx">initByListNode</span><span class="p">(</span><span class="nx">l2</span><span class="p">)</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="nx">l1NodeList</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">()</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">l2NodeList</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">()</span> <span class="o">!==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">l1NodeList</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">().</span><span class="nx">val</span> <span class="o">&lt;=</span> <span class="nx">l2NodeList</span><span class="p">.</span><span class="nx">getFirstNode</span><span class="p">().</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">resultList</span><span class="p">.</span><span class="nx">pushNode</span><span class="p">(</span><span class="nx">l1NodeList</span><span class="p">.</span><span class="nx">popFirstNode</span><span class="p">().</span><span class="nx">val</span><span class="p">)</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="nx">resultList</span><span class="p">.</span><span class="nx">pushNode</span><span class="p">(</span><span class="nx">l2NodeList</span><span class="p">.</span><span class="nx">popFirstNode</span><span class="p">().</span><span class="nx">val</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">l1NodeList</span><span class="p">.</span><span class="nx">getContentToList</span><span class="p">(),</span> <span class="nx">l2NodeList</span><span class="p">.</span><span class="nx">getContentToList</span><span class="p">())</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">l1NodeList</span><span class="p">.</span><span class="nx">getListSize</span><span class="p">()</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">resultList</span><span class="p">.</span><span class="nx">pushListNode</span><span class="p">(</span><span class="nx">l1NodeList</span><span class="p">)</span>
+    <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">l2NodeList</span><span class="p">.</span><span class="nx">getListSize</span><span class="p">()</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">resultList</span><span class="p">.</span><span class="nx">pushListNode</span><span class="p">(</span><span class="nx">l2NodeList</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">resultList</span><span class="p">.</span><span class="nx">printList</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nx">resultList</span><span class="p">.</span><span class="nx">getContentToList</span><span class="p">()</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个自己封装了个LinkList， 也是处于练手的状态， 不过写出来蛮难看的，来看看大神们对于这个题的解决办法  <br />
+对于链表的实现，真心想了好久， 总结一下， 至少要有两个节点来创建链表， head, now, 并且初始化 now = head = null; 每次增加一个元素只要看 now节点就可以了。   <br />
+好牛逼的递归运算…..</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">ListNode</span> <span class="nf">mergeTwoLists</span><span class="o">(</span><span class="nc">ListNode</span> <span class="n">l1</span><span class="o">,</span> <span class="nc">ListNode</span> <span class="n">l2</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">l1</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span> <span class="n">l2</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">l2</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span> <span class="n">l1</span><span class="o">;</span>
+        <span class="o">}</span>
+        
+        <span class="nc">ListNode</span> <span class="n">mergeHead</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">l1</span><span class="o">.</span><span class="na">val</span> <span class="o">&lt;</span> <span class="n">l2</span><span class="o">.</span><span class="na">val</span><span class="o">){</span>
+            <span class="n">mergeHead</span> <span class="o">=</span> <span class="n">l1</span><span class="o">;</span>
+            <span class="n">mergeHead</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">mergeTwoLists</span><span class="o">(</span><span class="n">l1</span><span class="o">.</span><span class="na">next</span><span class="o">,</span> <span class="n">l2</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">else</span><span class="o">{</span>
+            <span class="n">mergeHead</span> <span class="o">=</span> <span class="n">l2</span><span class="o">;</span>
+            <span class="n">mergeHead</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">mergeTwoLists</span><span class="o">(</span><span class="n">l1</span><span class="o">,</span> <span class="n">l2</span><span class="o">.</span><span class="na">next</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">mergeHead</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-26-remove-duplicates-from-sorted-array">26 Remove Duplicates from Sorted Array</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">removeOneIndex</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">numsLength</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">){</span>
+        <span class="k">return</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="nx">i</span><span class="p">;</span> <span class="nx">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">numsLength</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * @param {number[]} nums
+ * @return {number}
+ */</span>
+<span class="kd">var</span> <span class="nx">removeDuplicates</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">numsLength</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span>
+    <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span><span class="p">(;</span><span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">numsLength</span><span class="p">;){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="nx">i</span><span class="o">++</span>
+            <span class="k">continue</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]){</span>
+            <span class="nx">numsLength</span> <span class="o">=</span> <span class="nx">removeOneIndex</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">numsLength</span><span class="p">,</span> <span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="p">}</span>
+
+        <span class="nx">i</span><span class="o">++</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">numsLength</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这道题说不允许开额外的空间，即空间为O(1), 但是没有限制时间复杂度， 所以就用 时间换空间 的方法， 手动模拟删除一个数组制定位置上的数字 即 [1,2,3,4,5] 删除index==2 为 [1,2,4,5,5] numsLength = 4 来实现伪删除…  <br />
+看了大神的Discuss， 我才发现我的笨拙， 一个数组可以当作两个数组来处理， 两个指针分别工作即可</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">removeDuplicates</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="no">A</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="no">A</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="no">A</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="o">}</span>
+        
+        <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="no">A</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="no">A</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">!=</span> <span class="no">A</span><span class="o">[</span><span class="n">size</span><span class="o">])</span> <span class="o">{</span>
+                <span class="no">A</span><span class="o">[++</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="no">A</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">size</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-27-remove-element">27 Remove Element</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {number[]} nums
+ * @param {number} val
+ * @return {number}
+ */</span>
+<span class="kd">var</span> <span class="nx">removeElement</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">newNumberIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">var</span> <span class="nx">newNumberLength</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">nums</span><span class="p">[</span><span class="nx">newNumberIndex</span><span class="p">]</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+            <span class="nx">newNumberIndex</span> <span class="o">++</span>
+            <span class="nx">newNumberLength</span> <span class="o">++</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">newNumberLength</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个与上一题差不多，所以在上一题的教训， 这一题不会再犯了….</p>
+</blockquote>
+
+<h1 id="heading-28-implement-strstr">28 Implement strStr()</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kd">var</span> <span class="nx">isStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">true</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">hayIndex</span> <span class="o">&gt;=</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="nx">hayIndex</span> <span class="o">&lt;</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="nx">hayIndex</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">-</span> <span class="nx">hayIndex</span> <span class="o">&gt;=</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!==</span> <span class="nx">needle</span><span class="p">[</span><span class="nx">i</span> <span class="o">-</span> <span class="nx">hayIndex</span><span class="p">])</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * @param {string} haystack
+ * @param {string} needle
+ * @return {number}
+ */</span>
+<span class="kd">var</span> <span class="nx">strStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="kd">let</span> <span class="nx">findIndex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">hayIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">&lt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">isStr</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">needle</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">findIndex</span> <span class="o">=</span> <span class="nx">hayIndex</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">findIndex</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>上面这种解题方法 是我最一开始就想到的解决办法， 属于暴力求解， 从第一个字符开始匹配， 如果匹配的上就继续匹配下一个字符， 如果匹配不上， 就将字符位置向后移动一位之后再次继续从头匹配 复杂度 O(m * n)   <br />
+提交之后发现超时了， 所以我就知道这个题不是那么简单， 于是我又思考了下， 写出了下面的代码</p>
+</blockquote>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">strStr</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">haystack</span><span class="p">,</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">needle</span> <span class="o">===</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">haystack</span> <span class="o">===</span> <span class="dl">""</span> <span class="o">||</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">hayIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">+</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">hayIndex</span> <span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">sub</span> <span class="o">=</span> <span class="nx">haystack</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">hayIndex</span><span class="p">,</span> <span class="nx">hayIndex</span> <span class="o">+</span> <span class="nx">needle</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">sub</span> <span class="o">===</span> <span class="nx">needle</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">hayIndex</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这一趴代码变得如此简单， 思路呢， 就是从把haystack从0位置遍历， 然后从index位置截取needle串那么长， 然后比对截取的串和needle是否一样， 如果一样则返回index， 不一样就继续，直到找到或者 <code class="language-plaintext highlighter-rouge">haystack.length - index &lt; needle.length</code> 为止 O(m-n)*n     <br />
+后来在网上查了下，这个又更好的办法 使用KMP算法， 请看我的这篇文章 <img src="" alt="占位" /></p>
+</blockquote>
+:ET

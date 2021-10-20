@@ -1,0 +1,153 @@
+I"�1<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-spring-boot-使用rabbitmq" id="markdown-toc-heading-spring-boot-使用rabbitmq">Spring-Boot 使用RabbitMQ</a>    <ul>
+      <li><a href="#heading-1安装运行-rabbitmq" id="markdown-toc-heading-1安装运行-rabbitmq">1.安装&amp;运行 rabbitmq</a></li>
+      <li><a href="#heading-2-搭建环境" id="markdown-toc-heading-2-搭建环境">2. 搭建环境</a>        <ul>
+          <li><a href="#heading-21-引入包" id="markdown-toc-heading-21-引入包">2.1 引入包</a></li>
+          <li><a href="#heading-22-建立接收者" id="markdown-toc-heading-22-建立接收者">2.2 建立接收者</a></li>
+          <li><a href="#heading-23-建立监听者" id="markdown-toc-heading-23-建立监听者">2.3 建立监听者</a></li>
+          <li><a href="#heading-24-建立发送者" id="markdown-toc-heading-24-建立发送者">2.4 建立发送者</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-3-rabbitmq-中文文档" id="markdown-toc-heading-3-rabbitmq-中文文档">3. rabbitmq 中文文档：</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-spring-boot-使用rabbitmq">Spring-Boot 使用RabbitMQ</h1>
+
+<h2 id="heading-1安装运行-rabbitmq">1.安装&amp;运行 rabbitmq</h2>
+
+<ul>
+  <li>安装服务器 :<code class="language-plaintext highlighter-rouge">brew install rabbitmq</code></li>
+  <li>运行Server:<code class="language-plaintext highlighter-rouge">rabbitmq-server</code></li>
+</ul>
+
+<p>安装完之后:</p>
+
+<ul>
+  <li>应用端口:15672</li>
+  <li>服务端口:5672</li>
+</ul>
+
+<blockquote>
+  <p>如果没有此命令，可以去<code class="language-plaintext highlighter-rouge">/usr/local/Cellar/rabbitmq/3.6.6</code>目录下找rabbitmq-server命令（具体目录，安装的时候会有）  <br />
+参考 <a href="https://github.com/judasn/Linux-Tutorial/blob/master/RabbitMQ-Install-And-Settings.md">rabbitmq 安装与配置</a></p>
+</blockquote>
+
+<hr />
+
+<h2 id="heading-2-搭建环境">2. 搭建环境</h2>
+
+<h3 id="heading-21-引入包">2.1 引入包</h3>
+
+<p><code class="language-plaintext highlighter-rouge">compile('org.springframework.boot:spring-boot-starter-amqp')</code></p>
+
+<h3 id="heading-22-建立接收者">2.2 建立接收者</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.concurrent.CountDownLatch</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Receiver</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="nc">CountDownLatch</span> <span class="n">latch</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">CountDownLatch</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">receiveMessage</span><span class="o">(</span><span class="nc">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Received &lt;"</span> <span class="o">+</span> <span class="n">message</span> <span class="o">+</span> <span class="s">"&gt;"</span><span class="o">);</span>
+        <span class="n">latch</span><span class="o">.</span><span class="na">countDown</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">CountDownLatch</span> <span class="nf">getLatch</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">latch</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h3 id="heading-23-建立监听者">2.3 建立监听者</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">com.igouc.receiveMQ.Receiver</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.amqp.core.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.amqp.rabbit.connection.ConnectionFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.context.annotation.Bean</span><span class="o">;</span>
+
+<span class="nd">@SpringBootApplication</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ConfigMq</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nc">QueueName</span> <span class="o">=</span> <span class="s">"test-rmq"</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nc">ExchangeName</span> <span class="o">=</span> <span class="s">"test"</span><span class="o">;</span>
+
+    <span class="nd">@Bean</span>
+    <span class="nc">Queue</span> <span class="nf">queue</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">Queue</span><span class="o">(</span><span class="nc">QueueName</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="nc">TopicExchange</span> <span class="nf">exchange</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">TopicExchange</span><span class="o">(</span><span class="nc">ExchangeName</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="nc">Binding</span> <span class="nf">binding</span><span class="o">(</span><span class="nc">Queue</span> <span class="n">queue</span><span class="o">,</span> <span class="nc">TopicExchange</span> <span class="n">topicExchange</span><span class="o">){</span>
+        <span class="k">return</span> <span class="nc">BindingBuilder</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="n">queue</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">topicExchange</span><span class="o">).</span><span class="na">with</span><span class="o">(</span><span class="nc">ExchangeName</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="nc">MessageListenerAdapter</span> <span class="nf">listenerAdapter</span><span class="o">(</span><span class="nc">Receiver</span> <span class="n">receiver</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">MessageListenerAdapter</span><span class="o">(</span><span class="n">receiver</span><span class="o">,</span> <span class="s">"receiveMessage"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="nc">SimpleMessageListenerContainer</span> <span class="nf">container</span><span class="o">(</span><span class="nc">ConnectionFactory</span> <span class="n">connectionFactory</span><span class="o">,</span>
+                                             <span class="nc">MessageListenerAdapter</span> <span class="n">listenerAdapter</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">SimpleMessageListenerContainer</span> <span class="n">container</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SimpleMessageListenerContainer</span><span class="o">();</span>
+        <span class="n">container</span><span class="o">.</span><span class="na">setConnectionFactory</span><span class="o">(</span><span class="n">connectionFactory</span><span class="o">);</span>
+        <span class="n">container</span><span class="o">.</span><span class="na">setQueueNames</span><span class="o">(</span><span class="nc">QueueName</span><span class="o">);</span>
+        <span class="n">container</span><span class="o">.</span><span class="na">setMessageListener</span><span class="o">(</span><span class="n">listenerAdapter</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">container</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-24-建立发送者">2.4 建立发送者</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">com.igouc.receiveMQ.Receiver</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.amqp.rabbit.core.RabbitTemplate</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.boot.CommandLineRunner</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.concurrent.TimeUnit</span><span class="o">;</span>
+
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SendMQ</span> <span class="kd">implements</span> <span class="nc">CommandLineRunner</span><span class="o">{</span>
+
+    <span class="kd">final</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nc">QueueName</span> <span class="o">=</span> <span class="s">"test-rmq"</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nc">ExchangeName</span> <span class="o">=</span> <span class="s">"test"</span><span class="o">;</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="nc">RabbitTemplate</span> <span class="n">rabbitTemplate</span><span class="o">;</span>
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="nc">Receiver</span> <span class="n">receiver</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"start send message ...."</span><span class="o">);</span>
+        <span class="n">rabbitTemplate</span><span class="o">.</span><span class="na">convertAndSend</span><span class="o">(</span><span class="nc">QueueName</span><span class="o">,</span> <span class="s">"Hello From SendMQ"</span><span class="o">);</span> <span class="c1">//像</span>
+        <span class="n">receiver</span><span class="o">.</span><span class="na">getLatch</span><span class="o">().</span><span class="na">await</span><span class="o">(</span><span class="mi">10000</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="heading-3-rabbitmq-中文文档">3. rabbitmq 中文文档：</h2>
+
+<p><a href="http://rabbitmq.mr-ping.com/">RabbitMQ中文</a></p>
+
+<blockquote>
+  <p>博客迁移自 <a href="http://blog.csdn.net/gc_chao/article/details/60468431">GC-CSDN</a></p>
+</blockquote>
+:ET

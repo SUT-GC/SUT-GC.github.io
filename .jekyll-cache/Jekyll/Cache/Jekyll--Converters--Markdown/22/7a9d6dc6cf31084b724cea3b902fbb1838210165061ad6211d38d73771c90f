@@ -1,0 +1,366 @@
+I"��<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-java-加密技术二" id="markdown-toc-heading-java-加密技术二">java 加密技术(二)</a>    <ul>
+      <li><a href="#heading-1-对称加密算法" id="markdown-toc-heading-1-对称加密算法">1 对称加密算法</a>        <ul>
+          <li><a href="#heading-11-介绍" id="markdown-toc-heading-11-介绍">1.1 介绍</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-2-des算法" id="markdown-toc-heading-2-des算法">2 DES算法</a>        <ul>
+          <li><a href="#heading-21-介绍" id="markdown-toc-heading-21-介绍">2.1 介绍</a></li>
+          <li><a href="#heading-22-代码实现" id="markdown-toc-heading-22-代码实现">2.2 代码实现</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-3-三重des" id="markdown-toc-heading-3-三重des">3 三重DES</a>        <ul>
+          <li><a href="#heading-31-介绍" id="markdown-toc-heading-31-介绍">3.1 介绍</a></li>
+          <li><a href="#heading-32-代码实现" id="markdown-toc-heading-32-代码实现">3.2 代码实现</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-4-aes加密算法" id="markdown-toc-heading-4-aes加密算法">4 AES加密算法</a>        <ul>
+          <li><a href="#heading-41-介绍" id="markdown-toc-heading-41-介绍">4.1 介绍</a></li>
+          <li><a href="#heading-42-代码实现" id="markdown-toc-heading-42-代码实现">4.2 代码实现</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-5-pbe加密" id="markdown-toc-heading-5-pbe加密">5 PBE加密</a>        <ul>
+          <li><a href="#heading-51-介绍" id="markdown-toc-heading-51-介绍">5.1 介绍</a></li>
+          <li><a href="#heading-52-代码实现" id="markdown-toc-heading-52-代码实现">5.2 代码实现</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-java-加密技术二">java 加密技术(二)</h1>
+
+<h2 id="heading-1-对称加密算法">1 对称加密算法</h2>
+<h3 id="heading-11-介绍">1.1 介绍</h3>
+<ul>
+  <li>对称加密算法是说加密秘钥与解密秘钥使用的是同一把.</li>
+  <li>他是属于初等(初级)加密算法, 使用范围广,使用频率高 .</li>
+  <li>常用对称加密算法有
+    <ul>
+      <li>DES</li>
+      <li>3DES</li>
+      <li>AES</li>
+      <li>PBE</li>
+      <li>IDEA</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="heading-2-des算法">2 DES算法</h2>
+<h3 id="heading-21-介绍">2.1 介绍</h3>
+<p>DES (Data Encryption Standard) 数据加密标准. 由美国国家标准性研究所提供, 但是自98年之后,已经被破解,安全性较差. 所以现在项目中不推荐使用DES.  <br />
+默认秘钥长度56位</p>
+<h3 id="heading-22-代码实现">2.2 代码实现</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">secret</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">java.security.NoSuchAlgorithmException</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">javax.crypto.Cipher</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.KeyGenerator</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.SecretKey</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.SecretKeyFactory</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.spec.DESKeySpec</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Hex</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">DESTest</span> <span class="o">{</span>
+    
+        <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span><span class="s">"i am gc DES"</span><span class="o">;</span>
+        
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====jdkDES实现===="</span><span class="o">);</span>
+            <span class="n">jdkDES</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"================="</span><span class="o">);</span>
+            
+            <span class="c1">//运行结果</span>
+            <span class="cm">/*
+             ====jdkDES实现====
+            生成的DES秘钥:e5312a52d93b8325
+            加密之后的结果0b980d14f67e7e2dbf3bf45e5edc5c11
+            解密之后的结果:i am gc DES
+            =================
+             */</span>
+        <span class="o">}</span>
+        
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkDES</span><span class="o">(){</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">//由DES算法生成算法生成器KeyGenerator</span>
+                <span class="nc">KeyGenerator</span> <span class="n">keyGenerator</span> <span class="o">=</span> <span class="nc">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DES"</span><span class="o">);</span>
+                <span class="c1">//由算法生成器生成秘钥</span>
+                <span class="nc">SecretKey</span> <span class="n">secretKey</span> <span class="o">=</span>  <span class="n">keyGenerator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">();</span>
+                <span class="c1">//将秘钥转成byte数组</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">byteKey</span> <span class="o">=</span> <span class="n">secretKey</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">();</span>
+                <span class="c1">//将byte数组十六进制转换成字符串</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"生成的DES秘钥:"</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">byteKey</span><span class="o">));</span>
+                
+                <span class="c1">//加密</span>
+                <span class="nc">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="nc">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DES"</span><span class="o">);</span>
+                <span class="c1">//加密初始化,传入加密模式和秘钥</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">secretKey</span><span class="o">);</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"加密之后的结果"</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+                
+                <span class="c1">//进行byteKey的转换</span>
+                <span class="c1">//先将byteKey生成DESKeySpec</span>
+                <span class="nc">DESKeySpec</span> <span class="n">desKeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">DESKeySpec</span><span class="o">(</span><span class="n">byteKey</span><span class="o">);</span>
+                <span class="c1">//再制造DES秘钥工厂</span>
+                <span class="nc">SecretKeyFactory</span> <span class="n">secretKeyFactory</span> <span class="o">=</span> <span class="nc">SecretKeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DES"</span><span class="o">);</span>
+                <span class="c1">//由秘钥工厂将deskeyspec加工成SecretKey</span>
+                <span class="c1">//此时的secreteKey2与secreteKey是相等的</span>
+                <span class="nc">SecretKey</span> <span class="n">secretKey2</span> <span class="o">=</span> <span class="n">secretKeyFactory</span><span class="o">.</span><span class="na">generateSecret</span><span class="o">(</span><span class="n">desKeySpec</span><span class="o">);</span>
+                
+                <span class="c1">//解密</span>
+                <span class="c1">//初始化cipher,解密模式,传入秘钥</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">secretKey2</span><span class="o">);</span>
+                <span class="c1">//开始解密</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+                <span class="c1">//输出</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"解密之后的结果:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+                
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        
+    <span class="o">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>如果感兴趣的话可以多次运行,比较秘钥内容,发现每次生成的秘钥都不一样</p>
+</blockquote>
+
+<hr />
+
+<h2 id="heading-3-三重des">3 三重DES</h2>
+<h3 id="heading-31-介绍">3.1 介绍</h3>
+<p>三重DES是对DES的补充,在密钥长度与迭代次数都有所加强</p>
+
+<h3 id="heading-32-代码实现">3.2 代码实现</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">secret</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">java.security.NoSuchAlgorithmException</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">javax.crypto.Cipher</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.KeyGenerator</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.SecretKey</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.SecretKeyFactory</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.spec.DESedeKeySpec</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Hex</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">SDESTest</span> <span class="o">{</span>
+    
+        <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span> <span class="s">"i am 3DES"</span><span class="o">;</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====jdk3DES实现===="</span><span class="o">);</span>
+            <span class="n">jdk3DES</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"================="</span><span class="o">);</span>
+            
+            <span class="c1">//运行结果</span>
+            <span class="cm">/*====jdk3DES实现====
+            生成的秘钥为:e37616b6d920151637927c5ecb10abf2c46262bf34522abf
+            加密之后的结果:75e21263547078139f0953e45e5aa683
+            解密之后的结果:i am 3DES
+            =================
+            */</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdk3DES</span><span class="o">(){</span>
+            <span class="c1">//生成Key</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">//用DESede来实例化三重DES</span>
+                <span class="nc">KeyGenerator</span> <span class="n">keyGenerator</span> <span class="o">=</span> <span class="nc">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DESede"</span><span class="o">);</span>
+                <span class="c1">//生成秘钥</span>
+                <span class="nc">SecretKey</span> <span class="n">secretKey</span> <span class="o">=</span> <span class="n">keyGenerator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">();</span>
+                <span class="c1">//获取秘钥到byte数组里</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">byteKey</span> <span class="o">=</span> <span class="n">secretKey</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">();</span>
+                <span class="c1">//输出秘钥</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"生成的秘钥为:"</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">byteKey</span><span class="o">));</span>
+                
+                <span class="c1">//加密</span>
+                <span class="nc">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="nc">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DESede"</span><span class="o">);</span>
+                <span class="c1">//根据秘钥进行加密</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">secretKey</span><span class="o">);</span>
+                <span class="c1">//输出加密之后的密文</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                <span class="c1">//输出加密结果</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"加密之后的结果:"</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+                
+                <span class="c1">//将byteKey转换成秘钥</span>
+                <span class="c1">//根据byteKey生成3DES秘钥规范</span>
+                <span class="nc">DESedeKeySpec</span> <span class="n">deSedeKeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">DESedeKeySpec</span><span class="o">(</span><span class="n">byteKey</span><span class="o">);</span>
+                <span class="c1">//创建3DES秘钥工厂</span>
+                <span class="nc">SecretKeyFactory</span> <span class="n">secretKeyFactory</span> <span class="o">=</span> <span class="nc">SecretKeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DESede"</span><span class="o">);</span>
+                <span class="c1">//生产秘钥</span>
+                <span class="nc">SecretKey</span> <span class="n">secretKey2</span> <span class="o">=</span> <span class="n">secretKeyFactory</span><span class="o">.</span><span class="na">generateSecret</span><span class="o">(</span><span class="n">deSedeKeySpec</span><span class="o">);</span>
+                
+                <span class="c1">//解密</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">secretKey2</span><span class="o">);</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"解密之后的结果:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+                
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>    
+
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="heading-4-aes加密算法">4 AES加密算法</h2>
+<h3 id="heading-41-介绍">4.1 介绍</h3>
+<p>为什么有了3DES还要出现AES呢?因为3DES处理效率比较慢,所以产生AES.  <br />
+AES应用更加广泛,到目前,还没有官方报道AES被破解</p>
+<h3 id="heading-42-代码实现">4.2 代码实现</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">secret</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">java.security.Key</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">java.security.NoSuchAlgorithmException</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">java.security.SecureRandom</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">javax.crypto.Cipher</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.KeyGenerator</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.SecretKey</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.spec.SecretKeySpec</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Hex</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">AESTest</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span> <span class="s">"i am AES"</span><span class="o">;</span>
+        
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">jdkAES</span><span class="o">();</span>
+            <span class="c1">//运行结果</span>
+            <span class="cm">/*
+                 生成的秘钥为:4a4cb6b6cffc650cc4f7010d939a64f8
+                加密后的结果:740bc2b2535a401eec755326a25ca134
+                解密后的结果:i am AES
+             */</span>
+        <span class="o">}</span>
+        
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkAES</span><span class="o">(){</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">//生成秘钥</span>
+                <span class="nc">KeyGenerator</span> <span class="n">keyGenerator</span> <span class="o">=</span> <span class="nc">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"AES"</span><span class="o">);</span>
+                <span class="c1">//初始化KeyGenerator,密钥长度默认</span>
+                <span class="n">keyGenerator</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="k">new</span> <span class="nc">SecureRandom</span><span class="o">());</span>
+                <span class="c1">//生成秘钥</span>
+                <span class="nc">SecretKey</span> <span class="n">secretKey</span> <span class="o">=</span> <span class="n">keyGenerator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">();</span>
+                <span class="c1">//生成byte数组</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">byteKey</span> <span class="o">=</span> <span class="n">secretKey</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">();</span>
+                <span class="c1">//输出</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"生成的秘钥为:"</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">byteKey</span><span class="o">));</span>
+                
+                <span class="c1">//加密</span>
+                <span class="nc">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="nc">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"AES"</span><span class="o">);</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">secretKey</span><span class="o">);</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"加密后的结果:"</span><span class="o">+</span><span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+                
+                <span class="c1">//byteKey转换</span>
+                <span class="c1">//AES的Key转换与DES有点区别</span>
+                <span class="nc">Key</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SecretKeySpec</span><span class="o">(</span><span class="n">byteKey</span><span class="o">,</span> <span class="s">"AES"</span><span class="o">);</span>
+                
+                <span class="c1">//解密</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">key</span><span class="o">);</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"解密后的结果:"</span><span class="o">+</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>    
+
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="heading-5-pbe加密">5 PBE加密</h2>
+<h3 id="heading-51-介绍">5.1 介绍</h3>
+<p>PBE加密算法结合了"消息摘要"算法与"对称加密"算法的优势  <br />
+PBE ( Password Based Encrtption) 基于口令的加密技术</p>
+<h3 id="heading-52-代码实现">5.2 代码实现</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kn">package</span> <span class="nn">secret</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">java.security.Key</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">java.security.SecureRandom</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">javax.crypto.Cipher</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.SecretKeyFactory</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.spec.PBEKeySpec</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">javax.crypto.spec.PBEParameterSpec</span><span class="o">;</span>
+    
+    <span class="kn">import</span> <span class="nn">org.apache.commons.codec.binary.Hex</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">org.bouncycastle.asn1.pkcs.PBEParameter</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">PBETest</span> <span class="o">{</span>
+    
+        <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">src</span> <span class="o">=</span> <span class="s">"i am gc PBE"</span><span class="o">;</span>
+    
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">jdkPBE</span><span class="o">();</span>
+            <span class="c1">//运行结果</span>
+            <span class="cm">/*
+             * 加密之后的结果:e9c7035f7c54def110404a3218ed351d
+             *  解密之后的结果:i am gc PBE
+             */</span>
+        <span class="o">}</span>
+    
+        <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">jdkPBE</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="c1">// 初始化盐</span>
+                <span class="nc">SecureRandom</span> <span class="n">random</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SecureRandom</span><span class="o">();</span>
+                <span class="c1">// 产生一个8位的盐,盐必须8位长度</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">salt</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="na">generateSeed</span><span class="o">(</span><span class="mi">8</span><span class="o">);</span>
+                <span class="c1">// 创建口令</span>
+                <span class="nc">String</span> <span class="n">password</span> <span class="o">=</span> <span class="s">"gc"</span><span class="o">;</span>
+                <span class="c1">// 将口令转换成秘钥</span>
+                <span class="nc">PBEKeySpec</span> <span class="n">pbeKeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">PBEKeySpec</span><span class="o">(</span><span class="n">password</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">());</span>
+    
+                <span class="c1">// PBEWITHMD5andDES产生秘钥工厂</span>
+                <span class="nc">SecretKeyFactory</span> <span class="n">secretKeyFactory</span> <span class="o">=</span> <span class="nc">SecretKeyFactory</span>
+                        <span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"PBEWITHMD5andDES"</span><span class="o">);</span>
+                <span class="c1">// 产生Key</span>
+                <span class="nc">Key</span> <span class="n">key</span> <span class="o">=</span> <span class="n">secretKeyFactory</span><span class="o">.</span><span class="na">generateSecret</span><span class="o">(</span><span class="n">pbeKeySpec</span><span class="o">);</span>
+    
+                <span class="c1">// 加密</span>
+                <span class="c1">// 产生PBE参数, 用盐和迭代次数初始化</span>
+                <span class="nc">PBEParameterSpec</span> <span class="n">pbeParameterSpec</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">PBEParameterSpec</span><span class="o">(</span><span class="n">salt</span><span class="o">,</span> <span class="mi">100</span><span class="o">);</span>
+                <span class="nc">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="nc">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"PBEWITHMD5andDES"</span><span class="o">);</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span> <span class="n">pbeParameterSpec</span><span class="o">);</span>
+                <span class="kt">byte</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">src</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"加密之后的结果:"</span> <span class="o">+</span> <span class="nc">Hex</span><span class="o">.</span><span class="na">encodeHexString</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    
+                <span class="c1">// 解密</span>
+                <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span> <span class="n">pbeParameterSpec</span><span class="o">);</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"解密之后的结果:"</span> <span class="o">+</span> <span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+    
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+            <span class="o">}</span>
+    
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+</code></pre></div></div>
+
+<hr />
+<blockquote>
+  <ul>
+    <li>文章中避免不了错误的出现,如果有读者发现文章中的错误,或者有疑问的地方,请留言/Email To Gc</li>
+    <li>请转发OR复制的同学,标注出处,尊重作者劳动成果,谢谢亲
+博客迁移自 <a href="http://blog.csdn.net/GC_chao">GC-CSDN</a></li>
+    <li>本文主要参考<a href="http://www.imooc.com/space/teacher/id/315464">moocer老师</a>的<a href="http://www.imooc.com/learn/287">java实现对称加密</a></li>
+  </ul>
+</blockquote>
+
+:ET

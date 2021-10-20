@@ -1,0 +1,614 @@
+I"��<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-什么是跨域" id="markdown-toc-heading-什么是跨域">什么是跨域</a></li>
+  <li><a href="#heading-为什么会有跨域" id="markdown-toc-heading-为什么会有跨域">为什么会有跨域</a>    <ul>
+      <li><a href="#heading-浏览器限制" id="markdown-toc-heading-浏览器限制">浏览器限制</a></li>
+      <li><a href="#heading-跨域" id="markdown-toc-heading-跨域">跨域</a></li>
+      <li><a href="#heading-xhr请求" id="markdown-toc-heading-xhr请求">XHR请求</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-怎么解决跨域" id="markdown-toc-heading-怎么解决跨域">怎么解决跨域</a>    <ul>
+      <li><a href="#heading-如何从解决浏览器限制" id="markdown-toc-heading-如何从解决浏览器限制">如何从解决浏览器限制</a>        <ul>
+          <li><a href="#heading-浏览器制定启动参数" id="markdown-toc-heading-浏览器制定启动参数">浏览器制定启动参数</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-不发出xhr请求" id="markdown-toc-heading-不发出xhr请求">不发出XHR请求</a>        <ul>
+          <li><a href="#heading-jsonp" id="markdown-toc-heading-jsonp">JsonP</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-解决跨域" id="markdown-toc-heading-解决跨域">解决跨域</a>        <ul>
+          <li><a href="#heading-常用的bs架构" id="markdown-toc-heading-常用的bs架构">常用的BS架构</a></li>
+          <li><a href="#heading-bs架构跨域" id="markdown-toc-heading-bs架构跨域">BS架构，跨域</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-调用方修改" id="markdown-toc-heading-调用方修改">调用方修改</a>        <ul>
+          <li><a href="#heading-反向代理" id="markdown-toc-heading-反向代理">反向代理</a></li>
+          <li><a href="#heading-nginx-配置" id="markdown-toc-heading-nginx-配置">Nginx 配置</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-被调用方修改" id="markdown-toc-heading-被调用方修改">被调用方修改</a>        <ul>
+          <li><a href="#heading-实现代码" id="markdown-toc-heading-实现代码">实现代码</a></li>
+          <li><a href="#heading-先判断后执行" id="markdown-toc-heading-先判断后执行">先判断，后执行</a></li>
+          <li><a href="#heading--不是万能的" id="markdown-toc-heading--不是万能的">* 不是万能的</a></li>
+          <li><a href="#heading-自定义请求头" id="markdown-toc-heading-自定义请求头">自定义请求头</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#heading-总结" id="markdown-toc-heading-总结">总结</a></li>
+</ul>
+
+<h1 id="heading-什么是跨域">什么是跨域</h1>
+
+<p>跨域，指的是浏览器不能执行其他网站的脚本。它是由浏览器的同源策略造成的，是浏览器施加的安全限制。</p>
+
+<p>所谓同源是指，域名，协议，端口均相同，不明白没关系，举个栗子：</p>
+
+<p>你的服务URL是 localhost:12345, 当你再这个URL的界面js文件里访问 localhost:12346 的地址时，会被禁止，该问题为跨域问题。</p>
+
+<p>我们用代码来实现跨域:</p>
+
+<p>后端代码:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// URL localhost:8888/cross</span>
+<span class="nd">@RestController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CrossDomainController</span> <span class="o">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/cross"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getHelloWorld</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"hello world"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>在浏览器输入 <code class="language-plaintext highlighter-rouge">localhost:8888/cross</code> 结果如下:</p>
+
+<p><img src="/files/images/cross-1.png" alt="cross-1" /></p>
+
+<p>前端代码:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://localhost:8888/cross</span><span class="dl">'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">bodyText</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span>
+</code></pre></div></div>
+
+<p>我们跑一下结果如下:</p>
+
+<p><img src="/files/images/cross-2.png" alt="cross-2" /></p>
+
+<p>然后来看下 control:</p>
+
+<p><img src="/files/images/cross-3.png" alt="cross-3" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">Failed to load http://localhost:8888/cross: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:8080' is therefore not allowed access</code>  的意思大致是 <code class="language-plaintext highlighter-rouge">http://localhost:8888/cross加载失败， 因为在 请求http://localhost:8888/cross的返回头里面没有 Access-Control-Allow-Origin, 所以 http://localhost:8080 的访问被拒绝</code></p>
+
+<h1 id="heading-为什么会有跨域">为什么会有跨域</h1>
+
+<p>发生跨域问题大概有三个原因:</p>
+
+<h2 id="heading-浏览器限制">浏览器限制</h2>
+
+<p>其实跨域问题是浏览器做的限制，而不是服务器后台的限制， 当浏览器发现请求是跨域的，就会去校验跨域请求的返回值里面是否有一些允许跨域的标示， 如果没有这些标示，则浏览器报跨域异常。</p>
+
+<h2 id="heading-跨域">跨域</h2>
+
+<p>这个就是说 当你请求的地址 跟你当前的地址 有 ip/端口/协议 有任何一个不一样，就会发生跨域。</p>
+
+<h2 id="heading-xhr请求">XHR请求</h2>
+
+<p>当请求是XHR(XmlHttpRequest)的时候， 浏览器就会去判断是否跨域。 这个很好验证，比如在<code class="language-plaintext highlighter-rouge">localhost:8080</code>界面中使用 <code class="language-plaintext highlighter-rouge">&lt;a href="localhost:8888/cross"&gt;</code> 标签，并不会被浏览器识别跨域。</p>
+
+<h1 id="heading-怎么解决跨域">怎么解决跨域</h1>
+
+<p>解决思路也是根据产生的原因去找对应的策略:</p>
+
+<h2 id="heading-如何从解决浏览器限制">如何从解决浏览器限制</h2>
+
+<h3 id="heading-浏览器制定启动参数">浏览器制定启动参数</h3>
+
+<p>在打开浏览器的时候 可以增加一个参数 <code class="language-plaintext highlighter-rouge">--disable-web-security</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">open -n Google\ Chrome.app/ --args --disable-web-security --user-data-dir=随便一个目录</code></p>
+
+<p>打开之后的效果如下:</p>
+
+<p><img src="/files/images/cross-4.png" alt="cross-4" /></p>
+
+<p>我们再看看之前的页面请求:</p>
+
+<p><img src="/files/images/cross-5.png" alt="corss-5" /></p>
+
+<p>我们发现 跨域问题已经没有了， <strong>不过这不是一个常用的解决办法。</strong></p>
+
+<h2 id="heading-不发出xhr请求">不发出XHR请求</h2>
+
+<h3 id="heading-jsonp">JsonP</h3>
+
+<h4 id="heading-jsonp-是什么">JsonP 是什么？</h4>
+
+<p>jsonP 是 json的一个扩展， 主要是使用javascript脚本代替xhr请求来解决跨域</p>
+
+<p><strong>jsonP 服务后台代码也是要修改的</strong></p>
+
+<p>我们修改一下前台的代码:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="nx">jsonp</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://localhost:8888/cross</span><span class="dl">'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">bodyText</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span>
+</code></pre></div></div>
+
+<p>看下请求结果:</p>
+
+<p><img src="/files/images/cross-6.png" alt="cross-6" /></p>
+
+<p>我们发现浏览器报错换了， 为什么这样呢？ 因为jsonP请求会将返回体当作一段js代码来使用， 我们后段返回 <code class="language-plaintext highlighter-rouge">hello world</code> 并不是js的语法，所以前端解析失败， 所以使用jsonp要对后段代码进行改动， 我们改成如下代码:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@RestController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CrossDomainController</span> <span class="o">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/cross"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getHelloWorld</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"hello world"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/cross/bean"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">ResponseBean</span> <span class="nf">getHelloWorldBean</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ResponseBean</span><span class="o">()</span> <span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="nd">@Data</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ResponseBean</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="n">data</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@ControllerAdvice</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JsonPAdvice</span> <span class="kd">extends</span> <span class="nc">AbstractJsonpResponseBodyAdvice</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="nf">JsonPAdvice</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="s">"callback"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="nx">jsonp</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://localhost:8888/cross/bean</span><span class="dl">'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">data</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p>先说一下， 为什么要使用<code class="language-plaintext highlighter-rouge">/cross/bean</code> 因为jsonp返回的东西，浏览器当成javascript脚本来使用， <code class="language-plaintext highlighter-rouge">/cross</code>返回的 hello world 不符合js的语法，所以不能正常运行。</p>
+
+<p>我们看下运行结果</p>
+
+<p><img src="/files/images/corss-7.png" alt="cross-7" /></p>
+
+<p>我们发现， response 不再是json类型， request 也不在时xhr类型， 所以证明 jsonp只是将后端返回当成javascript脚本来运行</p>
+
+<h4 id="heading-jsonp-的弊端">JsonP 的弊端</h4>
+
+<ol>
+  <li>服务器需要改动代码</li>
+</ol>
+
+<p>如果服务器端不是自己的， 就没有办法改动服务器代码</p>
+
+<ol>
+  <li>只支持GET方法</li>
+</ol>
+
+<p>因为是通过动态创建script脚本来发送请求， 所以除了GET方法，其他的都不支持。</p>
+
+<ol>
+  <li>发出去的不是XHR请求</li>
+</ol>
+
+<p>这也是jsonP为什么可以解决跨域的根本原因， 不能使用XHR一些特性</p>
+
+<h2 id="heading-解决跨域">解决跨域</h2>
+
+<h3 id="heading-常用的bs架构">常用的BS架构</h3>
+
+<p><img src="/files/images/cross-8.png" alt="cross-8" /></p>
+
+<p>我们常用的Browser/Server 架构如图所示， Browser 端发起请求 到 中间服务器(Apache or Nginx), 中间服务器判断该请求是请求静态资源，还是请求动态资源？ 如果是请求静态资源，则走A链路， 如果请求动态资源则走B链路。</p>
+
+<ul>
+  <li>A链路: 如html， css， js， img 等这些静态资源</li>
+  <li>B链路: 如post，get，delete 这些请求</li>
+</ul>
+
+<h3 id="heading-bs架构跨域">BS架构，跨域</h3>
+
+<p><img src="/files/images/cross-9.png" alt="cross-9" /></p>
+
+<p>如图所示， 当调用方A在Browser（浏览器）端请求 被调用方B的时候，就会发生跨域问题， 那么如何解决呢？</p>
+
+<p><img src="/files/images/cross-10.png" alt="cross-10" /></p>
+
+<p>有两种解决方法：</p>
+
+<ul>
+  <li>修改被调用方，使其在header里面返回一些标示，来标记该服务支持跨域</li>
+  <li>修改调用方，使用Apache/Nginx的一些配置，让浏览器请求Apache/Nginx，由Apache/Nginx转发到被调用方B的请求，让浏览器感觉不到跨域。</li>
+</ul>
+
+<p>好，接下来我们一个一个的实现</p>
+
+<h2 id="heading-调用方修改">调用方修改</h2>
+
+<p>调用方解决方案 就是当没有办法修改被调用方的服务器代码时，就要在调用方请求处想办法解决跨域， 可以使用反向代理方式。</p>
+
+<h3 id="heading-反向代理">反向代理</h3>
+
+<p>反向代理（Reverse Proxy）方式是指以代理服务器来接受internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。</p>
+
+<p>说白了，就是 浏览器访问同一个url上的不同地址， 如 localhost:8080/A, localhost:8080/B, 然后反向代理服务器可以把请求链接代理到不同地址的服务器上 ，如Nginx把 localhost:8080/B  代理到 localhost:8081 上， 浏览器 感觉不出来跨域， 也就是隐藏跨域。</p>
+
+<h3 id="heading-nginx-配置">Nginx 配置</h3>
+
+<p>我们先把 前后端代码改成不能跨域的</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CrossFilter</span> <span class="kd">implements</span> <span class="n">javax</span><span class="o">.</span><span class="na">servlet</span><span class="o">.</span><span class="na">Filter</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="nc">FilterConfig</span> <span class="n">filterConfig</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">ServletException</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doFilter</span><span class="o">(</span><span class="nc">ServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="nc">ServletResponse</span> <span class="n">response</span><span class="o">,</span> <span class="nc">FilterChain</span> <span class="n">chain</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">,</span> <span class="nc">ServletException</span> <span class="o">{</span>
+        <span class="nc">HttpServletResponse</span> <span class="n">resp</span> <span class="o">=</span> <span class="o">(</span><span class="nc">HttpServletResponse</span><span class="o">)</span> <span class="n">response</span><span class="o">;</span>
+
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroy</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://localhost:8888/cross/bean</span><span class="dl">'</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="na">data</span><span class="p">:</span> <span class="dl">"</span><span class="s2">gc</span><span class="dl">"</span><span class="p">})).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">data</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p><img src="/files/images/cross-16.png" alt="cross-16" /></p>
+
+<p>我们看 现在是不允许跨域的， 现在我们配置下nginx:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">server</span> <span class="p">{</span>
+  <span class="nx">listen</span> <span class="mi">80</span><span class="p">;</span>
+  <span class="nx">server_name</span> <span class="nx">localhost</span><span class="p">;</span>
+
+  <span class="nx">location</span> <span class="o">/</span> <span class="p">{</span>
+      <span class="nx">proxy_pass</span> <span class="na">http</span><span class="p">:</span><span class="c1">//localhost:8081;</span>
+  <span class="p">}</span>
+
+  <span class="nx">location</span> <span class="o">/</span><span class="nx">ajaxserver</span><span class="p">{</span>
+      <span class="nx">proxy_pass</span> <span class="nx">http</span><span class="p">:</span><span class="c1">//localhost:8888/cross/bean;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>看这个nginx的配置， 我们把 <code class="language-plaintext highlighter-rouge">localhost</code>  路由到 <code class="language-plaintext highlighter-rouge">http://localhost:8081</code> 路径上， 我们把  <code class="language-plaintext highlighter-rouge">localhost/ajaxserver</code> 路由到 <code class="language-plaintext highlighter-rouge">http://localhost:8888/cross/bean</code>， 然后我们再改下 前端请求的路径:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/ajaxserver</span><span class="dl">'</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="na">data</span><span class="p">:</span> <span class="dl">"</span><span class="s2">gc</span><span class="dl">"</span><span class="p">})).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">data</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p><img src="/files/images/cross-17.png" alt="cross-17" /></p>
+
+<p>我们看，浏览器已经不显示跨域了。 这样 我们成功的对浏览器隐藏了跨域。</p>
+
+<h2 id="heading-被调用方修改">被调用方修改</h2>
+
+<h3 id="heading-实现代码">实现代码</h3>
+
+<p><img src="/files/images/cross-11.png" alt="cross-11" /></p>
+
+<p>被调用方修改，就是在请求的响应头中增加一些标示，让浏览器允许跨域， 可以修改相应头的地方有两处， 这里只介绍在后端代码里如何修改响应头， Apache/Nginx 服务器上修改的方法，本文不做演示</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@ComponentScan</span><span class="o">(</span><span class="s">"me.int32"</span><span class="o">)</span>
+<span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableAutoConfiguration</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Application</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="nc">Application</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="nc">FilterRegistrationBean</span> <span class="nf">registerFilter</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">FilterRegistrationBean</span> <span class="n">bean</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FilterRegistrationBean</span><span class="o">();</span>
+        <span class="n">bean</span><span class="o">.</span><span class="na">addUrlPatterns</span><span class="o">(</span><span class="s">"*"</span><span class="o">);</span>
+        <span class="n">bean</span><span class="o">.</span><span class="na">setFilter</span><span class="o">(</span><span class="k">new</span> <span class="nc">CrossFilter</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">bean</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kn">package</span> <span class="nn">me.int32.filter</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.servlet.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletResponse</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CrossFilter</span> <span class="kd">implements</span> <span class="n">javax</span><span class="o">.</span><span class="na">servlet</span><span class="o">.</span><span class="na">Filter</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="nc">FilterConfig</span> <span class="n">filterConfig</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">ServletException</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doFilter</span><span class="o">(</span><span class="nc">ServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="nc">ServletResponse</span> <span class="n">response</span><span class="o">,</span> <span class="nc">FilterChain</span> <span class="n">chain</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">,</span> <span class="nc">ServletException</span> <span class="o">{</span>
+        <span class="nc">HttpServletResponse</span> <span class="n">resp</span> <span class="o">=</span> <span class="o">(</span><span class="nc">HttpServletResponse</span><span class="o">)</span> <span class="n">response</span><span class="o">;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="s">"Access-Control-Allow-Origin"</span><span class="o">,</span> <span class="s">"*"</span><span class="o">);</span>
+        <span class="n">resp</span><span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="s">"Access-Control-Allow-Methods"</span><span class="o">,</span> <span class="s">"*"</span><span class="o">);</span>
+
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroy</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://localhost:8888/cross/bean</span><span class="dl">'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">data</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p><img src="/files/images/cross-12.png" alt="cross-12" /></p>
+
+<p>可以看到Response Header 里面带了 <code class="language-plaintext highlighter-rouge">Access-Control-Allow-Methods:*</code>  和 <code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin:*</code> 两个标示， 代表着， 允许浏览器对所有源，所有方法进行跨域请求.</p>
+
+<h3 id="heading-先判断后执行">先判断，后执行</h3>
+
+<p>浏览器的请求并不都是先执行后判断，即先请求服务接口， 根据服务接口的响应头去判断是否允许跨域， 也有一些请求是先发一个预处理请求，这个预处理请求就包括判断是否跨域， 如果允许跨域，才会发送真正的请求。</p>
+
+<p>哪些是需要发预处理请求（复杂请求），哪些是不需要（简单请求）的呢？ 我们可以这样区分：</p>
+
+<ul>
+  <li>简单请求：
+    <ul>
+      <li>GET，POST，HEAD 方法中的一种</li>
+      <li>无自定义头</li>
+      <li>Content-Type in [text/plain, multipart/form-data, appliocation/x-www-form-urlencoded]</li>
+    </ul>
+  </li>
+  <li>复杂请求:</li>
+  <li>PUT, DELETE 方法的ajax请求</li>
+  <li>发送json格式的 ajax 请求</li>
+  <li>带自定义头的 ajax 请求</li>
+</ul>
+
+<p>我们来发送一个复杂请求：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@RestController</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CrossDomainController</span> <span class="o">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/cross"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getHelloWorld</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"hello world"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/cross/bean"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">ResponseBean</span> <span class="nf">getHelloWorldBean</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ResponseBean</span><span class="o">()</span> <span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">"/cross/bean"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="nc">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">ResponseBean</span> <span class="nf">getRequestBean</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="nc">RequestBean</span> <span class="n">requestBean</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"....."</span><span class="o">);</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ResponseBean</span><span class="o">()</span> <span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">template</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/template</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">msg</span><span class="p">:</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="na">created</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://localhost:8888/cross/bean</span><span class="dl">'</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="na">data</span><span class="p">:</span> <span class="dl">"</span><span class="s2">gc</span><span class="dl">"</span><span class="p">})).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">data</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">get Error</span><span class="dl">'</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="nx">style</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="sr">/style</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p><img src="/files/images/cross-13.png" alt="cross-13" />
+<img src="/files/images/cross-14.png" alt="cross-14" /></p>
+
+<p>我们看下， 这种ajax json post 请求，并不单单是发送一个post， 而是先发送一个 method=OPETION 的预检请求， 但是由于预检请求没有被通过 ： 我们看到 前端需要后端回给一个 <code class="language-plaintext highlighter-rouge">Access-Control-Allow-Headers:Content-Type</code> , 我们修改下后端代码:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CrossFilter</span> <span class="kd">implements</span> <span class="n">javax</span><span class="o">.</span><span class="na">servlet</span><span class="o">.</span><span class="na">Filter</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="nc">FilterConfig</span> <span class="n">filterConfig</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">ServletException</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doFilter</span><span class="o">(</span><span class="nc">ServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="nc">ServletResponse</span> <span class="n">response</span><span class="o">,</span> <span class="nc">FilterChain</span> <span class="n">chain</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">,</span> <span class="nc">ServletException</span> <span class="o">{</span>
+        <span class="nc">HttpServletResponse</span> <span class="n">resp</span> <span class="o">=</span> <span class="o">(</span><span class="nc">HttpServletResponse</span><span class="o">)</span> <span class="n">response</span><span class="o">;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="s">"Access-Control-Allow-Origin"</span><span class="o">,</span> <span class="s">"*"</span><span class="o">);</span>
+        <span class="n">resp</span><span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="s">"Access-Control-Allow-Methods"</span><span class="o">,</span> <span class="s">"*"</span><span class="o">);</span>
+        <span class="n">resp</span><span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="s">"Access-Control-Allow-Headers"</span><span class="o">,</span> <span class="s">"Content-Type"</span><span class="o">);</span>
+
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroy</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><img src="/files/images/corss-15.png" alt="cross-15" /></p>
+
+<p>我们看到，请求已经成功了 … 在这里，我们也看到了所谓的预检请求 OPETION 。 但是 每次请求都去做一次 预检请求 比较浪费流量，影响效率， 我们可以在相应头中增加 <code class="language-plaintext highlighter-rouge">Access-Control-Max-Age:3600</code> 来设置Opetion操作的缓存时间， 这样在缓存生效时间内就不需要再次进行Opetion请求了。</p>
+
+<h3 id="heading--不是万能的">* 不是万能的</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin:*</code> 并不是万能的， 当请求携带cookie的时候， 浏览器是不允许 使用<code class="language-plaintext highlighter-rouge">*</code> 通配符的， 所以当带cookie的时候，<code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin</code> 这个字段必须是全匹配的。 而且还需要增加一个 <code class="language-plaintext highlighter-rouge">Access-Control-Allow-Credentials:true</code> 这个相应头。</p>
+
+<h3 id="heading-自定义请求头">自定义请求头</h3>
+
+<p>当ajax 请求 带自定义请求头的时候，后端相应也必须带上相应的请求头， 不然仍然会出现 跨域异常</p>
+
+<h1 id="heading-总结">总结</h1>
+
+<p>我们从 <strong>为什么会解决跨域</strong> 到 <strong>根据跨域产生的原因解决跨域</strong> 阐述了跨域 和 解决办法， 这样在我们平时再遇到跨域的时候就可以变得更加从容， 如果 调用方 和 被调用方 都是你自己， 可以选择 被调用方解决跨域， 修改下服务器的代码即可。  如果你是调用方， 被调用方是别人， 那么 可以使用 nginx 对跨域进行隐藏。</p>
+:ET

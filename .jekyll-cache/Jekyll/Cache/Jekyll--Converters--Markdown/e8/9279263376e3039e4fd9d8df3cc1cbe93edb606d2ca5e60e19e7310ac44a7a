@@ -1,0 +1,355 @@
+I"zi<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-vim-从放弃到拿起" id="markdown-toc-heading-vim-从放弃到拿起">Vim 从放弃到拿起</a>    <ul>
+      <li><a href="#heading-我与vim" id="markdown-toc-heading-我与vim">我与Vim</a></li>
+      <li><a href="#heading-第一步-vimtutor" id="markdown-toc-heading-第一步-vimtutor">(第一步) Vimtutor</a></li>
+      <li><a href="#heading-第二步-vim-用户手册" id="markdown-toc-heading-第二步-vim-用户手册">(第二步) Vim 用户手册</a>        <ul>
+          <li><a href="#heading-基本快捷键" id="markdown-toc-heading-基本快捷键">基本快捷键</a></li>
+          <li><a href="#heading-定制vim" id="markdown-toc-heading-定制vim">定制Vim</a></li>
+          <li><a href="#heading-编辑多个文件" id="markdown-toc-heading-编辑多个文件">编辑多个文件</a></li>
+          <li><a href="#heading-分割窗口" id="markdown-toc-heading-分割窗口">分割窗口</a></li>
+          <li><a href="#heading-奇技淫巧" id="markdown-toc-heading-奇技淫巧">奇技淫巧</a></li>
+          <li><a href="#heading-加速冒号命令" id="markdown-toc-heading-加速冒号命令">加速冒号命令</a></li>
+          <li><a href="#heading-进退之间" id="markdown-toc-heading-进退之间">进退之间</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-第三步-安装插件" id="markdown-toc-heading-第三步-安装插件">(第三步) 安装插件</a>        <ul>
+          <li><a href="#heading-nerdtree" id="markdown-toc-heading-nerdtree">NERDTree</a></li>
+          <li><a href="#heading-simpyfold" id="markdown-toc-heading-simpyfold">SimpyFold</a></li>
+          <li><a href="#heading-indentpython" id="markdown-toc-heading-indentpython">indentpython</a></li>
+          <li><a href="#heading-airline" id="markdown-toc-heading-airline">airline</a></li>
+          <li><a href="#heading-ctrlp" id="markdown-toc-heading-ctrlp">ctrlp</a></li>
+          <li><a href="#heading-折叠" id="markdown-toc-heading-折叠">折叠</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-mac-shell" id="markdown-toc-heading-mac-shell">Mac Shell</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-vim-从放弃到拿起">Vim 从放弃到拿起</h1>
+
+<h2 id="heading-我与vim">我与Vim</h2>
+
+<p>Vim 在我自己的编程史上出现的时间还算蛮早的，我最开始接触编程的时候便接触了Vim, 这也得益于我的学长, 在我开始学编程的时候，学长们便强推 linux 操作系统，我用的是 ubuntu 麒麟。听过学长们说vim有多么强大，于是我第一次接触了vim, 在vimtutor中学习了基本的快捷键，随后貌似也仅停滞于此。 我个人“责怪“让我放弃vim的是java， 我觉得java的语法实在是太复杂，eclipse却让我很快速的写java代码 。所以，我放弃了。 但又是什么让我打算重新拿起它呢？ 是非java的语言。 我接触了python，kotlin, groovy, go, javascript，markdown 等等，这里肯定会被看到的人喷，但无所谓的是， 这里不是在与别人争论什么，也不是把：快来用vim吧 这种观念强加给别人， 更不是vim使用的教程，这里仅仅是记录了我对vim, 我个人对vim的每一步， 经过考虑，既然我决定拿起一些事情， 就一定要做到最后，做到最好（仅对我个人而言)。</p>
+
+<p>在这之前，我用sublime写python， 如果我仅限于写python的话，我可能一直会用sublime，甚至会去选择pycharm， 但我还要写groovy, go, kotlin, markdown … ， 各种ide出现在我的电脑里，导致他很快就装不下任何东西了，而且同样要在sublime中配置各种语言的解析环境，要记住各种独特的命令，学习成本还是如此之高。</p>
+
+<p>我决定重新学习vim, 是重新学习，而不是继续学习， 在这里我会记录与vim的一点一滴，就像初恋一样。</p>
+
+<blockquote>
+  <p>随笔：我觉得决定要学习一件事情是需要勇气的，因为当你决定的时候，你就要多对自己负一份责任。</p>
+</blockquote>
+
+<h2 id="heading-第一步-vimtutor">(第一步) Vimtutor</h2>
+
+<p><code class="language-plaintext highlighter-rouge">k</code> <code class="language-plaintext highlighter-rouge">j</code> <code class="language-plaintext highlighter-rouge">h</code> <code class="language-plaintext highlighter-rouge">l</code> 上下左右</p>
+
+<p><code class="language-plaintext highlighter-rouge">i</code> 在光标前插入  <br />
+<code class="language-plaintext highlighter-rouge">a</code> 在光标后插入  <br />
+<code class="language-plaintext highlighter-rouge">A</code> 在本行末尾插入  <br />
+<code class="language-plaintext highlighter-rouge">o</code> 在本行下插入新行  <br />
+<code class="language-plaintext highlighter-rouge">O</code> 在本行上插入新行</p>
+
+<p><code class="language-plaintext highlighter-rouge">w</code> 光标到下个单词前  <br />
+<code class="language-plaintext highlighter-rouge">e</code> 光标到下个单词末尾  <br />
+<code class="language-plaintext highlighter-rouge">$</code> 光标到本行末尾  <br />
+<code class="language-plaintext highlighter-rouge">0</code> 光标到本行开始  <br />
+<code class="language-plaintext highlighter-rouge">^</code> 光标到本行第一个字符  <br />
+<code class="language-plaintext highlighter-rouge">[number] motion</code> 如<code class="language-plaintext highlighter-rouge">3e / 3w / 3j</code> 重复执行number次motion  <br />
+<code class="language-plaintext highlighter-rouge">ta</code> 跳到a单词的前面  <br />
+<code class="language-plaintext highlighter-rouge">fa</code> 跳到a单词上</p>
+
+<p><code class="language-plaintext highlighter-rouge">x</code> 删除光标字符  <br />
+<code class="language-plaintext highlighter-rouge">d [number] motion</code> 如 <code class="language-plaintext highlighter-rouge">d3w / d3d / d2e / dj / dk / ...</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">u</code> 撤销当前操作  <br />
+<code class="language-plaintext highlighter-rouge">U</code> 撤销整行操作  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-R</code> 回退撤销操作</p>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-p</code> 向上查找补全内容  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-n</code> 向下查找补全内容</p>
+
+<p><code class="language-plaintext highlighter-rouge">p</code> 将剪贴板的内容粘贴</p>
+
+<p><code class="language-plaintext highlighter-rouge">r</code> 替换光标出字符  <br />
+<code class="language-plaintext highlighter-rouge">R</code> 持续替换动作直到ESC  <br />
+<code class="language-plaintext highlighter-rouge">ce</code> 删除单词到词尾之后进入insert模式  <br />
+<code class="language-plaintext highlighter-rouge">cw</code> 删除单词到下个单词前进入insert模式</p>
+
+<p><code class="language-plaintext highlighter-rouge">gg</code> 将光标到文件开头  <br />
+<code class="language-plaintext highlighter-rouge">G</code> 将光标到文件末尾  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-G</code> 显示文件信息</p>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-O</code> 回退到上一次跳转  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-I</code> 撤销回退</p>
+
+<p><code class="language-plaintext highlighter-rouge">/</code> 正向查找字符  <br />
+<code class="language-plaintext highlighter-rouge">?</code> 逆向查找字符  <br />
+<code class="language-plaintext highlighter-rouge">n</code> 下一个匹配出的字符  <br />
+<code class="language-plaintext highlighter-rouge">N</code> 上一个匹配出的字符  <br />
+<code class="language-plaintext highlighter-rouge">*</code> 光标放在单词前面，可以全文匹配这一单词
+<code class="language-plaintext highlighter-rouge">g*</code> 光标放在单词前面，可全文匹配这一行</p>
+
+<p><code class="language-plaintext highlighter-rouge">%</code> 匹配与之配对的括号</p>
+
+<p><code class="language-plaintext highlighter-rouge">:%s/old/new</code> 将old替换成new  <br />
+<code class="language-plaintext highlighter-rouge">:%s/old/new/g</code> 替换整个文件内  <br />
+<code class="language-plaintext highlighter-rouge">:%s/old/new/gc</code> 在替换的时候让用户确认  <br />
+<code class="language-plaintext highlighter-rouge">:%s/old/new/ge</code> 没有找到的时候不报错  <br />
+<code class="language-plaintext highlighter-rouge">:#,#%s/old/new</code> 替换从#行到#行</p>
+
+<p><code class="language-plaintext highlighter-rouge">: !cmd</code> 在vim中使用外部命令  <br />
+<code class="language-plaintext highlighter-rouge">:r file</code> 将file中的内容插入到当前光标所在位置  <br />
+<code class="language-plaintext highlighter-rouge">:r !cmd</code> 将命令返回值插入到光标所在位置  <br />
+<code class="language-plaintext highlighter-rouge">v motion</code> 在可视环境下选择文件内容</p>
+
+<p><code class="language-plaintext highlighter-rouge">y</code> 在可视环境下复制内容</p>
+
+<p><code class="language-plaintext highlighter-rouge">:help w</code> 帮助  <br />
+<code class="language-plaintext highlighter-rouge">:help c_CTRL-D</code>  <br />
+<code class="language-plaintext highlighter-rouge">:help insert-index</code>  <br />
+<code class="language-plaintext highlighter-rouge">:help user-manual</code></p>
+
+<p>纵向编辑</p>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-V</code> 进入纵向编辑模式  <br />
+<code class="language-plaintext highlighter-rouge">hjkl</code> 选中要编辑的区域  <br />
+<code class="language-plaintext highlighter-rouge">I/A</code> 插入操作并且插入内容  <br />
+<code class="language-plaintext highlighter-rouge">ESC</code> 推出并且全部应用纵向编辑</p>
+
+<h2 id="heading-第二步-vim-用户手册">(第二步) Vim 用户手册</h2>
+
+<h3 id="heading-基本快捷键">基本快捷键</h3>
+
+<p><code class="language-plaintext highlighter-rouge">b</code> 与<code class="language-plaintext highlighter-rouge">w</code>效果一样，方向相反  <br />
+<code class="language-plaintext highlighter-rouge">W</code> 跳句  <br />
+<code class="language-plaintext highlighter-rouge">B</code> 反方向跳句  <br />
+<code class="language-plaintext highlighter-rouge">fx</code> 在当前行上查找下一个x字符  <br />
+<code class="language-plaintext highlighter-rouge">3fx</code> 在当前行上查找第三个x字符  <br />
+<code class="language-plaintext highlighter-rouge">Fx</code> 在当前行上逆向查找x字符  <br />
+<code class="language-plaintext highlighter-rouge">tx</code> 停留在查找的字符之前  <br />
+<code class="language-plaintext highlighter-rouge">Tx</code> 逆向tx  <br />
+<code class="language-plaintext highlighter-rouge">;</code> <code class="language-plaintext highlighter-rouge">,</code> 上面四个命令都可以用这两个命令重复，不过方向相反</p>
+
+<p><code class="language-plaintext highlighter-rouge">:set number</code> 显示行号  <br />
+<code class="language-plaintext highlighter-rouge">:set ruler</code> 右下角显示光标位置</p>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-U</code> 内容向下滚动半屏  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-D</code> 内容向上滚动半屏  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-E</code> 内容向上滚动一行  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-Y</code> 内容向下滚动一行  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-F</code> 内容向上滚动一屏  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-B</code> 内容向下滚动一屏  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-O</code> 回跳到上一次位置  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-I</code> 跳回原来的位置</p>
+
+<p><code class="language-plaintext highlighter-rouge">/</code> 搜索 比如<code class="language-plaintext highlighter-rouge">/include</code>  <br />
+<code class="language-plaintext highlighter-rouge">?</code> 反向搜索  <br />
+<code class="language-plaintext highlighter-rouge">n</code> 下一个找到的字符  <br />
+<code class="language-plaintext highlighter-rouge">N</code> 上一个找到的字符  <br />
+<code class="language-plaintext highlighter-rouge">:set ignorecase</code> 忽略大小写   <br />
+<code class="language-plaintext highlighter-rouge">:set noignorecase</code> 不忽略大小写  <br />
+<code class="language-plaintext highlighter-rouge">/ (+ ⬆️箭头)</code> 会找到上一个命令, 支持正则表达式   <br />
+<code class="language-plaintext highlighter-rouge">:</code> 也会存在一个历史  <br />
+<code class="language-plaintext highlighter-rouge">:set hlsearch</code> 设置高亮查询  <br />
+<code class="language-plaintext highlighter-rouge">:hlsearch</code> 设置本次高亮，下次查询不会高亮  <br />
+<code class="language-plaintext highlighter-rouge">:set nohlsearch</code>   <br />
+<code class="language-plaintext highlighter-rouge">:set incsearch</code> 在键入关键字的时候就开始搜索  <br />
+<code class="language-plaintext highlighter-rouge">:scriptnames</code> 找到vim配置文件的位置  <br />
+<code class="language-plaintext highlighter-rouge">ZZ</code> 保存文件并退出  <br />
+<code class="language-plaintext highlighter-rouge">\</code>`<code class="language-plaintext highlighter-rouge"> 回跳到上一次的位置     
+</code>ma<code class="language-plaintext highlighter-rouge"> 将光标所在位置标记为a, 这样 </code>`a<code class="language-plaintext highlighter-rouge">命令就会将光标跳到标记a的地方    
+</code>'a<code class="language-plaintext highlighter-rouge"> 将只会跳转到那一行，不会准确的跳转到列    
+</code>[<code class="language-plaintext highlighter-rouge"> 最后一次修改的当前位置    
+</code>]` 最后一次修改的结束位置</p>
+
+<p><code class="language-plaintext highlighter-rouge">x</code> 删除光标字符  <br />
+<code class="language-plaintext highlighter-rouge">X</code> 删除光标前面的字符  <br />
+<code class="language-plaintext highlighter-rouge">D</code> 删除到航尾  <br />
+<code class="language-plaintext highlighter-rouge">C</code> 修改到航尾  <br />
+<code class="language-plaintext highlighter-rouge">s</code> 修改要一个字符 <br />
+<code class="language-plaintext highlighter-rouge">S</code> 修改一整行</p>
+
+<p><code class="language-plaintext highlighter-rouge">r</code> 替换一个字符  <br />
+<code class="language-plaintext highlighter-rouge">R</code> 一直处于替换模式</p>
+
+<p><code class="language-plaintext highlighter-rouge">v</code> 处于visual模式  <br />
+<code class="language-plaintext highlighter-rouge">V</code> visual模式行选择  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-V</code> 纵向选择模式</p>
+
+<p><code class="language-plaintext highlighter-rouge">p</code> 将剪切板中的内容粘贴到光标后  <br />
+<code class="language-plaintext highlighter-rouge">P</code> 将剪切板的内容粘贴到光标前  <br />
+<code class="language-plaintext highlighter-rouge">y</code> 复制  <br />
+<code class="language-plaintext highlighter-rouge">yy</code> 复制一整行<br />
+<code class="language-plaintext highlighter-rouge">~</code> 将字符变大写，然后光标跳到下一个字母</p>
+
+<h3 id="heading-定制vim">定制Vim</h3>
+
+<p>你可以配置你的  ~/.vimrc 文件来定制vim配置</p>
+
+<p>在vimrc文件中<code class="language-plaintext highlighter-rouge">"</code>符号为注释  <br />
+<code class="language-plaintext highlighter-rouge">set incsearch</code>  <br />
+<code class="language-plaintext highlighter-rouge">set backup</code> 当文件保存的时候，保存起备份文件（以～结尾）  <br />
+<code class="language-plaintext highlighter-rouge">set backupext=.bak</code> 设置备份文件的后缀  <br />
+<code class="language-plaintext highlighter-rouge">set ruler</code> 屏幕右下角显示光标位置  <br />
+<code class="language-plaintext highlighter-rouge">set showcmd</code> 右下角显示命令  <br />
+<code class="language-plaintext highlighter-rouge">set showmode</code> 左下角显示模式  <br />
+<code class="language-plaintext highlighter-rouge">map &lt;F5&gt; i{&lt;Esc&gt;ea}&lt;Esc&gt;</code> 将F5健映射到后面的命令 : 光标前面插入{然后在单词后面插入}  <br />
+<code class="language-plaintext highlighter-rouge">set wrap</code> 一行显示不过来的内容折叠显示  <br />
+<code class="language-plaintext highlighter-rouge">set nowrap</code> 不折叠显示  <br />
+<code class="language-plaintext highlighter-rouge">set xxx&amp;</code> 在选项后面放&amp;使其配置恢复默认值  <br />
+<code class="language-plaintext highlighter-rouge">set sidescroll=10</code> 设置至少显示10个字符的上下文  <br />
+<code class="language-plaintext highlighter-rouge">set list</code> 现在每个制表符都会以^I显示. 同时每行行尾会有一个$字符, 以便 你能一眼看出那些位于一行尾部的多余空格.  <br />
+<code class="language-plaintext highlighter-rouge">set listchars=tab:&gt;-,trail:-</code> 现在每个制表符会以"&gt;—"显示2, 同时行尾空格以"-"显示  <br />
+<code class="language-plaintext highlighter-rouge">set iskeyword</code> 定义了一个word中可以包含哪些字符:iskeyword=@,48-57,_,192-255 &gt; "@"在这里代指所有的字母. "48-57"指ASCII码从48到57的那些字符, 即0到9. "192-255"是可打印拉丁字母.  <br />
+<code class="language-plaintext highlighter-rouge">set cmdheight=3</code> 控制拿出几行来显示信息  <br />
+<code class="language-plaintext highlighter-rouge">syntax enable</code> 如果你的终端支持彩色，这条设置则是打开彩色的大门  <br />
+<code class="language-plaintext highlighter-rouge">set autowrite</code> 自动存档</p>
+
+<h3 id="heading-编辑多个文件">编辑多个文件</h3>
+
+<p><code class="language-plaintext highlighter-rouge">:edit a.txt</code> 关闭当前窗口，打开另一个窗口  <br />
+<code class="language-plaintext highlighter-rouge">vim one.c two.c three.c</code> 编辑三个文件，单需要用 <code class="language-plaintext highlighter-rouge">:next</code> 向下切换，<code class="language-plaintext highlighter-rouge">:previous</code> 向上切换, <code class="language-plaintext highlighter-rouge">last</code>, <code class="language-plaintext highlighter-rouge">first</code>  都有其意义   <br />
+<code class="language-plaintext highlighter-rouge">CTRL-^</code> 也是可以进行文件直接的来回切换  <br />
+<code class="language-plaintext highlighter-rouge">mF</code> 用大写字母做全局标记  <br />
+<code class="language-plaintext highlighter-rouge">"ay</code> 将复制的内容放入寄存器a 如3j"ay  <br />
+<code class="language-plaintext highlighter-rouge">"ap</code> 将寄存器a的内容粘贴出来 如 "ap  <br />
+<code class="language-plaintext highlighter-rouge">:saveas a.y</code> 会将当前文件存储为a.y</p>
+
+<h3 id="heading-分割窗口">分割窗口</h3>
+
+<p><code class="language-plaintext highlighter-rouge">:sp</code> 打开一个新的窗口  <br />
+<code class="language-plaintext highlighter-rouge">:close</code> 关闭  <br />
+<code class="language-plaintext highlighter-rouge">:only</code> 关闭其他窗口  <br />
+<code class="language-plaintext highlighter-rouge">:sp filename</code> 新窗口打开filename  <br />
+<code class="language-plaintext highlighter-rouge">:[number]sp</code> 新窗口number行  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-W hjkl</code> 上下左右选择窗口  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-W +</code> 增加当前窗口高度  <br />
+<code class="language-plaintext highlighter-rouge">:vsp</code> 垂直分割  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-W HJKL</code> 将窗口位置移动  <br />
+<code class="language-plaintext highlighter-rouge">:qall</code> 推出所有窗口  <br />
+<code class="language-plaintext highlighter-rouge">:wall</code> 保存所有窗口  <br />
+<code class="language-plaintext highlighter-rouge">:wqall</code>   <br />
+<code class="language-plaintext highlighter-rouge">:qall!</code>  <br />
+<code class="language-plaintext highlighter-rouge">vim -o one.txt two.txt three.txt</code> 为每一个文件打开一个窗口， O可以打开垂直的窗口  <br />
+<code class="language-plaintext highlighter-rouge">vimdiff a.c b.c</code> 比较两个文件的不同  <br />
+<code class="language-plaintext highlighter-rouge">:tabedit filename</code> 页标签  <br />
+<code class="language-plaintext highlighter-rouge">gt</code> 切换页标签</p>
+
+<h3 id="heading-奇技淫巧">奇技淫巧</h3>
+
+<p>替换</p>
+
+<p><code class="language-plaintext highlighter-rouge">:%s/\&lt;GetResp\&gt;/GetAnswer/ge</code></p>
+
+<h3 id="heading-加速冒号命令">加速冒号命令</h3>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-W</code> 在命令模式下 删除光标左边一个单词的命令  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-U</code> 删除光标左边全部命令  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-B</code> 将光标移动至命令头  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-E</code> 将光标移动至命令尾</p>
+
+<p><code class="language-plaintext highlighter-rouge">:edit i&lt;Tab&gt;</code> 将会当前目录现有的文件  <br />
+<code class="language-plaintext highlighter-rouge">:edit i&lt;CTRL-P&gt;</code> 反向遍历  <br />
+<code class="language-plaintext highlighter-rouge">:edit i&lt;CTRL-D&gt;</code> 显示所有匹配的上的文件</p>
+
+<h3 id="heading-进退之间">进退之间</h3>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-Z</code> 挂起Vim  <br />
+<code class="language-plaintext highlighter-rouge">fg</code> 回到挂起的vim  <br />
+<code class="language-plaintext highlighter-rouge">:shell</code> 开启新的shell</p>
+
+<h2 id="heading-第三步-安装插件">(第三步) 安装插件</h2>
+
+<h3 id="heading-nerdtree">NERDTree</h3>
+
+<ul>
+  <li>安装</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>" 用vundle安装插件
+set nocompatible             
+filetype off                 
+set rtp+=~/.vim/bundle/vundle
+call vundle#begin()
+
+Bundle 'scrooloose/nerdtree'
+
+call vundle#end()            
+filetype plugin indent on    
+
+</code></pre></div></div>
+<p><strong>常用命令</strong>  <br />
+更新插件:BundleUpdate  <br />
+清除不再使用的插件:BundleClean,  <br />
+列出所有插件:BundleList  <br />
+查找插件:BundleSearch</p>
+
+<ul>
+  <li>快捷键</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-w-w</code> 左右切换  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-w-r</code> 目录窗口左右切换  <br />
+<code class="language-plaintext highlighter-rouge">o</code> 展开目录文件， 再按就关闭目录  <br />
+<code class="language-plaintext highlighter-rouge">O</code> 递归打开文件  <br />
+<code class="language-plaintext highlighter-rouge">x</code> 合拢选中节点的父目录  <br />
+<code class="language-plaintext highlighter-rouge">X</code> 递归合拢所有  <br />
+<code class="language-plaintext highlighter-rouge">go</code> 在已有窗口中打开文件， 但光标不跳到该窗口   <br />
+<code class="language-plaintext highlighter-rouge">t</code> 中打开选中文件,并跳到新窗口
+<code class="language-plaintext highlighter-rouge">q</code> 推出tree  <br />
+<code class="language-plaintext highlighter-rouge">P</code> 跳到上级目录节点 <br />
+<code class="language-plaintext highlighter-rouge">p</code> 跳到根目录节点 <br />
+<code class="language-plaintext highlighter-rouge">i</code> 上下分屏  <br />
+<code class="language-plaintext highlighter-rouge">s</code> 左右分屏</p>
+
+<h3 id="heading-simpyfold">SimpyFold</h3>
+
+<p>在 .vimrc 文件中加入下面插件，便可以得到一个比较好的代码折叠插件</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Plugin 'tmhedberg/SimpylFold'
+</code></pre></div></div>
+
+<h3 id="heading-indentpython">indentpython</h3>
+
+<p>自动缩进插件</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim-scripts/indentpython.vim
+</code></pre></div></div>
+
+<h3 id="heading-airline">airline</h3>
+
+<p>vim状态栏强化</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim-airline/vim-airline
+</code></pre></div></div>
+<h3 id="heading-ctrlp">ctrlp</h3>
+
+<p>全文件搜索</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kien/ctrlp.vim
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">CTRL-p</code> 模糊搜索当前文件夹及子目录    <br />
+<code class="language-plaintext highlighter-rouge">CTRL-f</code> 模糊搜索最近打开的文件  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-j/k</code> 上下选中文件 <br />
+<code class="language-plaintext highlighter-rouge">CTRL-x</code> 在当前窗口水平分屏打开文件  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-v</code> 同上, 垂直分屏  <br />
+<code class="language-plaintext highlighter-rouge">CTRL-t</code> 在tab中打开</p>
+
+<h3 id="heading-折叠">折叠</h3>
+
+<p><code class="language-plaintext highlighter-rouge">zc</code> 折叠当前行  <br />
+<code class="language-plaintext highlighter-rouge">zo</code> 打开当前行  <br />
+<code class="language-plaintext highlighter-rouge">zM</code> 折叠所有  <br />
+<code class="language-plaintext highlighter-rouge">zR</code> 打开左右</p>
+
+<h2 id="heading-mac-shell">Mac Shell</h2>
+
+<p><code class="language-plaintext highlighter-rouge">ctrl a</code> 跳到行首   <br />
+<code class="language-plaintext highlighter-rouge">ctrl e</code> 跳到行尾  <br />
+<code class="language-plaintext highlighter-rouge">ctrl w</code> 删除光标前一个字符串  <br />
+<code class="language-plaintext highlighter-rouge">esc b</code> 光标跳到前一个字符首  <br />
+<code class="language-plaintext highlighter-rouge">esc f</code> 光标跳到后一个字符末尾  <br />
+<code class="language-plaintext highlighter-rouge">ctrl u</code> 删除光标之前的字符  <br />
+<code class="language-plaintext highlighter-rouge">ctrl l</code> 清屏</p>
+:ET

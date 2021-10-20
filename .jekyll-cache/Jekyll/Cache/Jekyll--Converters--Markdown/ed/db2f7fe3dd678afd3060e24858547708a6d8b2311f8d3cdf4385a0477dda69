@@ -1,0 +1,597 @@
+I"��<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-kotlin-分享-笔记二" id="markdown-toc-heading-kotlin-分享-笔记二">Kotlin 分享 笔记（二）</a>    <ul>
+      <li><a href="#heading-class--object" id="markdown-toc-heading-class--object">Class &amp; Object</a>        <ul>
+          <li><a href="#heading-构造函数" id="markdown-toc-heading-构造函数">构造函数</a></li>
+          <li><a href="#heading-属性和方法" id="markdown-toc-heading-属性和方法">属性和方法</a></li>
+          <li><a href="#heading-接口" id="markdown-toc-heading-接口">接口</a></li>
+          <li><a href="#heading-抽象类" id="markdown-toc-heading-抽象类">抽象类</a></li>
+          <li><a href="#heading-数据类" id="markdown-toc-heading-数据类">数据类</a></li>
+          <li><a href="#heading-嵌套类" id="markdown-toc-heading-嵌套类">嵌套类</a></li>
+          <li><a href="#heading-内部类" id="markdown-toc-heading-内部类">内部类</a></li>
+          <li><a href="#heading-枚举类" id="markdown-toc-heading-枚举类">枚举类</a></li>
+          <li><a href="#heading-伴生对象" id="markdown-toc-heading-伴生对象">伴生对象</a></li>
+          <li><a href="#heading-单例类" id="markdown-toc-heading-单例类">单例类</a></li>
+          <li><a href="#heading-继承" id="markdown-toc-heading-继承">继承</a></li>
+          <li><a href="#heading-组合" id="markdown-toc-heading-组合">组合</a></li>
+          <li><a href="#heading-委托" id="markdown-toc-heading-委托">委托</a></li>
+          <li><a href="#heading-继承组合委托" id="markdown-toc-heading-继承组合委托">继承，组合，委托</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-泛型" id="markdown-toc-heading-泛型">泛型</a>        <ul>
+          <li><a href="#heading-为什么要存在类型擦除" id="markdown-toc-heading-为什么要存在类型擦除">为什么要存在类型擦除</a></li>
+          <li><a href="#heading-容器类的协变与逆变" id="markdown-toc-heading-容器类的协变与逆变">容器类的协变与逆变</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-注解--反射" id="markdown-toc-heading-注解--反射">注解 &amp; 反射</a>        <ul>
+          <li><a href="#heading-注解" id="markdown-toc-heading-注解">注解</a></li>
+          <li><a href="#heading-反射" id="markdown-toc-heading-反射">反射</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-总结" id="markdown-toc-heading-总结">总结</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-kotlin-分享-笔记二">Kotlin 分享 笔记（二）</h1>
+
+<p>上次，我们对kotlin进行了整体的介绍，并且对kotlin基本的语法如变量，函数等都有了大致的了解，这次我们将会了解下kotlin对类与对象的支持，kotlin是如何使用注解，反射等相关工具的。</p>
+
+<h2 id="heading-class--object">Class &amp; Object</h2>
+
+<h3 id="heading-构造函数">构造函数</h3>
+
+<p>在kotlin中，我们定义类是非常方便的</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">final</span> <span class="kd">class</span> <span class="nc">Demo</span> <span class="k">public</span> <span class="k">constructor</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nc">String</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">init</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">name</span> <span class="p">=</span> <span class="n">name</span>
+    <span class="p">}</span>
+    <span class="kd">val</span> <span class="py">address</span> <span class="p">=</span> <span class="n">address</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>在kotlin中，class或interface 默认是final类型的，即不可以被继承或实现的</li>
+  <li>kotlin中，构造函数可以存在一个主构造函数和多个次构造函数，如果类中存在主构造函数，则次构造函数必须直接或者间接的委托给主构造函数</li>
+  <li>主构造函数中的参数只能用在初始化块<code class="language-plaintext highlighter-rouge">init</code>和类体中</li>
+  <li>如果一个类没有声明主构造函数活着次构造函数，将会默认提供一个不带参数的主构造函数</li>
+  <li>如果在主构造函数上存在描述符，将必须显示写出<code class="language-plaintext highlighter-rouge">constructor</code>关键字</li>
+  <li>类的构造函数默认是public修饰的</li>
+  <li>如果主构造函数中声明的参数使用<code class="language-plaintext highlighter-rouge">var / val</code>关键字，则该参数将成为该类的属性</li>
+</ul>
+
+<p>经过上面几点，我们可以将这个<code class="language-plaintext highlighter-rouge">Demo</code>类改写成👇代码</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="kd">val</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span><span class="p">,</span> <span class="kd">val</span> <span class="py">address</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>⚠️ 次构造函数的参数不允许用 <code class="language-plaintext highlighter-rouge">val / var</code> 关键字描述, 因为只是型参, 如👇代码是错误的</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">{</span>
+    <span class="k">constructor</span><span class="p">(</span><span class="kd">val</span> <span class="py">name</span><span class="p">:</span><span class="nc">String</span><span class="p">){</span> <span class="c1">//这是次构造函数，次构造函数也要用constructor关键字</span>
+        <span class="c1">// 编译错误，不可以用`val`</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>创建类的实例 <code class="language-plaintext highlighter-rouge">val demo = Demo("gc","china")</code> kotlin 去掉了new 关键字</p>
+
+<h3 id="heading-属性和方法">属性和方法</h3>
+
+<p>与java一样，我们可以在类中定义方法和属性，同时他们都是默认final关键字描述的，即不可继承的</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">final</span> <span class="kd">val</span> <span class="py">name</span> <span class="p">=</span> <span class="n">name</span> <span class="c1">// 可以不写final</span>
+    <span class="k">final</span> <span class="k">fun</span> <span class="nf">function</span><span class="p">():</span> <span class="nc">String</span> <span class="p">=</span> <span class="n">name</span> <span class="c1">// 可以不写final</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>与java不一样的是，kotlin为我们默认提供属性的getter,setter</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">demo</span> <span class="p">=</span> <span class="nc">Demo</span><span class="p">(</span><span class="s">"gc"</span><span class="p">)</span>
+<span class="n">demo</span><span class="p">.</span><span class="n">name</span> <span class="c1">// 即默认调用getter</span>
+</code></pre></div></div>
+
+<p>当然，我们可以为属性自定义getter, setter <em>val 定义的属性不允许自定义setter方法</em></p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="n">name</span>
+        <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="s">"hello ${field}"</span>
+        <span class="k">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">field</span> <span class="p">=</span> <span class="s">"hello ${value}"</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这里要注意几个地方:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">field</code> 被称为该属性的幕后字段，为什么我们在get方法中返回的是<code class="language-plaintext highlighter-rouge">field</code>而不是<code class="language-plaintext highlighter-rouge">name</code>呢？因为如果我们返回<code class="language-plaintext highlighter-rouge">name</code>，则又会调用<code class="language-plaintext highlighter-rouge">name</code>属性的get方法，如此递归到栈溢出，<code class="language-plaintext highlighter-rouge">field</code>仅仅是存储<code class="language-plaintext highlighter-rouge">name</code>的值，不包装get/set</li>
+  <li>set中的value参数是自定义的，不过通常用<code class="language-plaintext highlighter-rouge">value</code> ， set中参数没有类型，get中没有返回值，因为这些都可以在属性上得知</li>
+</ul>
+
+<h3 id="heading-接口">接口</h3>
+
+<p>kotlin 中的接口与java相似，不过kotlin中提供了更丰富的接口功能，它允许接口定义属性，但接口中的属性不能保存状态，也不应该保存状态，所以接口中的属性不能初始化且不能使用<code class="language-plaintext highlighter-rouge">背后字段</code></p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Demo</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span>
+
+    <span class="kd">val</span> <span class="py">address</span><span class="p">:</span> <span class="nc">String</span>
+        <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="s">"hello"</span>
+
+    <span class="k">fun</span> <span class="nf">function1</span><span class="p">():</span> <span class="nc">String</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">address</span>
+    <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">function2</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-抽象类">抽象类</h3>
+
+<p>kotlin中的抽象类与java一致</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">abstract</span> <span class="kd">class</span> <span class="nc">DemoII</span> <span class="p">{</span>
+    <span class="c1">// 与java一致</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-数据类">数据类</h3>
+
+<p>kotlin 提供了数据类的概念，简化代码(与java中@Data的作用一致)</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">data class</span> <span class="nc">Demo</span><span class="p">(</span><span class="kd">val</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span><span class="p">,</span> <span class="kd">val</span> <span class="py">address</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">demo</span> <span class="p">=</span> <span class="nc">Demo</span><span class="p">(</span><span class="s">"gc"</span><span class="p">,</span> <span class="s">"china"</span><span class="p">)</span>
+    <span class="c1">//生成toString</span>
+    <span class="nf">println</span><span class="p">(</span><span class="n">demo</span><span class="p">.</span><span class="nf">toString</span><span class="p">())</span>
+    <span class="c1">//生成component</span>
+    <span class="kd">val</span> <span class="p">(</span><span class="py">name</span><span class="p">,</span> <span class="py">address</span><span class="p">)</span> <span class="p">=</span> <span class="n">demo</span>
+    <span class="nf">println</span><span class="p">(</span><span class="s">"name: ${name}, address: ${address}"</span><span class="p">)</span>
+    <span class="c1">//生成copy 深度拷贝</span>
+    <span class="kd">val</span> <span class="py">demoI</span> <span class="p">=</span> <span class="n">demo</span><span class="p">.</span><span class="nf">copy</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"gc2"</span><span class="p">)</span>
+    <span class="nf">println</span><span class="p">(</span><span class="n">demoI</span><span class="p">.</span><span class="nf">toString</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="cm">/* out
+Demo(name=gc, address=china)
+name: gc, address: china
+Demo(name=gc2, address=china)
+*/</span>
+</code></pre></div></div>
+
+<h3 id="heading-嵌套类">嵌套类</h3>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">{</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">name</span><span class="p">:</span><span class="nc">String</span> <span class="p">=</span> <span class="s">"gc"</span>
+    <span class="kd">class</span> <span class="nc">Demo1</span><span class="p">{</span>
+        <span class="nf">println</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="c1">//ERROR</span>
+        <span class="k">fun</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">=</span> <span class="s">"gc"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">val</span> <span class="py">demo1</span> <span class="p">=</span> <span class="nc">Demo</span><span class="p">.</span><span class="nc">Demo1</span><span class="p">().</span><span class="nf">foo</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>嵌套类中，里面的类不可以访问外面的变量或方法</p>
+
+<h3 id="heading-内部类">内部类</h3>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">{</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">name</span><span class="p">:</span><span class="nc">String</span> <span class="p">=</span> <span class="s">"gc"</span>
+    <span class="k">inner</span> <span class="kd">class</span> <span class="nc">Demo1</span><span class="p">{</span>
+        <span class="nf">println</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="c1">//ok</span>
+        <span class="k">fun</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">=</span> <span class="s">"gc"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">val</span> <span class="py">demo1</span> <span class="p">=</span> <span class="nc">Demo</span><span class="p">().</span><span class="nc">Demo1</span><span class="p">().</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">//这里与嵌套类也不一样</span>
+</code></pre></div></div>
+
+<h3 id="heading-枚举类">枚举类</h3>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">enum</span> <span class="kd">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="kd">val</span> <span class="py">name</span><span class="p">:</span><span class="nc">String</span><span class="p">){</span>
+    <span class="nc">GC</span><span class="p">(</span><span class="s">"gc"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-伴生对象">伴生对象</h3>
+
+<p>因为kotlin中没有static关键字, 如果想要实现对应的效果，可以使用半生对象，初始化时机也与static一致</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">{</span>
+    <span class="k">companion</span> <span class="k">object</span> <span class="nc">Factory</span><span class="p">{</span> <span class="c1">//可以省略对象名 Factory</span>
+        <span class="k">fun</span> <span class="nf">create</span><span class="p">():</span> <span class="nc">Demo</span> <span class="p">=</span> <span class="nc">Demo</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// val demo = Demo.create()</span>
+</code></pre></div></div>
+
+<h3 id="heading-单例类">单例类</h3>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">object</span> <span class="nc">DemoUtil</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">isValidId</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="nc">Long</span><span class="p">?)</span> <span class="p">=</span> <span class="n">id</span><span class="o">?.</span><span class="nf">let</span> <span class="p">{</span> <span class="n">id</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">}</span> <span class="o">?:</span> <span class="k">false</span>
+<span class="p">}</span>
+
+<span class="c1">// DemoUtil.isValidId(10)</span>
+</code></pre></div></div>
+
+<p>在kotlin中，这种定义也叫做对象声明，当且仅当使用这个对象中的方法或者属性时候初始化（单例模式中的懒汉模式）</p>
+
+<h3 id="heading-继承">继承</h3>
+
+<p>kotlin中的继承与java最大的区别是 koltin支持多继承</p>
+
+<ul>
+  <li>如果父类中没有构造函数(包括主构造和次构造)，则子类中继承的时候调用父类的空构造函数</li>
+</ul>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">open</span> <span class="kd">class</span> <span class="nc">Demo</span> <span class="p">{</span>
+       
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">DemoI</span> <span class="p">:</span> <span class="nc">Demo</span><span class="p">()</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>当然，接口没有构造函数，所以可以这么写</p>
+</blockquote>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Demo</span> <span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">DemoI</span> <span class="p">:</span> <span class="nc">Demo</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>如果父类中存在构造函数，且子类中不存在主构造函数，则次构造函数必须显示使用<code class="language-plaintext highlighter-rouge">super</code>关键字</li>
+</ul>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="nc">String</span><span class="p">){</span>
+
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">DemoI</span> <span class="p">:</span> <span class="nc">Demo</span><span class="p">{</span>
+    <span class="k">constructor</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="nc">String</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span><span class="nc">String</span><span class="p">)</span> <span class="p">:</span> <span class="k">super</span><span class="p">(</span><span class="n">name</span><span class="p">){</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>子类覆盖父类中的方法必须用 <code class="language-plaintext highlighter-rouge">override</code>  关键字显示声明</li>
+</ul>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">open</span> <span class="kd">class</span> <span class="nc">Demo</span> <span class="p">{</span>
+    <span class="k">open</span> <span class="k">fun</span> <span class="nf">function</span><span class="p">()</span> <span class="p">=</span> <span class="s">"hello world"</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">DemoI</span> <span class="p">:</span> <span class="nc">Demo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">function</span><span class="p">()</span> <span class="p">=</span> <span class="s">"hahaha"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>属性与方法 同样可以被继承， 但要注意的是 一个 val 标注的属性不可以被 var 标注的属性重写，反之可以</p>
+  </li>
+  <li>
+    <p>kotlin 中多继承是被允许的，如果想要调用某一父类指定的方法，可以使用super&lt;*&gt; 关键字</p>
+  </li>
+</ul>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">open</span> <span class="kd">class</span> <span class="nc">DemoI</span> <span class="p">{</span>
+    <span class="k">open</span> <span class="k">fun</span> <span class="nf">function</span><span class="p">()</span> <span class="p">=</span> <span class="s">"hello world"</span>
+<span class="p">}</span>
+
+<span class="k">open</span> <span class="kd">class</span> <span class="nc">DemoII</span> <span class="p">{</span>
+    <span class="k">open</span> <span class="k">fun</span> <span class="nf">function</span><span class="p">()</span> <span class="p">=</span> <span class="s">"hello china"</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Demo</span> <span class="p">:</span> <span class="nc">DemoI</span><span class="p">(),</span> <span class="nc">DemoII</span><span class="p">(){</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">super</span><span class="p">&lt;</span><span class="nc">DemoI</span><span class="p">&gt;.</span><span class="nf">function</span><span class="p">()</span> <span class="p">+</span> <span class="k">super</span><span class="p">&lt;</span><span class="nc">DemoII</span><span class="p">&gt;.</span><span class="nf">function</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-组合">组合</h3>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Demo</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">function</span><span class="p">(){</span>
+        <span class="nf">println</span><span class="p">(</span><span class="s">"hello world"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">DemoI</span><span class="p">(</span><span class="kd">val</span> <span class="py">demo</span><span class="p">:</span><span class="nc">Demo</span><span class="p">){</span>
+    <span class="k">fun</span> <span class="nf">function</span><span class="p">(){</span>
+        <span class="n">demo</span><span class="p">.</span><span class="nf">function</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-委托">委托</h3>
+
+<p>kotlin 原声支持类，方法，属性委托, 这里暂时只会提到类委托</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Projector</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">show</span><span class="p">(</span><span class="n">content</span><span class="p">:</span><span class="nc">String</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">SonyProjector</span><span class="p">:</span> <span class="nc">Projector</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">show</span><span class="p">(</span><span class="n">content</span><span class="p">:</span><span class="nc">String</span><span class="p">){</span>
+        <span class="nf">println</span> <span class="p">(</span><span class="s">"sony show ${content}"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Computor</span> <span class="p">(</span><span class="n">projector</span><span class="p">:</span> <span class="nc">Projector</span><span class="p">):</span> <span class="nc">Projector</span> <span class="k">by</span> <span class="n">projector</span> <span class="c1">// 这里发生了委托</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">sonyProjector</span><span class="p">:</span> <span class="nc">Projector</span> <span class="p">=</span> <span class="nc">SonyProjector</span><span class="p">()</span>
+    <span class="kd">val</span> <span class="py">computor</span><span class="p">:</span> <span class="nc">Computor</span> <span class="p">=</span> <span class="nc">Computor</span><span class="p">(</span><span class="n">sonyProjector</span><span class="p">)</span>
+    <span class="n">computor</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="s">"hello worlds"</span><span class="p">)</span>
+
+    <span class="nf">println</span><span class="p">(</span><span class="nc">Computor</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="heading-继承组合委托">继承，组合，委托</h3>
+
+<p>对于这三种类与类之间的组装形式，网上有很多人去争辩哪个更优于哪个，我个人认为三者之间没有优劣，仅仅是场景不同的产物。</p>
+
+<p>继承很明显的存在于亲子之间的关系，比如父亲和孩子，鸟与麻雀之间的关系，这种是无论是具有血缘关系的直系亲属还是生物之间的进化，都可以用继承关系描述；组合则强调的是整体与部分的关系，比如车和轮胎，车和车坐等，大物品是由小物品组装起来的，用组合相对较好；而委托则更注重行为上，比如电脑与投影仪，电脑是个体，投影仪也是个体，两个既没有进化关系，也没有组装关系（并不是缺了投影仪，电脑不能工作），电脑只会把显示任务委托给投影仪。</p>
+
+<p>其实代码中的世界与人类世界一样，比如继承，组装，委托，比如工厂模式，订阅者模式，这些无不是在人类社会进化总结出来最终映射到代码世界的， 所以说，人类世界中的规律如果很好的应用在写代码上，也就不用费尽心机的去研究什么解耦了，因为现在这个社会便是最好解耦的结果。</p>
+
+<h2 id="heading-泛型">泛型</h2>
+
+<p>koltin 对泛型的支持比java更为方便，虽然两者对泛型都是做类型擦除操作，但kotlin无论是在语法上还是在语义上都比java更加人性化</p>
+
+<h3 id="heading-为什么要存在类型擦除">为什么要存在类型擦除</h3>
+
+<p>原因也和大多数的Java让人不爽的点一样——兼容性。由于泛型并不是从Java诞生就存在的一个特性，而是等到SE5才被加入的，所以为了兼容之前并未使用泛型的类库和代码，不得不让编译器擦除掉代码中有关于泛型类型信息的部分，这样最后生成出来的代码其实是『泛型无关』的，我们使用别人的代码或者类库时也就不需要关心对方代码是否已经『泛化』，反之亦然。</p>
+
+<p>在编译器层面做的这件事（擦除具体的类型信息），使得Java的泛型先天都存在一个让人非常难受的缺点：</p>
+
+<p><strong>在泛型代码内部，无法获得任何有关泛型参数类型的信息</strong></p>
+
+<h3 id="heading-容器类的协变与逆变">容器类的协变与逆变</h3>
+
+<p>无论是在java还是在kotlin中, <code class="language-plaintext highlighter-rouge">Object obj = new String("gc")</code> 是合法的，但是<code class="language-plaintext highlighter-rouge">String str = new Object()</code> 是非法的，也就是说用父类去装子类的实例是没有问题的，但反之却不行。且这是可以被理解的。</p>
+
+<p>在java中， <code class="language-plaintext highlighter-rouge">ArrayList&lt;Object&gt; l = new ArrayList&lt;String&gt;()</code> 是不被编译通过的，因为 ``ArrayList<object><code class="language-plaintext highlighter-rouge"> 并非 </code>ArrayList<String>` 的父类。</String></object></p>
+
+<p>但这便不被某些人理解， 👇代码来表明这为什么不被允许:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;</span> <span class="n">objects</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;();</span>
+<span class="k">for</span> <span class="o">(</span><span class="nc">Object</span> <span class="n">object</span> <span class="o">:</span> <span class="n">objects</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">object</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Integer</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>如果 <code class="language-plaintext highlighter-rouge">ArrayList&lt;Object&gt;</code> 是 <code class="language-plaintext highlighter-rouge">ArrayList&lt;String&gt;</code> 的父类，就会出现上面的代码而且被编译通过，这是很危险的事情, 且与数组协变造成的危险一样大。</p>
+
+<p>所以在java中，我们要这样来解决上面的问题， 但是要以牺牲修改容器内容为代价。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ArrayList</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="nc">Object</span><span class="o">&gt;</span> <span class="n">objects</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;();</span>
+<span class="n">objects</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="s">"gc"</span><span class="o">));</span> <span class="c1">// 对其写入的时候异常</span>
+</code></pre></div></div>
+
+<p>如果想要一个对应 写操作 的协变</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ArrayList</span><span class="o">&lt;?</span> <span class="n">supper</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">objects</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;();</span>
+<span class="n">objects</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="s">"gc"</span><span class="o">));</span>
+<span class="nc">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">objects</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span><span class="c1">// 但读却同样被牺牲</span>
+</code></pre></div></div>
+
+<p>因为java的类型擦除，java在编译阶段对泛型做了强有力的校验，而这种校验导致我们不得不加入通配符并且符合操作规格来进行代码编写</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">A</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="no">T</span> <span class="n">l</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">A</span><span class="o">(</span><span class="no">T</span> <span class="n">l</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="no">T</span> <span class="nf">getContent</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">l</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="cm">/*
+         * 这里我们写的类虽然只进行的读操作，但是在调用的时候也不能将 A&lt;String&gt; 附值给 A&lt;Object&gt;
+         */</span>
+        <span class="no">A</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="nc">Object</span><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="no">A</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;(</span><span class="s">"gc"</span><span class="o">);</span> 
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>我们看下kotlin的代码:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Source</span><span class="p">&lt;</span><span class="k">out</span> <span class="nc">T</span><span class="p">&gt;</span>
+
+<span class="k">fun</span> <span class="nf">function</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="nc">Source</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">a</span> <span class="p">:</span> <span class="nc">Source</span><span class="p">&lt;</span><span class="nc">Any</span><span class="p">&gt;</span> <span class="p">=</span> <span class="n">arg</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>kotlin 在泛型上对于类型擦除的检查与java做了不同方向上的处理，koltin 去除了 在定义变量的时候使用通配符 <code class="language-plaintext highlighter-rouge">?</code> 的方法，增加了声明处泛型的方法，如果在使用在变量的时候仅仅是安全的get操作，那么可以在改变量的声明处增加<code class="language-plaintext highlighter-rouge">out</code>关键字处理，由此得到的好处是 <code class="language-plaintext highlighter-rouge">Source&lt;Any&gt;</code> 是<code class="language-plaintext highlighter-rouge">Source&lt;String&gt;</code> 的父类。</p>
+
+<h2 id="heading-注解--反射">注解 &amp; 反射</h2>
+
+<h3 id="heading-注解">注解</h3>
+
+<p>kotlin 中注解 与 java 注解100%兼容， 语法上也一致</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nd">@Target</span><span class="p">(</span><span class="nc">AnnotationTarget</span><span class="p">.</span><span class="nc">CLASS</span><span class="p">,</span> <span class="nc">AnnotationTarget</span><span class="p">.</span><span class="nc">FUNCTION</span><span class="p">,</span>
+        <span class="nc">AnnotationTarget</span><span class="p">.</span><span class="nc">VALUE_PARAMETER</span><span class="p">,</span> <span class="nc">AnnotationTarget</span><span class="p">.</span><span class="nc">EXPRESSION</span><span class="p">)</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">SOURCE</span><span class="p">)</span>
+<span class="nd">@MustBeDocumented</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">Fancy</span>
+
+</code></pre></div></div>
+
+<p>使用注解也与java类似</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nd">@Fancy</span> <span class="kd">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+    <span class="nd">@Fancy</span> <span class="k">fun</span> <span class="nf">baz</span><span class="p">(</span><span class="nd">@Fancy</span> <span class="n">foo</span><span class="p">:</span> <span class="nc">Int</span><span class="p">):</span> <span class="nc">Int</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nd">@Fancy</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="heading-反射">反射</h3>
+
+<p>kotlin 的反射和java 的也很类似，不同的是 kotlin::class 获取的是kotlin提供的类 KClass 类型，java.getClass() 获取的是java的类，当然 kotlin::class.java 也能获取到同样的结果</p>
+
+<p>其他的知识点同java的知识点， 我们看段个小demo</p>
+
+<p>这个demo的要实现的功能：</p>
+
+<ul>
+  <li>读取项目根目录下的文件内容，将文件中的内容通过一定规格映射给对应的类</li>
+</ul>
+
+<p>注解类:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Target</span><span class="p">(</span><span class="nc">AnnotationTarget</span><span class="p">.</span><span class="nc">PROPERTY</span><span class="p">)</span>
+<span class="nd">@Retention</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">MyAnno</span><span class="p">(</span><span class="kd">val</span> <span class="py">fileName</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"application.properties"</span><span class="p">,</span> <span class="kd">val</span> <span class="py">propertyName</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>解析类:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">AnnoExpres</span><span class="p">(</span><span class="kd">val</span> <span class="py">obj</span><span class="p">:</span> <span class="nc">Any</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">init</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">expression</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">clazz</span> <span class="p">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">javaClass</span><span class="p">.</span><span class="n">kotlin</span>
+        <span class="n">clazz</span><span class="p">.</span><span class="n">memberProperties</span><span class="p">.</span><span class="nf">forEach</span> <span class="p">{</span> <span class="n">property</span> <span class="p">-&gt;</span>
+            <span class="kd">val</span> <span class="py">mutableProp</span> <span class="p">=</span> <span class="k">try</span> <span class="p">{</span>
+                <span class="n">property</span> <span class="k">as</span> <span class="nc">KMutableProperty</span><span class="p">&lt;</span><span class="err">*</span><span class="p">&gt;</span>
+            <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">null</span>
+            <span class="p">}</span> <span class="o">?:</span> <span class="k">return</span><span class="nd">@forEach</span>
+
+
+            <span class="kd">val</span> <span class="py">propertyName</span> <span class="p">=</span> <span class="n">mutableProp</span><span class="p">.</span><span class="n">name</span>
+            <span class="kd">val</span> <span class="py">propertyType</span> <span class="p">=</span> <span class="n">mutableProp</span><span class="p">.</span><span class="n">returnType</span><span class="p">.</span><span class="nf">toString</span><span class="p">().</span><span class="nf">removePrefix</span><span class="p">(</span><span class="s">"kotlin."</span><span class="p">)</span>
+
+            <span class="n">mutableProp</span><span class="p">.</span><span class="n">annotations</span><span class="p">.</span><span class="nf">forEach</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="k">is</span> <span class="nc">MyAnno</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">when</span> <span class="p">(</span><span class="n">propertyType</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="s">"String"</span> <span class="p">-&gt;</span> <span class="n">mutableProp</span><span class="p">.</span><span class="n">setter</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nf">getFileContent</span><span class="p">(</span><span class="n">it</span><span class="p">.</span><span class="n">fileName</span><span class="p">)[</span><span class="n">propertyName</span><span class="p">]</span> <span class="o">?:</span> <span class="s">""</span><span class="p">)</span>
+                        <span class="s">"Int"</span> <span class="p">-&gt;</span> <span class="n">mutableProp</span><span class="p">.</span><span class="n">setter</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nf">getFileContent</span><span class="p">(</span><span class="n">it</span><span class="p">.</span><span class="n">fileName</span><span class="p">)[</span><span class="n">propertyName</span><span class="p">]</span><span class="o">?.</span><span class="nf">toInt</span><span class="p">()</span> <span class="o">?:</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="s">"Boolean"</span> <span class="p">-&gt;</span> <span class="n">mutableProp</span><span class="p">.</span><span class="n">setter</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nf">getFileContent</span><span class="p">(</span><span class="n">it</span><span class="p">.</span><span class="n">fileName</span><span class="p">)[</span><span class="n">propertyName</span><span class="p">]</span><span class="o">?.</span><span class="nf">toBoolean</span><span class="p">()</span> <span class="o">?:</span> <span class="k">false</span><span class="p">)</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">fun</span> <span class="nf">getFileContent</span><span class="p">(</span><span class="n">fileName</span><span class="p">:</span> <span class="nc">String</span><span class="p">):</span> <span class="nc">Map</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">,</span> <span class="nc">String</span><span class="p">&gt;</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">lines</span> <span class="p">=</span> <span class="nc">InputStreamReader</span><span class="p">(</span><span class="nc">AnnoExpres</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">.</span><span class="n">classLoader</span><span class="p">.</span><span class="nf">getResourceAsStream</span><span class="p">(</span><span class="n">fileName</span><span class="p">)).</span><span class="nf">readLines</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">lines</span><span class="p">.</span><span class="nf">filter</span> <span class="p">{</span>
+            <span class="p">!</span><span class="nc">StringUtils</span><span class="p">.</span><span class="nf">isEmpty</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+        <span class="p">}.</span><span class="nf">filter</span> <span class="p">{</span>
+            <span class="p">!</span><span class="n">it</span><span class="p">.</span><span class="nf">startsWith</span><span class="p">(</span><span class="s">"#"</span><span class="p">)</span>
+        <span class="p">}.</span><span class="nf">map</span> <span class="p">{</span>
+            <span class="n">it</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s">"="</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="n">to</span> <span class="k">if</span> <span class="p">(</span><span class="n">it</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s">"="</span><span class="p">).</span><span class="n">size</span> <span class="p">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="n">it</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s">"="</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="s">""</span>
+        <span class="p">}.</span><span class="nf">toMap</span><span class="p">()</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>model类:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+ * 通过注解，我们知道 读取application.properties文件，并且将对应的字段映射到对应的属性上
+ */</span>
+<span class="kd">class</span> <span class="nc">User</span> <span class="p">{</span>
+    <span class="nd">@MyAnno</span><span class="p">(</span><span class="n">propertyName</span> <span class="p">=</span> <span class="s">"name"</span><span class="p">)</span> <span class="kd">var</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">""</span>
+    <span class="nd">@MyAnno</span><span class="p">(</span><span class="n">propertyName</span> <span class="p">=</span> <span class="s">"age"</span><span class="p">)</span> <span class="kd">var</span> <span class="py">age</span><span class="p">:</span> <span class="nc">Int</span> <span class="p">=</span> <span class="mi">0</span>
+    <span class="nd">@MyAnno</span><span class="p">(</span><span class="n">propertyName</span> <span class="p">=</span> <span class="s">"man"</span><span class="p">)</span> <span class="kd">var</span> <span class="py">man</span><span class="p">:</span> <span class="nc">Boolean</span> <span class="p">=</span> <span class="k">false</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">toString</span><span class="p">():</span> <span class="nc">String</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">"User(name='$name', age=$age, man='$man')"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Main:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">user</span> <span class="p">=</span> <span class="nc">User</span><span class="p">()</span>
+    <span class="kd">val</span> <span class="py">anno</span> <span class="p">=</span> <span class="nc">AnnoExpres</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">anno</span><span class="p">.</span><span class="nf">expression</span><span class="p">()</span>
+    <span class="nf">println</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>application.properties 文件内容:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span> <span class="n">test</span>
+<span class="n">name</span><span class="p">=</span><span class="s">"zhangjie"</span>
+<span class="n">age</span><span class="p">=</span><span class="mi">23</span>
+<span class="n">man</span><span class="p">=</span><span class="k">true</span>
+</code></pre></div></div>
+
+<p>下面是运行结果</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nc">User</span><span class="p">(</span><span class="n">name</span><span class="p">=</span><span class="err">'</span><span class="s">"zhangjie"</span><span class="err">'</span><span class="p">,</span> <span class="n">age</span><span class="p">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">man</span><span class="p">=</span><span class="err">'</span><span class="k">true</span><span class="err">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="heading-总结">总结</h2>
+
+<p>随着对kotlin的深入， 越来越感觉kotlin像是java的语法糖，也可能是因为初学者的原因，对kotlin的设计理念还不了解，不过既然java与kotlin都可以起到相同的作用，实现相同的东西，就算是语法糖，我们为什么不适用更方便简洁的语法糖呢？ 我也打算在日常代码中加入对kotlin的使用，但也不会放弃对java的深入，因为她们都跑在JVM上～</p>
+
+<p>下面我们看一段用kotlin写出来的代码，只看外观和写作感受来讲的话，不觉得很爽么？</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.example.html.*</span> <span class="c1">// 具体的声明参见下文</span>
+
+<span class="k">fun</span> <span class="nf">result</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">=</span>
+    <span class="nf">html</span> <span class="p">{</span>
+        <span class="nf">head</span> <span class="p">{</span>
+            <span class="nf">title</span> <span class="p">{+</span><span class="s">"XML encoding with Kotlin"</span><span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nf">body</span> <span class="p">{</span>
+            <span class="nf">h1</span> <span class="p">{+</span><span class="s">"XML encoding with Kotlin"</span><span class="p">}</span>
+            <span class="nf">p</span>  <span class="p">{+</span><span class="s">"this format can be used as an alternative markup to XML"</span><span class="p">}</span>
+
+            <span class="c1">// 一个元素, 指定了属性, 还指定了其中的文本内容</span>
+            <span class="nf">a</span><span class="p">(</span><span class="n">href</span> <span class="p">=</span> <span class="s">"http://kotlinlang.org"</span><span class="p">)</span> <span class="p">{+</span><span class="s">"Kotlin"</span><span class="p">}</span>
+
+            <span class="c1">// 混合内容</span>
+            <span class="nf">p</span> <span class="p">{</span>
+                <span class="p">+</span><span class="s">"This is some"</span>
+                <span class="nf">b</span> <span class="p">{+</span><span class="s">"mixed"</span><span class="p">}</span>
+                <span class="p">+</span><span class="s">"text. For more see the"</span>
+                <span class="nf">a</span><span class="p">(</span><span class="n">href</span> <span class="p">=</span> <span class="s">"http://kotlinlang.org"</span><span class="p">)</span> <span class="p">{+</span><span class="s">"Kotlin"</span><span class="p">}</span>
+                <span class="p">+</span><span class="s">"project"</span>
+            <span class="p">}</span>
+            <span class="nf">p</span> <span class="p">{+</span><span class="s">"some text"</span><span class="p">}</span>
+
+            <span class="c1">// 由程序生成的内容</span>
+            <span class="nf">p</span> <span class="p">{</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">arg</span> <span class="k">in</span> <span class="n">args</span><span class="p">)</span>
+                    <span class="p">+</span><span class="n">arg</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+:ET

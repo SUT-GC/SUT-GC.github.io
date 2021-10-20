@@ -28,17 +28,15 @@ author:
   name: gc
   email: gouchao2008@qq.com
   social_links:
-    - name: github
-      url: https://github.com/SUT-GC/SUT-GC.github.io
+    name: github
+    url: https://github.com/SUT-GC/SUT-GC.github.io
 
 user_info:
   github_url: https://github.com/SUT-GC/SUT-GC.github.io
   email_url: gouchao2008@qq.com
 
 home:
-  section1: <h1>简约不简单</h1>
-  section2: <h2>编程改变世界</h2>
-  section3: interest is the source, persistence is the key
+  section1: <h2>I promise if you let me, I'll love you like the movies.</h2>
 
 blog:
   footer_content: 编程改变世界

@@ -1,0 +1,590 @@
+I"�	<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-2-add-two-numbers" id="markdown-toc-heading-2-add-two-numbers">2 Add Two Numbers</a></li>
+  <li><a href="#heading-3-无重复字符的最长子串" id="markdown-toc-heading-3-无重复字符的最长子串">3 无重复字符的最长子串</a></li>
+  <li><a href="#heading-4-寻找两个有序数组的中位数" id="markdown-toc-heading-4-寻找两个有序数组的中位数">4 寻找两个有序数组的中位数</a></li>
+  <li><a href="#heading-5-最长回文子串" id="markdown-toc-heading-5-最长回文子串">5 最长回文子串</a></li>
+  <li><a href="#heading-6-z字形转换" id="markdown-toc-heading-6-z字形转换">6 Z字形转换</a></li>
+  <li><a href="#heading-8-字符转换成数字" id="markdown-toc-heading-8-字符转换成数字">8 字符转换成数字</a></li>
+  <li><a href="#heading-10-正则表达式匹配" id="markdown-toc-heading-10-正则表达式匹配">10 正则表达式匹配</a></li>
+  <li><a href="#heading-11-盛最多水的容器" id="markdown-toc-heading-11-盛最多水的容器">11 盛最多水的容器</a></li>
+  <li><a href="#heading-12-整数转罗马数字" id="markdown-toc-heading-12-整数转罗马数字">12 整数转罗马数字</a></li>
+  <li><a href="#heading-15-三数之和" id="markdown-toc-heading-15-三数之和">15 三数之和</a></li>
+</ul>
+
+<h1 id="heading-2-add-two-numbers">2 Add Two Numbers</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */</span>
+
+
+<span class="k">func</span> <span class="n">addTwoNumbers</span><span class="p">(</span><span class="n">l1</span> <span class="o">*</span><span class="n">ListNode</span><span class="p">,</span> <span class="n">l2</span> <span class="o">*</span><span class="n">ListNode</span><span class="p">)</span> <span class="o">*</span><span class="n">ListNode</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="n">addTwoNumbersWithCarry</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">addTwoNumbersWithCarry</span><span class="p">(</span><span class="n">l1</span> <span class="o">*</span><span class="n">ListNode</span><span class="p">,</span> <span class="n">l2</span> <span class="o">*</span><span class="n">ListNode</span><span class="p">,</span> <span class="n">carry</span> <span class="kt">int</span><span class="p">)</span> <span class="o">*</span><span class="n">ListNode</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">sumBit</span> <span class="o">:=</span> <span class="p">(</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Val</span> <span class="o">+</span> <span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Val</span> <span class="o">+</span> <span class="n">carry</span>
+		<span class="k">if</span> <span class="n">sumBit</span> <span class="o">&gt;</span> <span class="m">9</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="n">sumBit</span> <span class="o">%</span> <span class="m">10</span><span class="p">,</span> <span class="n">addTwoNumbersWithCarry</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="m">0</span><span class="p">,</span> <span class="no">nil</span><span class="p">},</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="m">0</span><span class="p">,</span> <span class="no">nil</span><span class="p">},</span> <span class="m">1</span><span class="p">)}</span>
+		<span class="p">}</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="n">sumBit</span><span class="p">,</span> <span class="no">nil</span><span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="p">(</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="m">0</span><span class="p">,</span> <span class="no">nil</span><span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="m">0</span><span class="p">,</span> <span class="no">nil</span><span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">sumBit</span> <span class="o">:=</span> <span class="p">(</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Val</span> <span class="o">+</span> <span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Val</span> <span class="o">+</span> <span class="n">carry</span>
+	<span class="k">if</span> <span class="n">sumBit</span> <span class="o">&gt;</span> <span class="m">9</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="n">sumBit</span> <span class="o">%</span> <span class="m">10</span><span class="p">,</span> <span class="n">addTwoNumbersWithCarry</span><span class="p">((</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span><span class="p">,</span> <span class="m">1</span><span class="p">)}</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="n">sumBit</span><span class="p">,</span> <span class="n">addTwoNumbersWithCarry</span><span class="p">((</span><span class="o">*</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">l2</span><span class="p">)</span><span class="o">.</span><span class="n">Next</span><span class="p">,</span> <span class="m">0</span><span class="p">)}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题挺有意思的，要正向着去算，而不是递归逆向着来</p>
+</blockquote>
+
+<h1 id="heading-3-无重复字符的最长子串">3 无重复字符的最长子串</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">prob</span>
+
+<span class="k">import</span> <span class="s">"fmt"</span>
+
+<span class="k">type</span> <span class="n">Set</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">m</span> <span class="k">map</span><span class="p">[</span><span class="k">interface</span><span class="p">{}]</span><span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">s</span> <span class="o">*</span><span class="n">Set</span><span class="p">)</span> <span class="n">contain</span><span class="p">(</span><span class="n">i</span> <span class="k">interface</span><span class="p">{})</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">_</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">true</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="no">false</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">s</span> <span class="o">*</span><span class="n">Set</span><span class="p">)</span> <span class="n">add</span><span class="p">(</span><span class="n">i</span> <span class="k">interface</span><span class="p">{})</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">m</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="k">map</span><span class="p">[</span><span class="k">interface</span><span class="p">{}]</span><span class="kt">int</span><span class="p">{}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">_</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">s</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="n">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">false</span>
+	<span class="p">}</span>
+
+	<span class="n">s</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="m">1</span>
+
+	<span class="k">return</span> <span class="no">true</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">s</span> <span class="o">*</span><span class="n">Set</span><span class="p">)</span> <span class="n">clear</span><span class="p">()</span> <span class="p">{</span>
+	<span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="k">map</span><span class="p">[</span><span class="k">interface</span><span class="p">{}]</span><span class="kt">int</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">s</span> <span class="o">*</span><span class="n">Set</span><span class="p">)</span> <span class="n">size</span><span class="p">()</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nb">len</span><span class="p">((</span><span class="o">*</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">lengthOfLongestSubstring</span><span class="p">(</span><span class="n">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="m">0</span>
+	<span class="p">}</span>
+
+	<span class="n">maxLength</span> <span class="o">:=</span> <span class="m">0</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">set</span> <span class="o">:=</span> <span class="n">Set</span><span class="p">{}</span>
+		<span class="n">nowLength</span> <span class="o">:=</span> <span class="m">0</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">set</span><span class="o">.</span><span class="n">contain</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="p">{</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+
+			<span class="n">set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+			<span class="n">nowLength</span><span class="o">++</span>
+
+			<span class="k">if</span> <span class="n">nowLength</span> <span class="o">&gt;</span> <span class="n">maxLength</span> <span class="p">{</span>
+				<span class="n">maxLength</span> <span class="o">=</span> <span class="n">nowLength</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">maxLength</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">Test3</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">c</span> <span class="o">:=</span> <span class="n">lengthOfLongestSubstring</span><span class="p">(</span><span class="s">"avabc"</span><span class="p">)</span>
+
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题提交了四次， 踩了几个坑 <code class="language-plaintext highlighter-rouge">avabc</code>和时间的坑， 想了三个思路， 第一个是abcab遇到与之前重复就清零, 第二个是0:av-1, 1:vabc, 2:abc, 3:bc, 4:c 但是时间没过去，on的复杂度, 第三个就是上面的代码，回溯法， 遇到重复的就回溯</p>
+</blockquote>
+
+<h1 id="heading-4-寻找两个有序数组的中位数">4 寻找两个有序数组的中位数</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">sumAndFind</span><span class="p">(</span><span class="n">nums1</span> <span class="p">[]</span><span class="kt">int</span><span class="p">,</span> <span class="n">nums2</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="kt">float64</span> <span class="p">{</span>
+	<span class="n">sum</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums1</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="n">sum</span> <span class="o">=</span> <span class="n">nums2</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums2</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="n">sum</span> <span class="o">=</span> <span class="n">nums1</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">:=</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span>
+		<span class="k">for</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums1</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums2</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+
+			<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums1</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">sum</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">sum</span><span class="p">,</span> <span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+				<span class="n">j</span><span class="o">++</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums2</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">sum</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">sum</span><span class="p">,</span> <span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+				<span class="n">i</span><span class="o">++</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">{</span>
+					<span class="n">sum</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">sum</span><span class="p">,</span> <span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+					<span class="n">j</span><span class="o">++</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="n">sum</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">sum</span><span class="p">,</span> <span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+					<span class="n">i</span><span class="o">++</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">%</span><span class="m">2</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kt">float64</span><span class="p">(</span><span class="n">sum</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="p">]</span><span class="o">+</span><span class="n">sum</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="o">-</span><span class="m">1</span><span class="p">])</span> <span class="o">/</span> <span class="m">2.0</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kt">float64</span><span class="p">(</span><span class="n">sum</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="p">])</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">dichotomizeAndFind</span><span class="p">(</span><span class="n">nums1</span> <span class="p">[]</span><span class="kt">int</span><span class="p">,</span> <span class="n">nums2</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="kt">float64</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums2</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">nums1</span><span class="p">,</span> <span class="n">nums2</span> <span class="o">=</span> <span class="n">nums2</span><span class="p">,</span> <span class="n">nums1</span>
+	<span class="p">}</span>
+
+	<span class="n">sumLength</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums1</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums2</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">nums1</span> <span class="p">{</span>
+		<span class="n">j</span> <span class="o">:=</span> <span class="n">sumLength</span> <span class="o">/</span> <span class="m">2</span>
+		<span class="k">if</span> <span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">{</span>
+			<span class="k">continue</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">sumLength</span><span class="o">%</span><span class="m">2</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="kt">float64</span><span class="p">(</span><span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="m">1</span><span class="p">])</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="kt">float64</span><span class="p">(</span><span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">Min</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="m">1</span><span class="p">]),</span> <span class="kt">float64</span><span class="p">(</span><span class="n">nums2</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="m">1</span><span class="p">])))</span> <span class="o">/</span> <span class="m">2.0</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="m">0.0</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">findMedianSortedArrays</span><span class="p">(</span><span class="n">nums1</span> <span class="p">[]</span><span class="kt">int</span><span class="p">,</span> <span class="n">nums2</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="kt">float64</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="n">sumAndFind</span><span class="p">(</span><span class="n">nums1</span><span class="p">,</span> <span class="n">nums2</span><span class="p">)</span>
+	<span class="c">//if len(nums1) == 0 || len(nums2) == 0 || nums1[len(nums1)-1] &lt;= nums2[0] || nums2[len(nums2)-1] &lt;= nums1[0] {</span>
+	<span class="c">//	result = sumAndFind(nums1, nums2)</span>
+	<span class="c">//} else {</span>
+	<span class="c">//	result = dichotomizeAndFind(nums1, nums2)</span>
+	<span class="c">//}</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个lg(m+n) 复杂度的算法我是真的不会，看题解也没看懂，所以写了个on的</p>
+</blockquote>
+
+<h1 id="heading-5-最长回文子串">5 最长回文子串</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">longestPalindrome</span><span class="p">(</span><span class="n">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">sl</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">sl</span> <span class="o">&lt;=</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">s</span>
+	<span class="p">}</span>
+
+	<span class="n">status</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][]</span><span class="kt">int</span><span class="p">,</span> <span class="n">sl</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">status</span> <span class="p">{</span>
+		<span class="n">status</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="n">sl</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">sl</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">sl</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="n">fullStatus</span><span class="p">(</span><span class="o">&amp;</span><span class="n">status</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">findMaxStr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">findMaxStr</span><span class="p">(</span><span class="n">status</span> <span class="p">[][]</span><span class="kt">int</span><span class="p">,</span> <span class="n">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">maxC</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">maxS</span> <span class="o">:=</span> <span class="s">""</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">status</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="n">j</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="m">1</span> <span class="o">&gt;</span> <span class="n">maxC</span> <span class="p">{</span>
+				<span class="n">maxC</span> <span class="o">=</span> <span class="n">j</span> <span class="o">-</span> <span class="n">i</span> <span class="o">+</span> <span class="m">1</span>
+				<span class="n">maxS</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span> <span class="o">:</span> <span class="n">j</span><span class="o">+</span><span class="m">1</span><span class="p">]</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">maxS</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">fullStatus</span><span class="p">(</span><span class="n">status</span> <span class="o">*</span><span class="p">[][]</span><span class="kt">int</span><span class="p">,</span> <span class="n">s</span> <span class="kt">string</span><span class="p">,</span> <span class="n">i</span> <span class="kt">int</span><span class="p">,</span> <span class="n">j</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">j</span><span class="o">-</span><span class="n">i</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="m">1</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">j</span><span class="o">-</span><span class="n">i</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">{</span>
+			<span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="m">1</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="m">2</span>
+		<span class="p">}</span>
+
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="n">fullStatus</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="m">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="m">1</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="o">+</span><span class="m">1</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="m">1</span><span class="p">]</span> <span class="o">==</span> <span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">{</span>
+		<span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="m">1</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="p">(</span><span class="o">*</span><span class="n">status</span><span class="p">)[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="m">2</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个用动态规划定义状态 和 状态转移</p>
+</blockquote>
+
+<h1 id="heading-6-z字形转换">6 Z字形转换</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">convert</span><span class="p">(</span><span class="n">s</span> <span class="kt">string</span><span class="p">,</span> <span class="n">numRows</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">numRows</span> <span class="o">&lt;=</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+	<span class="p">}</span>
+	
+	<span class="n">board</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][]</span><span class="kt">string</span><span class="p">,</span> <span class="n">numRows</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">board</span> <span class="p">{</span>
+		<span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+	<span class="p">}</span>
+
+	<span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">:=</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span>
+	<span class="n">down</span> <span class="o">:=</span> <span class="no">true</span>
+	<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">c</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">s</span> <span class="p">{</span>
+		<span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="kt">string</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numRows</span><span class="o">-</span><span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="n">down</span> <span class="p">{</span>
+			<span class="n">i</span><span class="o">++</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">down</span> <span class="o">=</span> <span class="no">false</span>
+			<span class="n">j</span><span class="o">++</span>
+			<span class="n">i</span><span class="o">--</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">down</span> <span class="o">=</span> <span class="no">true</span>
+			<span class="n">i</span><span class="o">++</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">result</span> <span class="o">:=</span> <span class="s">""</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="o">&gt;</span> <span class="m">0</span> <span class="p">{</span>
+				<span class="n">result</span> <span class="o">+=</span> <span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-8-字符转换成数字">8 字符转换成数字</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="k">func</span> <span class="n">myAtoi</span><span class="p">(</span><span class="n">str</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="n">r</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">PNFlag</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">SNFlag</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">ENFlag</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">OverPIntFlag</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">OverNIntFlag</span> <span class="o">:=</span> <span class="m">0</span>
+
+	<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">c</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">str</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="m">43</span> <span class="o">&amp;&amp;</span> <span class="n">PNFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> <span class="n">SNFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">PNFlag</span> <span class="o">=</span> <span class="m">1</span>
+			<span class="k">continue</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="m">45</span> <span class="o">&amp;&amp;</span> <span class="n">PNFlag</span> <span class="o">==</span> <span class="m">0</span>  <span class="o">&amp;&amp;</span> <span class="n">SNFlag</span> <span class="o">==</span> <span class="m">0</span><span class="p">{</span>
+			<span class="n">PNFlag</span> <span class="o">=</span> <span class="m">2</span>
+			<span class="k">continue</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="m">32</span> <span class="o">&amp;&amp;</span> <span class="n">PNFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> <span class="n">SNFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="k">continue</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">c</span> <span class="o">&gt;=</span> <span class="m">48</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="m">57</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">SNFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> <span class="n">ENFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+				<span class="n">SNFlag</span> <span class="o">=</span> <span class="m">1</span>
+			<span class="p">}</span>
+
+			<span class="k">if</span> <span class="n">ENFlag</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+				<span class="k">continue</span>
+			<span class="p">}</span>
+
+			<span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="m">10</span> <span class="o">+</span> <span class="kt">int</span><span class="p">(</span><span class="n">c</span><span class="o">-</span><span class="m">48</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">PNFlag</span> <span class="o">&lt;=</span> <span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="n">math</span><span class="o">.</span><span class="n">MaxInt32</span> <span class="p">{</span>
+				<span class="n">OverPIntFlag</span> <span class="o">=</span> <span class="m">1</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+
+			<span class="k">if</span> <span class="n">PNFlag</span> <span class="o">&gt;</span> <span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="o">-</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">math</span><span class="o">.</span><span class="n">MinInt32</span> <span class="p">{</span>
+				<span class="n">OverNIntFlag</span> <span class="o">=</span> <span class="m">1</span>
+				<span class="k">break</span>
+			<span class="p">}</span>
+
+		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">ENFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">ENFlag</span> <span class="o">=</span> <span class="m">1</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">SNFlag</span> <span class="o">==</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">!=</span> <span class="m">43</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">!=</span> <span class="m">45</span> <span class="p">{</span>
+			<span class="k">break</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">PNFlag</span> <span class="o">&gt;</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="n">r</span> <span class="o">=</span> <span class="o">-</span><span class="n">r</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">OverPIntFlag</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">MaxInt32</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="n">OverNIntFlag</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">MinInt32</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">r</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个我想复杂了， 下面代码更简洁
+<code class="language-plaintext highlighter-rouge">max(min(int(*re.findall('^[\+\-]?\d+', s.lstrip())), 2**31 - 1), -2**31)</code></p>
+</blockquote>
+
+<h1 id="heading-10-正则表达式匹配">10 正则表达式匹配</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">isMatch</span><span class="p">(</span><span class="n">s</span> <span class="kt">string</span><span class="p">,</span> <span class="n">p</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span>
+	<span class="p">}</span>
+
+	<span class="n">firstMatch</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">!=</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="m">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">[</span><span class="m">0</span><span class="p">]</span> <span class="o">||</span> <span class="kt">string</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="m">0</span><span class="p">])</span> <span class="o">==</span> <span class="s">"."</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="m">2</span> <span class="o">&amp;&amp;</span> <span class="kt">string</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="m">1</span><span class="p">])</span> <span class="o">==</span> <span class="s">"*"</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">isMatch</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="m">2</span><span class="o">:</span><span class="p">])</span> <span class="o">||</span> <span class="p">(</span><span class="n">firstMatch</span> <span class="o">&amp;&amp;</span> <span class="n">isMatch</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="p">],</span> <span class="n">p</span><span class="p">))</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">firstMatch</span> <span class="o">&amp;&amp;</span> <span class="n">isMatch</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="p">])</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题我提交了9次，主要是出现<code class="language-plaintext highlighter-rouge">*</code>时候的判断，把<code class="language-plaintext highlighter-rouge">*</code>出现分成两种， 一种是没有发挥作用，也就是代表0， 一种是发挥一次作用，代表1 然后继续迭代</p>
+</blockquote>
+
+<h1 id="heading-11-盛最多水的容器">11 盛最多水的容器</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">maxArea</span><span class="p">(</span><span class="n">height</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="n">maxC</span> <span class="o">:=</span> <span class="m">0.0</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">height</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">height</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="n">area</span> <span class="o">:=</span> <span class="kt">float64</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">Min</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="kt">float64</span><span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+			<span class="k">if</span> <span class="n">area</span> <span class="o">&gt;</span> <span class="n">maxC</span> <span class="p">{</span>
+				<span class="n">maxC</span> <span class="o">=</span> <span class="n">area</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="kt">int</span><span class="p">(</span><span class="n">maxC</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">maxArea2</span><span class="p">(</span><span class="n">height</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="n">maxC</span> <span class="o">:=</span> <span class="m">0.0</span>
+	<span class="n">i</span> <span class="o">:=</span> <span class="m">0</span>
+	<span class="n">j</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">-</span> <span class="m">1</span>
+	<span class="k">for</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">j</span> <span class="p">{</span>
+			<span class="k">break</span>
+		<span class="p">}</span>
+		<span class="n">area</span> <span class="o">:=</span> <span class="kt">float64</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">Min</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="kt">float64</span><span class="p">(</span><span class="n">height</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+		<span class="k">if</span> <span class="n">area</span> <span class="o">&gt;</span> <span class="n">maxC</span> <span class="p">{</span>
+			<span class="n">maxC</span> <span class="o">=</span> <span class="n">area</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">height</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">height</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">{</span>
+			<span class="n">j</span><span class="o">--</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">i</span><span class="o">++</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="kt">int</span><span class="p">(</span><span class="n">maxC</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>一个o n2 一个 o n</p>
+</blockquote>
+
+<h1 id="heading-12-整数转罗马数字">12 整数转罗马数字</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">var</span> <span class="n">numPool</span> <span class="o">=</span> <span class="k">map</span><span class="p">[</span><span class="kt">int</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+	<span class="m">1</span><span class="o">:</span>    <span class="s">"I"</span><span class="p">,</span>
+	<span class="m">2</span><span class="o">:</span>    <span class="s">"II"</span><span class="p">,</span>
+	<span class="m">3</span><span class="o">:</span>    <span class="s">"III"</span><span class="p">,</span>
+	<span class="m">4</span><span class="o">:</span>    <span class="s">"IV"</span><span class="p">,</span>
+	<span class="m">5</span><span class="o">:</span>    <span class="s">"V"</span><span class="p">,</span>
+	<span class="m">6</span><span class="o">:</span>    <span class="s">"VI"</span><span class="p">,</span>
+	<span class="m">7</span><span class="o">:</span>    <span class="s">"VII"</span><span class="p">,</span>
+	<span class="m">8</span><span class="o">:</span>    <span class="s">"VIII"</span><span class="p">,</span>
+	<span class="m">9</span><span class="o">:</span>    <span class="s">"IX"</span><span class="p">,</span>
+	<span class="m">10</span><span class="o">:</span>   <span class="s">"X"</span><span class="p">,</span>
+	<span class="m">20</span><span class="o">:</span>   <span class="s">"XX"</span><span class="p">,</span>
+	<span class="m">30</span><span class="o">:</span>   <span class="s">"XXX"</span><span class="p">,</span>
+	<span class="m">40</span><span class="o">:</span>   <span class="s">"XL"</span><span class="p">,</span>
+	<span class="m">50</span><span class="o">:</span>   <span class="s">"L"</span><span class="p">,</span>
+	<span class="m">60</span><span class="o">:</span>   <span class="s">"LX"</span><span class="p">,</span>
+	<span class="m">70</span><span class="o">:</span>   <span class="s">"LXX"</span><span class="p">,</span>
+	<span class="m">80</span><span class="o">:</span>   <span class="s">"LXXX"</span><span class="p">,</span>
+	<span class="m">90</span><span class="o">:</span>   <span class="s">"XC"</span><span class="p">,</span>
+	<span class="m">100</span><span class="o">:</span>  <span class="s">"C"</span><span class="p">,</span>
+	<span class="m">200</span><span class="o">:</span>  <span class="s">"CC"</span><span class="p">,</span>
+	<span class="m">300</span><span class="o">:</span>  <span class="s">"CCC"</span><span class="p">,</span>
+	<span class="m">400</span><span class="o">:</span>  <span class="s">"CD"</span><span class="p">,</span>
+	<span class="m">500</span><span class="o">:</span>  <span class="s">"D"</span><span class="p">,</span>
+	<span class="m">600</span><span class="o">:</span>  <span class="s">"DC"</span><span class="p">,</span>
+	<span class="m">700</span><span class="o">:</span>  <span class="s">"DCC"</span><span class="p">,</span>
+	<span class="m">800</span><span class="o">:</span>  <span class="s">"DCCC"</span><span class="p">,</span>
+	<span class="m">900</span><span class="o">:</span>  <span class="s">"CM"</span><span class="p">,</span>
+	<span class="m">1000</span><span class="o">:</span> <span class="s">"M"</span><span class="p">,</span>
+	<span class="m">2000</span><span class="o">:</span> <span class="s">"MM"</span><span class="p">,</span>
+	<span class="m">3000</span><span class="o">:</span> <span class="s">"MMM"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">intToRoman</span><span class="p">(</span><span class="n">num</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="s">""</span>
+
+	<span class="n">result</span> <span class="o">+=</span> <span class="n">numPool</span><span class="p">[</span><span class="n">num</span><span class="o">/</span><span class="m">1000</span><span class="o">*</span><span class="m">1000</span><span class="p">]</span>
+	<span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="m">1000</span>
+	<span class="n">result</span> <span class="o">+=</span> <span class="n">numPool</span><span class="p">[</span><span class="n">num</span><span class="o">/</span><span class="m">100</span><span class="o">*</span><span class="m">100</span><span class="p">]</span>
+	<span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="m">100</span>
+	<span class="n">result</span> <span class="o">+=</span> <span class="n">numPool</span><span class="p">[</span><span class="n">num</span><span class="o">/</span><span class="m">10</span><span class="o">*</span><span class="m">10</span><span class="p">]</span>
+	<span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="m">10</span>
+	<span class="n">result</span> <span class="o">+=</span> <span class="n">numPool</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>哈哈哈 暴力不</p>
+</blockquote>
+
+<h1 id="heading-15-三数之和">15 三数之和</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">threeSum</span><span class="p">(</span><span class="n">nums</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">[][]</span><span class="kt">int</span> <span class="p">{</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([][]</span><span class="kt">int</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="n">sort</span><span class="o">.</span><span class="n">Ints</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+
+	<span class="n">numFlag</span> <span class="o">:=</span> <span class="k">map</span><span class="p">[</span><span class="kt">int</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span>
+	<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">nums</span> <span class="p">{</span>
+		<span class="n">numFlag</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="m">3</span> <span class="o">&amp;&amp;</span> <span class="nb">len</span><span class="p">(</span><span class="n">numFlag</span><span class="p">)</span> <span class="o">==</span> <span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="n">nums</span><span class="p">[</span><span class="m">0</span><span class="p">]</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">})</span>
+		<span class="k">return</span> <span class="n">result</span>
+	<span class="p">}</span>
+
+	<span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+
+	<span class="n">complectFlag</span> <span class="o">:=</span> <span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">{}</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="n">i</span> <span class="o">+</span> <span class="m">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">c</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">numFlag</span><span class="p">[</span><span class="m">0</span><span class="o">-</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]];</span> <span class="n">ok</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="n">j</span> <span class="p">{</span>
+				<span class="n">key</span> <span class="o">:=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Sprintf</span><span class="p">(</span><span class="s">"%d_%d_%d"</span><span class="p">,</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="m">0</span><span class="o">-</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+				<span class="k">if</span> <span class="n">_</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">complectFlag</span><span class="p">[</span><span class="n">key</span><span class="p">];</span> <span class="n">ok</span> <span class="p">{</span>
+					<span class="k">continue</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="n">result</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="m">0</span> <span class="o">-</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]})</span>
+					<span class="n">complectFlag</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="m">1</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="c">//for z := j + 1; z &lt; len(nums); z++ {</span>
+			<span class="c">//	if nums[i]+nums[j]+nums[z] == 0 {</span>
+			<span class="c">//		key := fmt.Sprintf("%d_%d_%d", nums[i], nums[j], nums[z])</span>
+			<span class="c">//		if _, ok := complectFlag[key]; ok {</span>
+			<span class="c">//			continue</span>
+			<span class="c">//		} else {</span>
+			<span class="c">//			result = append(result, []int{nums[i], nums[j], nums[z]})</span>
+			<span class="c">//			complectFlag[key] = 1</span>
+			<span class="c">//		}</span>
+			<span class="c">//</span>
+			<span class="c">//	}</span>
+			<span class="c">//}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>注释了三层循环的代码， 0n2其实有个case leetcode超时， 就是全都是0，所以做了特殊的处理</p>
+</blockquote>
+:ET

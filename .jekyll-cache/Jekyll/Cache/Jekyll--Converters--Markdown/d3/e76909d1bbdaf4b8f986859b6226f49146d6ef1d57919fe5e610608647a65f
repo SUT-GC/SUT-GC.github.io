@@ -1,0 +1,305 @@
+I"R�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-1-two-sum" id="markdown-toc-heading-1-two-sum">1 Two Sum</a></li>
+  <li><a href="#heading-7-reverse-integer" id="markdown-toc-heading-7-reverse-integer">7 Reverse Integer</a></li>
+  <li><a href="#heading-9-palindrome-number" id="markdown-toc-heading-9-palindrome-number">9 Palindrome Number</a></li>
+  <li><a href="#heading-13-roman-to-integer" id="markdown-toc-heading-13-roman-to-integer">13 Roman to Integer</a></li>
+  <li><a href="#heading-14-longest-common-prefix" id="markdown-toc-heading-14-longest-common-prefix">14 Longest Common Prefix</a></li>
+</ul>
+
+<h1 id="heading-1-two-sum">1 Two Sum</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">twoSum</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+
+    <span class="nl">loop_out</span><span class="p">:</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">j</span> <span class="o">===</span> <span class="nx">i</span><span class="p">){</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span><span class="p">((</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">j</span><span class="p">])</span> <span class="o">===</span> <span class="nx">target</span><span class="p">){</span>
+                <span class="nx">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">i</span><span class="p">;</span>
+                <span class="nx">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nx">j</span><span class="p">;</span>
+                <span class="k">break</span> <span class="nx">loop_out</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+    <span class="nx">target</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="nx">result</span> <span class="o">=</span> <span class="nx">twoSum</span><span class="p">(</span><span class="nx">numbers</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+<span class="p">})()</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>第一题一般都是比较简单的， 但简单归简单， 容易犯“经验错误”， 由于轻视了这道题， 所以第一次思路竟然去给数组排序，哎～  <br />
+下面附上在Discuss中找到的O(n)的算法</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">int</span><span class="o">[]</span> <span class="nf">twoSum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">numbers</span><span class="o">,</span> <span class="kt">int</span> <span class="n">target</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="mi">2</span><span class="o">];</span>
+    <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numbers</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">numbers</span><span class="o">[</span><span class="n">i</span><span class="o">]))</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+            <span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">numbers</span><span class="o">[</span><span class="n">i</span><span class="o">]);</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">numbers</span><span class="o">[</span><span class="n">i</span><span class="o">],</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-7-reverse-integer">7 Reverse Integer</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {number} x
+ * @return {number}
+ */</span>
+<span class="kd">var</span> <span class="nx">reverse</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">xStr</span> <span class="o">=</span> <span class="nx">x</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+    
+    <span class="nx">resultStr</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nx">xStr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">-</span><span class="dl">'</span><span class="p">){</span>
+        <span class="nx">resultStr</span> <span class="o">+=</span> <span class="dl">'</span><span class="s1">-</span><span class="dl">'</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">var</span> <span class="nx">notZero</span> <span class="o">=</span> <span class="kc">false</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="nx">xStr</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">xStr</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">-</span><span class="dl">'</span><span class="p">){</span>
+            <span class="k">continue</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="nx">xStr</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!==</span>  <span class="dl">'</span><span class="s1">0</span><span class="dl">'</span><span class="p">){</span>
+            <span class="nx">notZero</span> <span class="o">=</span> <span class="kc">true</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">notZero</span><span class="p">){</span>
+            <span class="k">continue</span>
+        <span class="p">}</span>
+
+        <span class="nx">resultStr</span> <span class="o">+=</span> <span class="nx">xStr</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+    <span class="p">}</span>
+   <span class="nx">resultInt</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">resultStr</span><span class="p">)</span> 
+
+   <span class="k">if</span><span class="p">(</span><span class="nx">resultInt</span> <span class="o">&gt;</span> <span class="mi">2147483647</span> <span class="o">||</span> <span class="nx">resultInt</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">2147483648</span><span class="p">){</span>
+       <span class="nx">resultInt</span> <span class="o">=</span> <span class="mi">0</span>
+   <span class="p">}</span>
+
+   <span class="k">return</span> <span class="nx">resultInt</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题我是当作模拟题来做的，但是看了Discuss里大神的写法，才知道 % 才是王道   <br />
+科普一个知识 <code class="language-plaintext highlighter-rouge">-1 % 10 == -1</code>  <code class="language-plaintext highlighter-rouge">-123 % 10 == -3</code></p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">int</span> <span class="nf">reverse</span><span class="o">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">long</span> <span class="n">rev</span><span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="k">while</span><span class="o">(</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">){</span>
+        <span class="n">rev</span><span class="o">=</span> <span class="n">rev</span><span class="o">*</span><span class="mi">10</span> <span class="o">+</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">10</span><span class="o">;</span>
+        <span class="n">x</span><span class="o">=</span> <span class="n">x</span><span class="o">/</span><span class="mi">10</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span> <span class="n">rev</span> <span class="o">&gt;</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span> <span class="o">||</span> <span class="n">rev</span> <span class="o">&lt;</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">MIN_VALUE</span><span class="o">)</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">rev</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-9-palindrome-number">9 Palindrome Number</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {number} x
+ * @return {boolean}
+ */</span>
+<span class="kd">var</span> <span class="nx">isPalindrome</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">x</span> <span class="o">!==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">x</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">===</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+    <span class="kd">var</span> <span class="nx">revX</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span><span class="p">(</span><span class="nx">x</span> <span class="o">&gt;</span> <span class="nx">revX</span><span class="p">){</span>
+        <span class="nx">revX</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nx">revX</span> <span class="o">+</span> <span class="nx">x</span> <span class="o">%</span> <span class="mi">10</span>
+        <span class="nx">x</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">/</span> <span class="mi">10</span>
+        <span class="nx">x</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">.</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+    <span class="p">}</span>    
+
+    <span class="k">if</span><span class="p">(</span><span class="nx">x</span> <span class="o">===</span> <span class="nx">revX</span> <span class="o">||</span> <span class="nx">x</span> <span class="o">===</span> <span class="nb">Number</span><span class="p">.</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">revX</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)){</span>
+        <span class="k">return</span> <span class="kc">true</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这个题是确定一个数字是否是回文数， 其实有两种思路：</p>
+  <ul>
+    <li>一种是将整数转换成字符串进行比对</li>
+    <li>一种是用取mod的方法反转整数，当然不需要全部反转，只需要当 反转之后的数 &gt;= 剩余的数即可</li>
+    <li>反转结果有几种 :
+      <ol>
+        <li>1221 -&gt; 12 and 12</li>
+        <li>12321 -&gt; 12 and 123  <br />
+所以要有 <code class="language-plaintext highlighter-rouge">(x === revX || x === Number.parseInt(revX / 10))</code> ps: 因为javascript没有像java那种整数除法截断的特性，所以用 Number.parseInt 来强制转换为整数      <br />
+特别注意 0, 10的倍数等</li>
+      </ol>
+    </li>
+  </ul>
+</blockquote>
+
+<h1 id="heading-13-roman-to-integer">13 Roman to Integer</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {string} s
+ * @return {number}
+ */</span>
+
+<span class="kd">var</span> <span class="nx">romanToInt</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">singleDigit</span> <span class="o">=</span> <span class="p">{</span><span class="dl">'</span><span class="s1">I</span><span class="dl">'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="dl">'</span><span class="s1">II</span><span class="dl">'</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="dl">'</span><span class="s1">III</span><span class="dl">'</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="dl">'</span><span class="s1">IV</span><span class="dl">'</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="dl">'</span><span class="s1">V</span><span class="dl">'</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="dl">'</span><span class="s1">VI</span><span class="dl">'</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="dl">'</span><span class="s1">VII</span><span class="dl">'</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span> <span class="dl">'</span><span class="s1">VIII</span><span class="dl">'</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span> <span class="dl">'</span><span class="s1">IX</span><span class="dl">'</span><span class="p">:</span><span class="mi">9</span><span class="p">}</span>
+    <span class="nx">tenDigit</span> <span class="o">=</span> <span class="p">{</span><span class="dl">'</span><span class="s1">X</span><span class="dl">'</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="dl">'</span><span class="s1">XX</span><span class="dl">'</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="dl">'</span><span class="s1">XXX</span><span class="dl">'</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="dl">'</span><span class="s1">XL</span><span class="dl">'</span><span class="p">:</span><span class="mi">40</span><span class="p">,</span> <span class="dl">'</span><span class="s1">L</span><span class="dl">'</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span> <span class="dl">'</span><span class="s1">LX</span><span class="dl">'</span><span class="p">:</span><span class="mi">60</span><span class="p">,</span> <span class="dl">'</span><span class="s1">LXX</span><span class="dl">'</span><span class="p">:</span><span class="mi">70</span><span class="p">,</span> <span class="dl">'</span><span class="s1">LXXX</span><span class="dl">'</span><span class="p">:</span><span class="mi">80</span><span class="p">,</span> <span class="dl">'</span><span class="s1">XC</span><span class="dl">'</span><span class="p">:</span><span class="mi">90</span><span class="p">}</span>
+    <span class="nx">hundredsDigit</span> <span class="o">=</span> <span class="p">{</span><span class="dl">'</span><span class="s1">C</span><span class="dl">'</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="dl">'</span><span class="s1">CC</span><span class="dl">'</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="dl">'</span><span class="s1">CCC</span><span class="dl">'</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="dl">'</span><span class="s1">CD</span><span class="dl">'</span><span class="p">:</span><span class="mi">400</span><span class="p">,</span> <span class="dl">'</span><span class="s1">D</span><span class="dl">'</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> <span class="dl">'</span><span class="s1">DC</span><span class="dl">'</span><span class="p">:</span><span class="mi">600</span><span class="p">,</span> <span class="dl">'</span><span class="s1">DCC</span><span class="dl">'</span><span class="p">:</span><span class="mi">700</span><span class="p">,</span> <span class="dl">'</span><span class="s1">DCCC</span><span class="dl">'</span><span class="p">:</span><span class="mi">800</span><span class="p">,</span> <span class="dl">'</span><span class="s1">CM</span><span class="dl">'</span><span class="p">:</span><span class="mi">900</span><span class="p">}</span>
+    <span class="nx">thousandDigit</span> <span class="o">=</span> <span class="p">{</span><span class="dl">'</span><span class="s1">M</span><span class="dl">'</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="dl">'</span><span class="s1">MM</span><span class="dl">'</span><span class="p">:</span><span class="mi">2000</span><span class="p">,</span> <span class="dl">'</span><span class="s1">MMM</span><span class="dl">'</span><span class="p">:</span><span class="mi">3000</span><span class="p">}</span>
+
+    <span class="kd">var</span> <span class="nx">resultNumber</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">var</span> <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">thousandDigit</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+            <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">thousandDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
+            <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
+
+    <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">var</span> <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">hundredsDigit</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+            <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">hundredsDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
+            <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
+
+    <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">var</span> <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">tenDigit</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+            <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">tenDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
+            <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
+             
+
+    <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">singleDigit</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+            <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">singleDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
+            <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
+    <span class="k">return</span> <span class="nx">resultNumber</span> 
+      
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>比较蠢，没想到什么太好的想法，把各位都枚举出来   <br />
+膜拜一下大神的想法吧</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">int</span> <span class="nf">romanToInt</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+     <span class="kt">int</span> <span class="n">sum</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"IV"</span><span class="o">)!=-</span><span class="mi">1</span><span class="o">){</span><span class="n">sum</span><span class="o">-=</span><span class="mi">2</span><span class="o">;}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"IX"</span><span class="o">)!=-</span><span class="mi">1</span><span class="o">){</span><span class="n">sum</span><span class="o">-=</span><span class="mi">2</span><span class="o">;}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"XL"</span><span class="o">)!=-</span><span class="mi">1</span><span class="o">){</span><span class="n">sum</span><span class="o">-=</span><span class="mi">20</span><span class="o">;}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"XC"</span><span class="o">)!=-</span><span class="mi">1</span><span class="o">){</span><span class="n">sum</span><span class="o">-=</span><span class="mi">20</span><span class="o">;}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"CD"</span><span class="o">)!=-</span><span class="mi">1</span><span class="o">){</span><span class="n">sum</span><span class="o">-=</span><span class="mi">200</span><span class="o">;}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="s">"CM"</span><span class="o">)!=-</span><span class="mi">1</span><span class="o">){</span><span class="n">sum</span><span class="o">-=</span><span class="mi">200</span><span class="o">;}</span>
+    
+    <span class="kt">char</span> <span class="n">c</span><span class="o">[]=</span><span class="n">s</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span>
+    
+   <span class="k">for</span><span class="o">(;</span><span class="n">count</span><span class="o">&lt;=</span><span class="n">s</span><span class="o">.</span><span class="na">length</span><span class="o">()-</span><span class="mi">1</span><span class="o">;</span><span class="n">count</span><span class="o">++){</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'M'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">1000</span><span class="o">;</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'D'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">500</span><span class="o">;</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'C'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">100</span><span class="o">;</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'L'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">50</span><span class="o">;</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'X'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">10</span><span class="o">;</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'V'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">5</span><span class="o">;</span>
+       <span class="k">if</span><span class="o">(</span><span class="n">c</span><span class="o">[</span><span class="n">count</span><span class="o">]==</span><span class="sc">'I'</span><span class="o">)</span> <span class="n">sum</span><span class="o">+=</span><span class="mi">1</span><span class="o">;</span>
+       
+   <span class="o">}</span>
+   
+   <span class="k">return</span> <span class="n">sum</span><span class="o">;</span>
+    
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-14-longest-common-prefix">14 Longest Common Prefix</h1>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @param {string[]} strs
+ * @return {string}
+ */</span>
+<span class="kd">var</span> <span class="nx">longestCommonPrefix</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">strs</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">commonPrefix</span> <span class="o">=</span> <span class="dl">""</span>
+    <span class="nx">outLoop</span><span class="p">:</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="nx">oneIndexCommon</span> <span class="o">=</span> <span class="dl">""</span>
+        <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="o">&lt;</span> <span class="nx">strs</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">strs</span><span class="p">[</span><span class="nx">j</span><span class="p">].</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="nx">i</span><span class="p">){</span>
+                <span class="k">break</span> <span class="nx">outLoop</span>
+            <span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">j</span> <span class="o">===</span> <span class="mi">0</span><span class="p">){</span>
+                <span class="nx">oneIndexCommon</span> <span class="o">=</span> <span class="nx">strs</span><span class="p">[</span><span class="nx">j</span><span class="p">][</span><span class="nx">i</span><span class="p">]</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">strs</span><span class="p">[</span><span class="nx">j</span><span class="p">][</span><span class="nx">i</span><span class="p">]</span> <span class="o">!==</span> <span class="nx">oneIndexCommon</span><span class="p">){</span>
+                    <span class="k">break</span> <span class="nx">outLoop</span>
+                <span class="p">}</span>
+            <span class="p">}</span>   
+        <span class="p">}</span>
+        <span class="nx">commonPrefix</span> <span class="o">+=</span> <span class="nx">oneIndexCommon</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">commonPrefix</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>当作模拟题做的，一个人工找公共前缀的方法, 看了下大神们的解题思路，发现倒着找真的是很容易呀~</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">String</span> <span class="nf">longestCommonPrefix</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">strs</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">strs</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">strs</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>    <span class="k">return</span> <span class="s">""</span><span class="o">;</span>
+    <span class="nc">String</span> <span class="n">pre</span> <span class="o">=</span> <span class="n">strs</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="k">while</span><span class="o">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">strs</span><span class="o">.</span><span class="na">length</span><span class="o">){</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">strs</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">indexOf</span><span class="o">(</span><span class="n">pre</span><span class="o">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">pre</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span><span class="n">pre</span><span class="o">.</span><span class="na">length</span><span class="o">()-</span><span class="mi">1</span><span class="o">);</span>
+        <span class="n">i</span><span class="o">++;</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">pre</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+:ET

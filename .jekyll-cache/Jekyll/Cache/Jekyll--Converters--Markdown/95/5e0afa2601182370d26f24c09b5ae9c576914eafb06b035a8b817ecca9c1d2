@@ -1,0 +1,288 @@
+I"fW<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-sprintboot实现定时任务" id="markdown-toc-heading-sprintboot实现定时任务">SprintBoot实现定时任务</a>    <ul>
+      <li><a href="#heading-testapplicationkt" id="markdown-toc-heading-testapplicationkt">TestApplication.kt</a></li>
+      <li><a href="#heading-testschedulekt" id="markdown-toc-heading-testschedulekt">TestSchedule.kt</a></li>
+      <li><a href="#heading-applicationproperties" id="markdown-toc-heading-applicationproperties">application.properties</a></li>
+      <li><a href="#heading-输出" id="markdown-toc-heading-输出">输出</a></li>
+      <li><a href="#heading-总结" id="markdown-toc-heading-总结">总结</a></li>
+      <li><a href="#heading-多线程执行" id="markdown-toc-heading-多线程执行">多线程执行</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-scheduled" id="markdown-toc-heading-scheduled">Scheduled</a></li>
+  <li><a href="#heading-cron-表达式" id="markdown-toc-heading-cron-表达式">Cron 表达式</a></li>
+  <li><a href="#heading-参考" id="markdown-toc-heading-参考">参考</a></li>
+</ul>
+
+<h1 id="heading-sprintboot实现定时任务">SprintBoot实现定时任务</h1>
+
+<h2 id="heading-testapplicationkt">TestApplication.kt</h2>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableScheduling</span> <span class="c1">//此注解表示自动配置定时任务</span>
+<span class="nd">@ComponentScan</span><span class="p">(</span><span class="s">"schedule"</span><span class="p">)</span>
+<span class="k">open</span> <span class="kd">class</span> <span class="nc">TestApplication</span> <span class="p">{</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="nc">SpringApplication</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="nc">TestApplication</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">kotlin</span><span class="p">,</span> <span class="p">*</span><span class="n">args</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="heading-testschedulekt">TestSchedule.kt</h2>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Component</span>
+<span class="kd">class</span> <span class="nc">Job</span> <span class="p">{</span>
+    <span class="nd">@Scheduled</span><span class="p">(</span><span class="n">cron</span> <span class="p">=</span> <span class="s">"\${job.one.cron}"</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">run1</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">repeat</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="nf">println</span><span class="p">(</span><span class="s">"${Thread.currentThread().name} job1 hello"</span><span class="p">)</span>
+            <span class="nc">Thread</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+    <span class="nd">@Scheduled</span><span class="p">(</span><span class="n">cron</span> <span class="p">=</span> <span class="s">"\${job.two.cron}"</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">run2</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">repeat</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nf">println</span><span class="p">(</span><span class="s">"${Thread.currentThread().name} job2 hello"</span><span class="p">)</span>
+            <span class="nc">Thread</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="heading-applicationproperties">application.properties</h2>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">job</span><span class="p">.</span><span class="n">one</span><span class="p">.</span><span class="n">cron</span><span class="p">=*</span> <span class="p">*</span> <span class="p">*</span> <span class="p">*</span> <span class="p">*</span> <span class="p">?</span>
+<span class="n">job</span><span class="p">.</span><span class="n">two</span><span class="p">.</span><span class="n">cron</span><span class="p">=*</span> <span class="p">*</span> <span class="p">*</span> <span class="p">*</span> <span class="p">*</span> <span class="p">?</span>
+</code></pre></div></div>
+
+<h2 id="heading-输出">输出</h2>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+</code></pre></div></div>
+
+<h2 id="heading-总结">总结</h2>
+
+<p>上面的代码可以实现定时任务：每秒运行</p>
+
+<p><strong>但有个问题便是，默认为单线程执行所有的任务，这样可能达不到实际定时的效果</strong></p>
+
+<h2 id="heading-多线程执行">多线程执行</h2>
+
+<p>如果想要多线程执行定时任务，可以配置一个线程池，这样定时任务就会去线程池中拿线程执行定时任务了</p>
+
+<p>我们把Application代码改一下:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableScheduling</span>
+<span class="nd">@ComponentScan</span><span class="p">(</span><span class="s">"schedule"</span><span class="p">)</span>
+<span class="nd">@Import</span><span class="p">(</span><span class="nc">ScheduleConfig</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="k">open</span> <span class="kd">class</span> <span class="nc">TestApplication</span> <span class="p">{</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="nc">SpringApplication</span><span class="p">.</span><span class="nf">run</span><span class="p">(</span><span class="nc">TestApplication</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">,</span> <span class="p">*</span><span class="n">args</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>并且添加一个ScheduleConfig配置代码</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ScheduleConfig</span> <span class="p">:</span> <span class="nc">SchedulingConfigurer</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">configureTasks</span><span class="p">(</span><span class="n">taskRegistrar</span><span class="p">:</span> <span class="nc">ScheduledTaskRegistrar</span><span class="p">?)</span> <span class="p">{</span>
+        <span class="n">taskRegistrar</span><span class="o">?.</span><span class="nf">setScheduler</span><span class="p">(</span><span class="nc">Executors</span><span class="p">.</span><span class="nf">newScheduledThreadPool</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>运行效果：</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-1</span> <span class="n">job2</span> <span class="n">hello</span>
+<span class="n">pool-1-thread-2</span> <span class="n">job1</span> <span class="n">hello</span>
+</code></pre></div></div>
+
+<p>由输出，我们看出，确实由多个线程执行了定时任务。</p>
+
+<h1 id="heading-scheduled">Scheduled</h1>
+
+<p>我们来看下这个注解可以方什么东西进去：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nd">@interface</span> <span class="nc">Scheduled</span> <span class="o">{</span>
+
+	<span class="cm">/**
+	 * A cron-like expression, extending the usual UN*X definition to include
+	 * triggers on the second as well as minute, hour, day of month, month
+	 * and day of week.  e.g. {@code "0 * * * * MON-FRI"} means once per minute on
+	 * weekdays (at the top of the minute - the 0th second).
+	 * @return an expression that can be parsed to a cron schedule
+	 * @see org.springframework.scheduling.support.CronSequenceGenerator
+	 */</span>
+	<span class="nc">String</span> <span class="nf">cron</span><span class="o">()</span> <span class="k">default</span> <span class="s">""</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * A time zone for which the cron expression will be resolved. By default, this
+	 * attribute is the empty String (i.e. the server's local time zone will be used).
+	 * @return a zone id accepted by {@link java.util.TimeZone#getTimeZone(String)},
+	 * or an empty String to indicate the server's default time zone
+	 * @since 4.0
+	 * @see org.springframework.scheduling.support.CronTrigger#CronTrigger(String, java.util.TimeZone)
+	 * @see java.util.TimeZone
+	 */</span>
+	<span class="nc">String</span> <span class="nf">zone</span><span class="o">()</span> <span class="k">default</span> <span class="s">""</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * Execute the annotated method with a fixed period in milliseconds between the
+	 * end of the last invocation and the start of the next.
+	 * @return the delay in milliseconds
+	 */</span>
+	<span class="kt">long</span> <span class="nf">fixedDelay</span><span class="o">()</span> <span class="k">default</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * Execute the annotated method with a fixed period in milliseconds between the
+	 * end of the last invocation and the start of the next.
+	 * @return the delay in milliseconds as a String value, e.g. a placeholder
+	 * @since 3.2.2
+	 */</span>
+	<span class="nc">String</span> <span class="nf">fixedDelayString</span><span class="o">()</span> <span class="k">default</span> <span class="s">""</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * Execute the annotated method with a fixed period in milliseconds between
+	 * invocations.
+	 * @return the period in milliseconds
+	 */</span>
+	<span class="kt">long</span> <span class="nf">fixedRate</span><span class="o">()</span> <span class="k">default</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * Execute the annotated method with a fixed period in milliseconds between
+	 * invocations.
+	 * @return the period in milliseconds as a String value, e.g. a placeholder
+	 * @since 3.2.2
+	 */</span>
+	<span class="nc">String</span> <span class="nf">fixedRateString</span><span class="o">()</span> <span class="k">default</span> <span class="s">""</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * Number of milliseconds to delay before the first execution of a
+	 * {@link #fixedRate()} or {@link #fixedDelay()} task.
+	 * @return the initial delay in milliseconds
+	 * @since 3.2
+	 */</span>
+	<span class="kt">long</span> <span class="nf">initialDelay</span><span class="o">()</span> <span class="k">default</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+
+	<span class="cm">/**
+	 * Number of milliseconds to delay before the first execution of a
+	 * {@link #fixedRate()} or {@link #fixedDelay()} task.
+	 * @return the initial delay in milliseconds as a String value, e.g. a placeholder
+	 * @since 3.2.2
+	 */</span>
+	<span class="nc">String</span> <span class="nf">initialDelayString</span><span class="o">()</span> <span class="k">default</span> <span class="s">""</span><span class="o">;</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">cron</code> cron表达式</li>
+  <li><code class="language-plaintext highlighter-rouge">zone</code> cron表达式使用的时区，默认是local zone</li>
+  <li><code class="language-plaintext highlighter-rouge">fixedDelay</code> 每次任务启动时的间隔时间</li>
+  <li><code class="language-plaintext highlighter-rouge">fixedDelayString</code> 与<code class="language-plaintext highlighter-rouge">fixedDelay</code> 一样，不过这个是string</li>
+  <li><code class="language-plaintext highlighter-rouge">fixedRate</code> 上次任务结束后间隔多少时间再启动下一次任务，这样避免前一个任务尚未结束又启动下一个任务</li>
+  <li><code class="language-plaintext highlighter-rouge">fixedRateString</code> 同理</li>
+  <li><code class="language-plaintext highlighter-rouge">initialDelay</code> 程序启动后至任务首次执行时的间隔</li>
+  <li><code class="language-plaintext highlighter-rouge">initialDelayString</code> 同理</li>
+</ul>
+
+<h1 id="heading-cron-表达式">Cron 表达式</h1>
+
+<p>cron 表达式有六个区域（5个空格）或者 七个区域（6个空格）</p>
+
+<p><code class="language-plaintext highlighter-rouge">Seconds Minutes Hours DayofMonth Month DayofWeek</code>
+多少秒  多少分  多少时  一个月第几天  第几个月  一周第几天
+<code class="language-plaintext highlighter-rouge">Seconds Minutes Hours DayofMonth Month DayofWeek Year</code>
+多少秒  多少分  多少时  一个月第几天  第几个月  一周第几天 几几年</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">seconds</code>: <code class="language-plaintext highlighter-rouge">, - / * [0-59]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">minutes</code>: <code class="language-plaintext highlighter-rouge">, - / * [0-59]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">hours</code>: <code class="language-plaintext highlighter-rouge">, - / * [0-23]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">dayofmonth</code>: <code class="language-plaintext highlighter-rouge">, - / * ? L W C [0-31]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">month</code>: <code class="language-plaintext highlighter-rouge">, - / * [1-12/JAN-DEC]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">dayofweek</code>: <code class="language-plaintext highlighter-rouge">, - / * ? L C # [1-12/SUN-SAT]</code>`</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">year</code> : <code class="language-plaintext highlighter-rouge">, - / * [1970-2099]</code></p>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">*</code> 表示任意值 <code class="language-plaintext highlighter-rouge">* * * * * ?</code> 每秒都执行一次</li>
+  <li><code class="language-plaintext highlighter-rouge">?</code> 表示任意值，只能用在dayofmonth/dayofweek中，因为这两个值是互相影响的，比如<code class="language-plaintext highlighter-rouge">0 0 0 3 * ?</code>代表每个月的第三天触发</li>
+  <li><code class="language-plaintext highlighter-rouge">-</code> 表示范围值 <code class="language-plaintext highlighter-rouge">0 5-10 * * * ?</code> 表示任何时间的5分-10分，每分钟触发一次</li>
+  <li><code class="language-plaintext highlighter-rouge">/</code> 表示开始时间，和相隔时间  <code class="language-plaintext highlighter-rouge">* 5/10 * * * ?</code> 表示每小时 5，15，25，35，45，55 各触发一次</li>
+  <li><code class="language-plaintext highlighter-rouge">,</code> 表示枚举 <code class="language-plaintext highlighter-rouge">0 1,15 * * * ?</code> 表示每小时第1分和第5分触发一次</li>
+  <li><code class="language-plaintext highlighter-rouge">L</code> 表示最后一个 <code class="language-plaintext highlighter-rouge">0 0 0 3L * ?</code> 表示每年最后一个月的第三天触发</li>
+  <li><code class="language-plaintext highlighter-rouge">W</code> 有效工作日 <code class="language-plaintext highlighter-rouge">0 0 0 ? * LW</code> 表示每个月的最后一周的周五触发</li>
+  <li><code class="language-plaintext highlighter-rouge">#</code> 用于确定每个月第几个星期几 <code class="language-plaintext highlighter-rouge">0 0 0 ? * 4#2</code> 表示每个月的第二个星期三触发</li>
+</ul>
+
+<p>在网上找了些例子，供大家熟悉</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0 0 10,14,16 * * ? 每天上午10点，下午2点，4点
+0 0/30 9-17 * * ?   朝九晚五工作时间内每半小时
+0 0 12 ? * WED 表示每个星期三中午12点 
+"0 0 12 * * ?" 每天中午12点触发 
+"0 15 10 ? * *" 每天上午10:15触发 
+"0 15 10 * * ?" 每天上午10:15触发 
+"0 15 10 * * ? *" 每天上午10:15触发 
+"0 15 10 * * ? 2005" 2005年的每天上午10:15触发 
+"0 * 14 * * ?" 在每天下午2点到下午2:59期间的每1分钟触发 
+"0 0/5 14 * * ?" 在每天下午2点到下午2:55期间的每5分钟触发 
+"0 0/5 14,18 * * ?" 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 
+"0 0-5 14 * * ?" 在每天下午2点到下午2:05期间的每1分钟触发 
+"0 10,44 14 ? 3 WED" 每年三月的星期三的下午2:10和2:44触发 
+"0 15 10 ? * MON-FRI" 周一至周五的上午10:15触发 
+"0 15 10 15 * ?" 每月15日上午10:15触发 
+"0 15 10 L * ?" 每月最后一日的上午10:15触发 
+"0 15 10 ? * 6L" 每月的最后一个星期五上午10:15触发 
+"0 15 10 ? * 6L 2002-2005" 2002年至2005年的每月的最后一个星期五上午10:15触发 
+"0 15 10 ? * 6#3" 每月的第三个星期五上午10:15触发
+</code></pre></div></div>
+
+<h1 id="heading-参考">参考</h1>
+
+<blockquote>
+  <p><a href="https://unmi.cc/spring-schedule-runner-threads/">Spring 定时任务(Schedule) 和线程</a>   <br />
+<a href="http://www.blogjava.net/hao446tian/archive/2012/02/13/369872.html">spring cron表达式</a></p>
+</blockquote>
+:ET

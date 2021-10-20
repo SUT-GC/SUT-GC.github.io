@@ -1,0 +1,97 @@
+I"	<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-unix五种可使用的io模型" id="markdown-toc-heading-unix五种可使用的io模型">Unix五种可使用的I/O模型</a></li>
+  <li><a href="#heading-blocking-io" id="markdown-toc-heading-blocking-io">Blocking I/O</a></li>
+  <li><a href="#heading-nonblocking-io" id="markdown-toc-heading-nonblocking-io">Nonblocking I/O</a></li>
+  <li><a href="#heading-io-multiplexing" id="markdown-toc-heading-io-multiplexing">I/O Multiplexing</a></li>
+  <li><a href="#heading-signal-driven-io" id="markdown-toc-heading-signal-driven-io">Signal Driven I/O</a></li>
+  <li><a href="#heading-asynchronous-io" id="markdown-toc-heading-asynchronous-io">Asynchronous I/O</a></li>
+  <li><a href="#heading-五种模型比较" id="markdown-toc-heading-五种模型比较">五种模型比较</a></li>
+  <li><a href="#heading-参考资料" id="markdown-toc-heading-参考资料">参考资料</a></li>
+</ul>
+
+<h1 id="heading-unix五种可使用的io模型">Unix五种可使用的I/O模型</h1>
+
+<p>Unix有五种可以使用的IO模型，分别是:</p>
+
+<ul>
+  <li>blocking io</li>
+  <li>nonblicking io</li>
+  <li>io multiplexing</li>
+  <li>signal driven io</li>
+  <li>asynchrous io</li>
+</ul>
+
+<p>我们知道， 当有input操作的时候，会发生下面两种事情:</p>
+<ol>
+  <li>等待数据ready</li>
+  <li>把数据从内核copy到进程中</li>
+</ol>
+
+<p>这个第一步通常是等待网络的数据到达， 当数据到达之后， 把数据复制到内核的缓冲区中； 第二部便是把数据从内核的缓冲区复制到应用缓冲区中。</p>
+
+<h1 id="heading-blocking-io">Blocking I/O</h1>
+
+<p>阻塞IO，大多数的io模型都是这种， 所有的socket被阻塞，直到数据准备好。</p>
+
+<p>我们使用UDP代替TCP举例子，因为UDP中数据ready是一个很简单的过程，TCP更复杂.</p>
+
+<p><img src="http://7xoguv.com1.z0.glb.clouddn.com/IO%20Models-1.png" alt="io-1" /></p>
+
+<p>当进程要读取数据的请求时候， 便会阻塞在这， 直到数据准备好。这样会导致进程中其他的操作要等待这个IO操作完成。</p>
+
+<h1 id="heading-nonblocking-io">Nonblocking I/O</h1>
+
+<p><img src="http://7xoguv.com1.z0.glb.clouddn.com/IO%20Models-2.png" alt="io-1" /></p>
+
+<p>上面这个流程是 非阻塞IO的模型， 当进程要进行数据读写的时候， 不被阻塞在此处， 内核会返回 一个标示来告诉进程， 此时内核正在准备数据， 请等一会再过来请求。 当内核把数据准备完成之后， 进程再次请求的时候便可以进行 “内核复制数据到应用缓存” 中啦。</p>
+
+<h1 id="heading-io-multiplexing">I/O Multiplexing</h1>
+
+<p><img src="http://7xoguv.com1.z0.glb.clouddn.com/IO%20Models-4.png" alt="io-1" /></p>
+
+<p>IO多路复用模型，当应用程序请求数据的时候，进程将会调用Unix内核提供的Select或者Poll方法， 并且进程等待，直到有任何一个Select准备好数据。</p>
+
+<h1 id="heading-signal-driven-io">Signal Driven I/O</h1>
+
+<p><img src="http://7xoguv.com1.z0.glb.clouddn.com/IO%20Models-3.png" alt="io-1" /></p>
+
+<p>信号驱动IO模型， 当进程请求数据的时候，向内核注册“准备数据”的信号，并且进程挂起，直到内核使用“准备数据”信号将进程唤醒， 接着进程开始将内核中的数据复制到应用缓冲区中，读取数据完成。</p>
+
+<h1 id="heading-asynchronous-io">Asynchronous I/O</h1>
+
+<p><img src="http://7xoguv.com1.z0.glb.clouddn.com/IO%20Models-5.png" alt="io-1" /></p>
+
+<p>异步IO模型，当进程请求数据的时候，调用内核的接口，将要写入数据的目标地址也告诉内核， 这样进程就不再等待， 继续执行其他的事情。 内核接收到应用程序的异步请求，便自己运行，将数据准备好，并且将数据复制到进程指定的地方。</p>
+
+<h1 id="heading-五种模型比较">五种模型比较</h1>
+
+<p>在这五种模型中， 前四种都是同步IO的模型， 没错，前四种都是同步IO， 只有第五种是异步IO。</p>
+
+<p>为什么这么说，因为前四种都在数据准备阶段进行 挂起／睡眠／等待。 他们都要等待内核准备好数据才回进行下面的操作</p>
+
+<p>模型1同步阻塞IO和模型2同步非阻塞IO的区别比较明显，这里便不多做考虑， 我们看下3多路复用IO和4信号驱动IO各有什么好处。</p>
+
+<p>我觉得多路复用IO最大的好处是不阻塞入口，因为这里涉及到内核poll和select函数，所以可能不太好理解， 我们拿Java多线程举例：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// thread 1</span>
+<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">request</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+  <span class="n">registrySelect</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// thread 2</span>
+<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">readyRequest</span> <span class="o">=</span> <span class="n">selectDataReady</span><span class="o">()</span>
+  <span class="n">dispose</span><span class="o">(</span><span class="n">readyRequest</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>这里有两个线程， 线程1接收请求， 如果接收到请求后将请求注册到select中， select的作用就是查询是否有数据准备好的请求， 如果有便处理该请求。</p>
+
+<p>第五个异步IO就不用说了。</p>
+
+<h1 id="heading-参考资料">参考资料</h1>
+
+<p><a href="https://www.zybuluo.com/phper/note/595507">这里将多路复用还蛮清楚的</a>
+<a href="">UNIX Network Programming, Volume 1, Third Edition, The Sockets Networking API 6.2 IO Models</a></p>
+:ET

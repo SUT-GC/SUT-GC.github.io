@@ -1,0 +1,167 @@
+I"%3<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-表" id="markdown-toc-heading-表">表</a>    <ul>
+      <li><a href="#heading-表结构" id="markdown-toc-heading-表结构">表结构</a></li>
+      <li><a href="#heading-为什么-is_valid-没有索引" id="markdown-toc-heading-为什么-is_valid-没有索引">为什么 is_valid 没有索引</a></li>
+      <li><a href="#heading-物理删除--逻辑删除" id="markdown-toc-heading-物理删除--逻辑删除">物理删除 ／ 逻辑删除</a></li>
+      <li><a href="#heading-操作记录" id="markdown-toc-heading-操作记录">操作记录</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-业务" id="markdown-toc-heading-业务">业务</a>    <ul>
+      <li><a href="#heading-查询所有" id="markdown-toc-heading-查询所有">查询所有</a></li>
+      <li><a href="#heading-真的没有坑么" id="markdown-toc-heading-真的没有坑么">真的没有坑么</a></li>
+      <li><a href="#heading-为什么不用-limit-offset" id="markdown-toc-heading-为什么不用-limit-offset">为什么不用 limit offset</a></li>
+      <li><a href="#heading-当where中有两个索引字段" id="markdown-toc-heading-当where中有两个索引字段">当Where中有两个索引字段</a></li>
+      <li><a href="#heading-force-index" id="markdown-toc-heading-force-index">Force Index</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-总结" id="markdown-toc-heading-总结">总结</a></li>
+</ul>
+
+<h1 id="heading-表">表</h1>
+
+<h2 id="heading-表结构">表结构</h2>
+
+<p>表名: restaurant   <br />
+备注: 店铺信息表</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">字段名</th>
+      <th style="text-align: center">字段类型</th>
+      <th style="text-align: center">是否为null</th>
+      <th style="text-align: center">默认值</th>
+      <th style="text-align: center">是否索引</th>
+      <th style="text-align: center">索引名</th>
+      <th style="text-align: center">备注</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">id</td>
+      <td style="text-align: center">bigint(20)</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center">自增</td>
+      <td style="text-align: center">yes</td>
+      <td style="text-align: center">id_UNIQUE</td>
+      <td style="text-align: center">自增主键</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center">saturn_city_id</td>
+      <td style="text-align: center">int(11)</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">yes</td>
+      <td style="text-align: center">ix_saturn_city_id</td>
+      <td style="text-align: center">城市id</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">is_valid</td>
+      <td style="text-align: center">tinyint(4)</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">是否有效</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">created_at</td>
+      <td style="text-align: center">timestamp(3)</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center">CURRENT_TIMESTAMP(3)</td>
+      <td style="text-align: center">yes</td>
+      <td style="text-align: center">ix_created_at</td>
+      <td style="text-align: center">创建时间</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">updated_at</td>
+      <td style="text-align: center">timestamp(3)</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center">CURRENT_TIMESTAMP(3)</td>
+      <td style="text-align: center">yes</td>
+      <td style="text-align: center">ix_updated_at</td>
+      <td style="text-align: center">更新时间</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">deleted_at</td>
+      <td style="text-align: center">timestamp(3)</td>
+      <td style="text-align: center">no</td>
+      <td style="text-align: center">CURRENT_TIMESTAMP(3)</td>
+      <td style="text-align: center">yes</td>
+      <td style="text-align: center">ix_deleted_at</td>
+      <td style="text-align: center">删除时间</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="heading-为什么-is_valid-没有索引">为什么 is_valid 没有索引</h2>
+
+<p>首先，不单单好似is_valid, 还有些类似 data_status 等表示枚举的字段，都没有必要增加索引， 因为这种字段的值往往屈指可数，加上索引之后一个只值仍然会对应很多条记录（这里所说的很多条一般都是10w条以上）， 所以设置索引的效果并不明显。</p>
+
+<p>还有 这种字段 特别是表示 记录／任务 状态的字段， 值最好不要以0，1这样数值，特别是0， 0 最好只代表 无效／初始 数据（因为0一般都是数据库的默认值），如果0这个值表示比较复杂的业务， 那么以后就会感觉很乱， 更要注意的是，不要用0表示 <strong>有效</strong> <strong>营业</strong> <strong>展示</strong> 这种带有true的意义。</p>
+
+<h2 id="heading-物理删除--逻辑删除">物理删除 ／ 逻辑删除</h2>
+
+<p>db的表最好不设置物理删除，只做逻辑删除，这样数据就算业务上没有了价值，也可以分析出别的，具有商业价值的信息出来。 而且可以做业务回滚， 毕竟物理删除就真的是把数据从这个世界上删除了， 而数据对这个世界的重要性，已经不言而喻了。  如果数据过多， 可以选择归档（归档也只是把数据从线上表中转移到其他表中， 放置起来）。</p>
+
+<h2 id="heading-操作记录">操作记录</h2>
+
+<p>如果是业务表， 比如店铺基本数据， 商品基本数据等， 这种对操作及其敏感的数据，一定要做操作记录， 对 谁(who)什么时候(when) 在哪里(where) 做了什么(what) 都要记录下来，就算记录下来的数据爆炸，也要记录，可以把归档频率调高，比如一周一次归档，三天一次归档等。 这种数据是非常非常有价值的（如果有人恶意操作， 我们可以在业务上进行限制， 比如对商品的操作一天不能超过100次等）</p>
+
+<h1 id="heading-业务">业务</h1>
+
+<h2 id="heading-查询所有">查询所有</h2>
+
+<p>1.如果想要查询某个城市下有效的店铺 ，可以使用 <code class="language-plaintext highlighter-rouge">select * from restaurant where saturn_city_id = xxx and is_valid = 1</code></p>
+
+<p>上面那个SQL由于Where条件里面只有 <code class="language-plaintext highlighter-rouge">saturn_city_id</code> 和 <code class="language-plaintext highlighter-rouge">is_valid</code> 两个字段， 且只有 <code class="language-plaintext highlighter-rouge">saturn_city_id</code> 有索引， 所以肯定走 <code class="language-plaintext highlighter-rouge">satrun_city_id</code> 这个索引</p>
+
+<h2 id="heading-真的没有坑么">真的没有坑么</h2>
+
+<p>我们再看下上面的sql <code class="language-plaintext highlighter-rouge">select * from restaurant where saturn_city_id = xxx and is_valid = 1</code>, 难道这样就足够了吗？ 当然不是， 因为查询结构可能有上万甚至上十万条， 甚至可能造成OOM（如果数据量足够大的话）。 而且当 restaurant 表中一行纪录的数据足够多， 就会造成网络流量被打满， DB压力过大的情况， 所以 我们查询要改一改， 当然具体改成什么样子的，就要看真正的用途了， 如果只想要所有的店铺id， 可以使用 <code class="language-plaintext highlighter-rouge">select id from restaurant where saturn_city_id = xxx and is_valid = 1</code> , 当然，如果数据量过大， 仍然会造成问题， 所以可能用如下的做法:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">last_id</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">limit</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">shop_ids</span> <span class="o">=</span> <span class="n">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">restaurant</span> <span class="n">where</span> <span class="n">saturn_city_id</span> <span class="o">=</span> <span class="n">xxx</span> <span class="ow">and</span> <span class="nb">id</span> <span class="o">&gt;</span> <span class="n">last_id</span> <span class="ow">and</span> <span class="n">is_valid</span> <span class="o">=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">limit</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shop_ids</span><span class="p">:</span>
+        <span class="k">break</span>
+    
+    <span class="k">for</span> <span class="n">shop_id</span> <span class="ow">in</span> <span class="n">shop_ids</span><span class="p">:</span>
+        <span class="n">do_some_things</span><span class="p">(</span><span class="n">shop_id</span><span class="p">)</span>
+    
+    <span class="n">last_id</span> <span class="o">=</span> <span class="n">shop_ids</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">shop_ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h2 id="heading-为什么不用-limit-offset">为什么不用 limit offset</h2>
+
+<p>有过对大数据量查询经验的朋友肯定知道， sql执行时间 会随着 offset 的变大 直线增长（之前用offset遍历500w的数据， 当offset到100w的时候， sql响应时间就已经4s左右了， 可想而知当offset快到500w左右，会多么恐怖</p>
+
+<p>使用 id &gt; last_id 的响应时间是个常量， 且不会随着last_id的增长而增长</p>
+
+<h2 id="heading-当where中有两个索引字段">当Where中有两个索引字段</h2>
+
+<p>当你认为 上面那个sql已经天衣无缝的时候， 你就错了， mysql innodb引擎 只会选择一个索引使用， 上面那个sql的where条件中 有两个索引可以供 mysql 选择 <code class="language-plaintext highlighter-rouge">ix_saturn_city_id</code> 和 <code class="language-plaintext highlighter-rouge">id_UNIQE</code> ，当 mysql 选择 <code class="language-plaintext highlighter-rouge">ix_saturn_city_id</code> 索引走的时候万事大吉， 但是当选择  <code class="language-plaintext highlighter-rouge">id_UNIQUE</code> 的时候就是悲剧了， 因为 这时候是 <strong>全表扫描</strong></p>
+
+<h2 id="heading-force-index">Force Index</h2>
+
+<p>如果要强制让SQL走某个索引 可以使用 Force Index 关键字 ，如 :</p>
+
+<p><code class="language-plaintext highlighter-rouge">select * from restaurant force index (ix_saturn_city_id) where saturn_city_id = xxx and id &gt; xxx and is_valid = 1 limit 100</code></p>
+
+<p>使用 sqlalchemy 的话要这样写:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shop_ids</span> <span class="o">=</span> <span class="n">shop_session</span><span class="p">.</span><span class="n">query</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="nb">id</span><span class="p">).</span><span class="n">with_hint</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">,</span> <span class="s">'FORCE INDEX(ix_saturn_city_id)'</span><span class="p">).</span><span class="nb">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="n">saturn_city_id</span> <span class="o">==</span> <span class="n">xxx</span> <span class="p">).</span><span class="nb">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="n">is_valid</span> <span class="o">==</span> <span class="n">xxx</span><span class="p">).</span><span class="nb">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="nb">id</span> <span class="o">&gt;</span> <span class="n">last_id</span><span class="p">).</span><span class="n">limit</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h1 id="heading-总结">总结</h1>
+
+<p>当sql中查询的Where条件有多个， 且有多个索引可以供mysql选择，  mysql就可能选错索引， 也由此如过想让mysql强制走某个索引， 可以使用  <code class="language-plaintext highlighter-rouge">force index(xxxx)</code> 关键字 。</p>
+:ET

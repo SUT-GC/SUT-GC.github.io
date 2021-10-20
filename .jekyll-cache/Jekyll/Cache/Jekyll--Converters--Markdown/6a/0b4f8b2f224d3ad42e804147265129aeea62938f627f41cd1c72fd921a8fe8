@@ -1,0 +1,398 @@
+I"�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-amqp" id="markdown-toc-heading-amqp">AMQP</a>    <ul>
+      <li><a href="#heading-amqp-1" id="markdown-toc-heading-amqp-1">AMQP</a></li>
+      <li><a href="#heading-amqp-0-9-1" id="markdown-toc-heading-amqp-0-9-1">AMQP 0-9-1</a></li>
+      <li><a href="#heading-交换机" id="markdown-toc-heading-交换机">交换机</a></li>
+      <li><a href="#heading-默认交换机" id="markdown-toc-heading-默认交换机">默认交换机</a>        <ul>
+          <li><a href="#heading-demo" id="markdown-toc-heading-demo">Demo</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-直连交换机" id="markdown-toc-heading-直连交换机">直连交换机</a>        <ul>
+          <li><a href="#heading-demo-1" id="markdown-toc-heading-demo-1">demo</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-扇行交换机" id="markdown-toc-heading-扇行交换机">扇行交换机</a>        <ul>
+          <li><a href="#heading-demo-2" id="markdown-toc-heading-demo-2">demo</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-主题交换机" id="markdown-toc-heading-主题交换机">主题交换机</a>        <ul>
+          <li><a href="#heading-demo-3" id="markdown-toc-heading-demo-3">demo</a></li>
+        </ul>
+      </li>
+      <li><a href="#heading-头交换机" id="markdown-toc-heading-头交换机">头交换机</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-参考文档" id="markdown-toc-heading-参考文档">参考文档</a></li>
+</ul>
+
+<h1 id="heading-amqp">AMQP</h1>
+
+<h2 id="heading-amqp-1">AMQP</h2>
+
+<p>高级消息协议， 消息代理 FROM 消息生产者 GET 消息 GIVE TO 消息消费者 BY 路由规则</p>
+
+<h2 id="heading-amqp-0-9-1">AMQP 0-9-1</h2>
+
+<p>AMQP 0-9-1 工作流程：消息生产者将消息发给交换机，交换机再根据路由规则，将消息发给消息消费者。</p>
+
+<ul>
+  <li>
+    <p>发布者 可以在消息上指定各种消息属性，有些属性可以被消息代理使用， 有些则会透传给消息消费者。</p>
+  </li>
+  <li>
+    <p>AMQP 模型为了尽可能保证消息到达，具有ACK机制，当消息发给消费者之后，等待消费者发出ACK动作表明消息接收到，这个可以是自动的也可以由处理消息的应用的开发者执行。当“消息确认”被启用的时候，消息代理不会完全将消息从队列中删除，直到它收到来自消费者的确认回执。</p>
+  </li>
+  <li>
+    <p>队列，交换机和绑定统称为AMQP实体</p>
+  </li>
+  <li>
+    <p>AMQP 是一个可编程的协议， 某种意义上说AMQP的实体和路由规则是由应用本身定义的，而不是由消息代理定义。包括像声明队列和交换机，定义他们之间的绑定，订阅队列等等关于协议本身的操作。</p>
+  </li>
+</ul>
+
+<h2 id="heading-交换机">交换机</h2>
+
+<p>交换机是用来发消息的AMQP的实体，交换机拿到一个消息之后会把消息发给 &gt;= 0 个队列，至于使用哪种路由算法，则由交换机类型和被绑定的规则决定，下面是四种交换机：</p>
+
+<ul>
+  <li>直连交换机（DIRCET） <code class="language-plaintext highlighter-rouge">'' or 'amq.direct'</code></li>
+  <li>扇形交换机（FOUNT） <code class="language-plaintext highlighter-rouge">amq.fanout</code></li>
+  <li>主题交换机（TOPIC） <code class="language-plaintext highlighter-rouge">amq.topic</code></li>
+  <li>头交换机  （HEADER）<code class="language-plaintext highlighter-rouge">amq.match</code></li>
+</ul>
+
+<p>除了交换机类型之外，声明交换机的时候还可以指定一些属性:</p>
+<ul>
+  <li>Name</li>
+  <li>Durablity</li>
+  <li>Auto-delete</li>
+  <li>Argument</li>
+</ul>
+
+<p>交换机可以有两个状态：持久（durable）、暂存（transient）。持久化的交换机会在消息代理（broker）重启后依旧存在，而暂存的交换机则不会（它们需要在代理再次上线后重新被声明）。然而并不是所有的应用场景都需要持久化的交换机。</p>
+
+<h2 id="heading-默认交换机">默认交换机</h2>
+
+<p>默认交换机是消息代理默认生成的一个没有名字的直连交换机，它有一个特殊的属性使得它对于简单应用特别有用处：那就是每个新建队列（queue）都会自动绑定到默认交换机上，绑定的路由键（routing key）名称与队列名称相同。</p>
+
+<p>🌰 当你声明了一个名为"search-indexing-online"的队列，AMQP代理会自动将其绑定到默认交换机上，绑定（binding）的路由键名称也是为"search-indexing-online"。因此，当携带着名为"search-indexing-online"的路由键的消息被发送到默认交换机的时候，此消息会被默认交换机路由至名为"search-indexing-online"的队列中。换句话说，默认交换机看起来貌似能够直接将消息投递给队列，尽管技术上并没有做相关的操作。</p>
+
+<h3 id="heading-demo">Demo</h3>
+
+<p><strong>消息接受者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+
+<span class="c1"># 生命Q
+</span><span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_default_q'</span><span class="p">)</span>
+<span class="n">queue</span> <span class="o">=</span> <span class="n">queue_result</span><span class="p">.</span><span class="n">method</span><span class="p">.</span><span class="n">queue</span>
+
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">method</span>
+    <span class="k">print</span> <span class="n">properties</span>
+    <span class="k">print</span> <span class="n">body</span>
+
+
+<span class="c1"># 接受消息, 指定接受的队列
+</span><span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span>
+                     <span class="p">)</span>
+
+
+<span class="k">print</span> <span class="s">'start consuming'</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>消息发送者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
+</span><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># 链接rabbitmq
+</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+
+
+<span class="c1"># exchange = '' 表示使用默认交换机，往默认交换机上发消息，并且带着routingkey
+</span><span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">''</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo_default_q'</span><span class="p">,</span>
+                      <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+
+<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="heading-直连交换机">直连交换机</h2>
+
+<p>直连交换机是根据消息携带的路由键将消息发给同名的队列，直连交换机是处理单播路由的</p>
+
+<ul>
+  <li>
+    <p>将一个队列绑定到一个交换机上，并赋予该绑定一个与队列名字同样的路由键</p>
+  </li>
+  <li>
+    <p>当带着R路由键的消息发给直连交换机之后，交换机会将这个消息路由给同样为R的队列</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>直连交换机经常用来循环分发任务给多个工作者（workers）。当这样做的时候，我们需要明白一点，在AMQP 0-9-1中，消息的负载均衡是发生在消费者（consumer）之间的，而不是队列（queue）之间。</p>
+</blockquote>
+
+<h3 id="heading-demo-1">demo</h3>
+
+<p><strong>消息接受者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="c1"># 声明一个直连交换机E
+</span><span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'direct'</span><span class="p">)</span>
+<span class="c1"># 声明一个Q
+</span><span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">body</span>
+
+<span class="c1"># 将E和Q绑定
+</span><span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">)</span>
+
+<span class="c1"># 这个Q接受消息，不带routingkey，因为直连交换机会将Q和key同名
+</span><span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">,</span>
+                     <span class="p">)</span>
+
+
+<span class="k">print</span> <span class="s">'start consuming'</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>消息发送者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
+</span><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="c1"># 声明一个直连交换机E
+</span><span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'direct'</span><span class="p">)</span>
+
+<span class="c1"># 由于往直连交换机带rutingkey发送消息，会被自动转发给 与该E绑定的且与routingkey同名的Q
+</span><span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span>
+                      <span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">,</span>
+                      <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+
+<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>AMQP的Q和E和绑定调理很清晰的， 我大致梳理一下思路:</p>
+  <ol>
+    <li>消息发送者      <br />
+1.1 声明一个交换机E   <br />
+1.2 向这个交换机发送带routingkey的消息</li>
+  </ol>
+
+  <p>2 消息接受者     <br />
+2.1 声明一个交换机E  <br />
+2.2 声明一个队列Q  <br />
+2.3 将这个Q和E绑定 (如果不显式绑定一个Q和E, 则Q默认绑定到默认交换机)  <br />
+2.4 接受Q过来的消息（可以带routingkey, 也可以不带)</p>
+
+  <p>⚠️ 当不显示声明一个交换机E的时候，可以使用rabbitMQ默认提供的几个交换机，当不显式将Q和E绑定起来的话，则会默认将Q绑定到明为<code class="language-plaintext highlighter-rouge">''</code>的E上</p>
+</blockquote>
+
+<p><img src="/files/images/rabbitMQ.png" alt="rabbitMQ" /></p>
+
+<h2 id="heading-扇行交换机">扇行交换机</h2>
+
+<p>扇形交换机 将消息发送到绑定该交换机上的所有队列，而不在意路由键，当消息发给队列的时候，会copy消息发给所有队列。</p>
+
+<p>🌰消息队列，交换机，绑定关系</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-exchange ---my-routing-key1--- my-queue1    
+            +--my-routing-key2--- my-queue2    
+            +--my-routing1-key1-- my-queue3    
+</code></pre></div></div>
+
+<p>给 my-exchange, my-routing-key* 发消息，my-queue1 和 my-queue2 会收到，my-quque3 收不到</p>
+
+<h3 id="heading-demo-2">demo</h3>
+
+<p><strong>消息接受者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="n">exchange_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'fanout'</span><span class="p">)</span>
+<span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_fanout_q'</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">exchange_result</span>
+<span class="k">print</span> <span class="n">exchange_result</span><span class="p">.</span><span class="n">method</span>
+
+<span class="n">queue</span> <span class="o">=</span> <span class="n">queue_result</span><span class="p">.</span><span class="n">method</span><span class="p">.</span><span class="n">queue</span>
+
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">body</span>
+
+
+<span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s">'demo_fanout_q'</span><span class="p">)</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="s">'demo_fanout_q'</span><span class="p">,</span>
+                     <span class="p">)</span>
+
+
+<span class="k">print</span> <span class="s">'start consuming'</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>消息发送者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
+</span><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'fanout'</span><span class="p">)</span>
+
+
+<span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span>
+                      <span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="s">''</span><span class="p">,</span>
+                      <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+
+<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>⚠️ 可以把接受者启动多个不同名的队列，这样发送者发送消息，将会全部送达给绑定该E的消息接受者，而不关心routingkey</p>
+</blockquote>
+
+<h2 id="heading-主题交换机">主题交换机</h2>
+
+<p>主题交换机 将带着路由键的消息发给 交换机和队列且路由键匹配的绑定上</p>
+
+<h3 id="heading-demo-3">demo</h3>
+
+<p><strong>消息接受者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="n">exchange_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'topic'</span><span class="p">)</span>
+<span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_topic_q'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">body</span>
+
+
+<span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s">'demo_topic_q'</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo.*'</span><span class="p">)</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="s">'demo_topic_q'</span><span class="p">,</span>
+                      <span class="n">no_ack</span><span class="o">=</span><span class="bp">True</span>
+                     <span class="p">)</span>
+
+
+<span class="k">print</span> <span class="s">'start consuming'</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+
+</code></pre></div></div>
+
+<p><strong>消息发送者</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
+</span><span class="kn">import</span> <span class="nn">pika</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'topic'</span><span class="p">)</span>
+
+
+<span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span>
+                      <span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo.topic'</span><span class="p">,</span>
+                      <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+
+<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>⚠️ 消息接受者 的 routing_key 必须是 <code class="language-plaintext highlighter-rouge">.</code> 分割， 可以用 <code class="language-plaintext highlighter-rouge">*</code>代表一个任意单词， <code class="language-plaintext highlighter-rouge">#</code>代表0个或者多个单词 (ps 当然用 除了<code class="language-plaintext highlighter-rouge">.</code>之外的其他字符表示routing_key也可以，但是都不会在 <code class="language-plaintext highlighter-rouge">*/#</code>上起作用)</p>
+</blockquote>
+
+<blockquote>
+  <p>小提示:</p>
+  <ul>
+    <li>如果不知道python具体接口和文档， 使用help(model) 即可，比如 help(pika)</li>
+  </ul>
+</blockquote>
+
+<h2 id="heading-头交换机">头交换机</h2>
+
+<p>头交换机使用多个消息属性来代替路由键建立路由规则。通过判断消息头的值能否与指定的绑定相匹配来确立路由规则.</p>
+
+<p>头交换机可以视为直连交换机的另一种表现形式。头交换机能够像直连交换机一样工作，不同之处在于头交换机的路由规则是建立在头属性值之上，而不是路由键。路由键必须是一个字符串，而头属性值则没有这个约束，它们甚至可以是整数或者哈希值（字典）等</p>
+
+<h1 id="heading-参考文档">参考文档</h1>
+
+<blockquote>
+  <p><a href="http://rabbitmq.mr-ping.com/">RabbitMQ GitBook 文档</a></p>
+</blockquote>
+
+:ET

@@ -1,0 +1,1114 @@
+I"�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-134-知道链表头结点从尾到头打印链表" id="markdown-toc-heading-134-知道链表头结点从尾到头打印链表">1.3.4 知道链表头结点，从尾到头打印链表</a></li>
+  <li><a href="#heading-135-先根遍历中根遍历后根遍历-二叉树并且-循环递归两种方式" id="markdown-toc-heading-135-先根遍历中根遍历后根遍历-二叉树并且-循环递归两种方式">1.3.5 先根遍历，中根遍历，后根遍历 二叉树并且 循环+递归两种方式</a></li>
+  <li><a href="#heading-136--用两个栈实现队列的add与remove添加与读取队列头并删除的两个功能" id="markdown-toc-heading-136--用两个栈实现队列的add与remove添加与读取队列头并删除的两个功能">1.3.6  用两个栈实现队列的add与remove（“添加”与“读取队列头，并删除”的两个功能</a></li>
+  <li><a href="#heading-136-实现快速排序" id="markdown-toc-heading-136-实现快速排序">1.3.6 实现快速排序</a></li>
+  <li><a href="#heading-137-归并排序" id="markdown-toc-heading-137-归并排序">1.3.7 归并排序</a></li>
+  <li><a href="#heading-138-利用二进制位运算" id="markdown-toc-heading-138-利用二进制位运算">1.3.8 利用二进制位运算</a></li>
+  <li><a href="#heading-139-实现函数double-doublepowerdouble-base-int-expoent-求base的expoent次方-不用函数库不考虑大数问题" id="markdown-toc-heading-139-实现函数double-doublepowerdouble-base-int-expoent-求base的expoent次方-不用函数库不考虑大数问题">1.3.9 实现函数double doublePower(double base, int expoent) 求base的expoent次方， 不用函数库，不考虑大数问题.</a></li>
+  <li><a href="#heading-1310-打印1到最大的n位数大数" id="markdown-toc-heading-1310-打印1到最大的n位数大数">1.3.10 打印1到最大的n位数（大数）</a></li>
+  <li><a href="#heading-1311-知道链表头和链表中的一个节点用o1的复杂度将这个节点从链表中删除" id="markdown-toc-heading-1311-知道链表头和链表中的一个节点用o1的复杂度将这个节点从链表中删除">1.3.11 知道链表头和链表中的一个节点，用O(1)的复杂度将这个节点从链表中删除。</a></li>
+  <li><a href="#heading-1312-交换数组中的奇数偶数将偶数排在前面奇数排在后面程序代码可复用" id="markdown-toc-heading-1312-交换数组中的奇数偶数将偶数排在前面奇数排在后面程序代码可复用">1.3.12 交换数组中的奇数，偶数，将偶数排在前面，奇数排在后面。（程序代码可复用）</a></li>
+  <li><a href="#heading-1313-翻转链表" id="markdown-toc-heading-1313-翻转链表">1.3.13 翻转链表</a></li>
+  <li><a href="#heading-1314-合并两个链表" id="markdown-toc-heading-1314-合并两个链表">1.3.14 合并两个链表</a></li>
+  <li><a href="#heading-1315-判断一个二叉树是否是另一个二叉树的子树" id="markdown-toc-heading-1315-判断一个二叉树是否是另一个二叉树的子树">1.3.15 判断一个二叉树是否是另一个二叉树的子树</a></li>
+  <li><a href="#heading-1316-镜像二叉树" id="markdown-toc-heading-1316-镜像二叉树">1.3.16 镜像二叉树</a></li>
+  <li><a href="#heading-1317-顺时针打印数组" id="markdown-toc-heading-1317-顺时针打印数组">1.3.17 顺时针打印数组</a></li>
+</ul>
+
+<h1 id="heading-134-知道链表头结点从尾到头打印链表">1.3.4 知道链表头结点，从尾到头打印链表</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">Chapter1.Node</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter1.TheKNumInLast</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PrintListFromEnd</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printListFromEnd</span><span class="o">(</span><span class="nc">Node</span> <span class="n">list</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">list</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">printListFromEnd</span><span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">next</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">list</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Node</span> <span class="n">list</span> <span class="o">=</span> <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">createList</span><span class="o">(</span><span class="mi">20</span><span class="o">);</span>
+        <span class="n">printListFromEnd</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-135-先根遍历中根遍历后根遍历-二叉树并且-循环递归两种方式">1.3.5 先根遍历，中根遍历，后根遍历 二叉树并且 循环+递归两种方式</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//二叉树节点class</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BinaryTreeNode</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">value</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="nc">BinaryTreeNode</span> <span class="n">leftNode</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="nc">BinaryTreeNode</span> <span class="n">rightNode</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setValue</span><span class="o">(</span><span class="kt">int</span> <span class="n">v</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">value</span> <span class="o">=</span> <span class="n">v</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getValue</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">value</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="c1">//创建二叉树</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BinaryTree</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">;</span>
+    <span class="kd">static</span><span class="o">{</span>
+        <span class="n">treeRoot</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span>
+        
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">6</span><span class="o">);</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">7</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">//创建带访问次数控制code的节点包装类</span>
+<span class="c1">//此类为 后根遍历 循环方法提供帮助， 与别的遍历方法无关 </span>
+<span class="kn">package</span> <span class="nn">Chapter2</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BinaryTreeNodeCode</span><span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">BinaryTreeNode</span> <span class="n">binaryTreeNode</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">code</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="nf">BinaryTreeNodeCode</span><span class="o">(</span> <span class="nc">BinaryTreeNode</span> <span class="n">binaryTreeNode</span><span class="o">,</span><span class="kt">int</span> <span class="n">code</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">binaryTreeNode</span> <span class="o">=</span> <span class="n">binaryTreeNode</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">code</span> <span class="o">=</span> <span class="n">code</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getCode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">code</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setCode</span><span class="o">(</span><span class="kt">int</span> <span class="n">code</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">code</span> <span class="o">=</span> <span class="n">code</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">BinaryTreeNode</span> <span class="nf">getBinaryTreeNode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">binaryTreeNode</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    
+<span class="o">}</span>
+
+
+<span class="c1">//开始进行遍历操作</span>
+<span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.LinkedList</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BinaryTreeOprate</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printTreeFirstRoot</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">treeRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+        <span class="n">printTreeFirstRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">);</span>
+        <span class="n">printTreeFirstRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printTreeSecoundRoot</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">treeRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">printTreeSecoundRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+        <span class="n">printTreeSecoundRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printTreeThiredRoot</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">treeRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">printTreeThiredRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">);</span>
+        <span class="n">printTreeThiredRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printTreeFirstRootFor</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">treeRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">BinaryTreeNode</span><span class="o">&gt;</span> <span class="n">treeNodeStack</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+        <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="k">while</span><span class="o">(!</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="nc">BinaryTreeNode</span> <span class="n">treeNode</span> <span class="o">=</span> <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">();</span>
+            <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">removeLast</span><span class="o">();</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+                <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+                <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">);</span>
+            <span class="o">}</span>
+            
+            
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printTreeSecoundRootFor</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">treeRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">BinaryTreeNode</span><span class="o">&gt;</span> <span class="n">treeNodeStack</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+        <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="k">while</span><span class="o">(!</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">().</span><span class="na">leftNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+                <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">().</span><span class="na">leftNode</span><span class="o">);</span>
+            <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+                <span class="nc">BinaryTreeNode</span> <span class="n">treeNode</span> <span class="o">=</span> <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">();</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+                <span class="k">if</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+                    <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+            
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="cm">/*
+     * 规定访问一个节点 所做事情代表的 号码
+     * 1 入栈（入栈之后，此节点代码为 1
+     * 2 访问左右子节点（如果代码是1， 则下一步进行 访问左右子节点，刷代码为2）
+     * 3 弹出并且输出 （如果代码是2 则下一步该进行弹出栈，并且输出值）
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printTreeThiredRootFor</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span><span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">treeRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">BinaryTreeNodeCode</span><span class="o">&gt;</span> <span class="n">treeNodeStack</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+        <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="k">new</span> <span class="nc">BinaryTreeNodeCode</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+        <span class="k">while</span><span class="o">(!</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="c1">//如果栈顶元素的code == 1</span>
+            <span class="c1">//把栈顶元素的code set成2</span>
+            <span class="c1">//把栈顶元素的right节点入栈（！=null的话）并设置code=1</span>
+            <span class="c1">//把栈顶元素的left节点入栈 （！=null的话）并设计code=1</span>
+            
+            <span class="k">if</span><span class="o">(</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">().</span><span class="na">getCode</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">){</span>
+                <span class="c1">//获取栈顶的元素</span>
+                <span class="nc">BinaryTreeNodeCode</span> <span class="n">treeNodeCode</span> <span class="o">=</span> <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">();</span>
+                <span class="c1">//因为这是第二次访问，所以置为2</span>
+                <span class="n">treeNodeCode</span><span class="o">.</span><span class="na">setCode</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+                <span class="c1">//将栈顶的元素左右子树入栈，并且设置code=1</span>
+                <span class="k">if</span><span class="o">(</span><span class="n">treeNodeCode</span><span class="o">.</span><span class="na">getBinaryTreeNode</span><span class="o">().</span><span class="na">rightNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+                    <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="k">new</span> <span class="nc">BinaryTreeNodeCode</span><span class="o">(</span><span class="n">treeNodeCode</span><span class="o">.</span><span class="na">getBinaryTreeNode</span><span class="o">().</span><span class="na">rightNode</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+                <span class="o">}</span>
+                <span class="k">if</span><span class="o">(</span><span class="n">treeNodeCode</span><span class="o">.</span><span class="na">getBinaryTreeNode</span><span class="o">().</span><span class="na">leftNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+                    <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="k">new</span> <span class="nc">BinaryTreeNodeCode</span><span class="o">(</span><span class="n">treeNodeCode</span><span class="o">.</span><span class="na">getBinaryTreeNode</span><span class="o">().</span><span class="na">leftNode</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span>
+                <span class="o">}</span>
+                
+            <span class="c1">//如果code == 2</span>
+            <span class="c1">//则将栈顶元素的值输出并且弹出</span>
+            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">().</span><span class="na">getCode</span><span class="o">()</span> <span class="o">==</span> <span class="mi">2</span><span class="o">){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">treeNodeStack</span><span class="o">.</span><span class="na">getLast</span><span class="o">().</span><span class="na">getBinaryTreeNode</span><span class="o">().</span><span class="na">getValue</span><span class="o">());</span>
+                <span class="n">treeNodeStack</span><span class="o">.</span><span class="na">removeLast</span><span class="o">();</span>
+            <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="s">"出现code ！= 1  &amp;&amp; ！= 2"</span><span class="o">);</span>
+            <span class="o">}</span>
+            
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="nc">BinaryTreeNode</span> <span class="n">treeRoot</span> <span class="o">=</span> <span class="nc">BinaryTree</span><span class="o">.</span><span class="na">treeRoot</span><span class="o">;</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"======先根遍历===递归====="</span><span class="o">);</span>
+        <span class="n">printTreeFirstRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"======先根遍历===循环====="</span><span class="o">);</span>
+        <span class="n">printTreeFirstRootFor</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"======中根遍历===递归====="</span><span class="o">);</span>
+        <span class="n">printTreeSecoundRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"======中根遍历===循环====="</span><span class="o">);</span>
+        <span class="n">printTreeSecoundRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"======后根遍历===递归====="</span><span class="o">);</span>
+        <span class="n">printTreeThiredRoot</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"======后根遍历===循环====="</span><span class="o">);</span>
+        <span class="n">printTreeThiredRootFor</span><span class="o">(</span><span class="n">treeRoot</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">/////////运行结果////////////////</span>
+<span class="cm">/*
+======先根遍历===递归=====
+1
+2
+4
+5
+3
+6
+7
+======先根遍历===循环=====
+1
+2
+4
+5
+3
+6
+7
+======中根遍历===递归=====
+4
+2
+5
+1
+6
+3
+7
+======中根遍历===循环=====
+4
+2
+5
+1
+6
+3
+7
+======后根遍历===递归=====
+4
+5
+2
+6
+7
+3
+1
+======后根遍历===循环=====
+4
+5
+2
+6
+7
+3
+1
+
+*/</span>
+</code></pre></div></div>
+
+<h1 id="heading-136--用两个栈实现队列的add与remove添加与读取队列头并删除的两个功能">1.3.6  用两个栈实现队列的add与remove（“添加”与“读取队列头，并删除”的两个功能</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.LinkedList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Queue</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Stack</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">QueueAndStack</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">stack1</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Stack</span><span class="o">&lt;&gt;();</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">stack2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Stack</span><span class="o">&lt;&gt;();</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">queue1</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">LinkedList</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">queue2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedList</span><span class="o">&lt;&gt;();</span>
+    
+    <span class="cm">/*
+     * 将两个stack实现成一个queue
+     */</span>
+    <span class="c1">//stack1 用来print</span>
+    <span class="c1">//stack2 用来add</span>
+    <span class="c1">//每次print完毕都要将数据从stack1转移到stack2中</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">addQueueByStack</span><span class="o">(</span><span class="kt">int</span> <span class="n">num</span><span class="o">){</span>
+        <span class="n">stack2</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="n">num</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">removeQueueByStack</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span><span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">stack2</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="s">"the stack is empty !"</span><span class="o">);</span>
+        <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+            <span class="c1">//将stack1 清空并且将stack2中的数据转移到stack1中</span>
+            <span class="n">stack1</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+            <span class="k">while</span><span class="o">(!</span><span class="n">stack2</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+                <span class="n">stack1</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="n">stack2</span><span class="o">.</span><span class="na">pop</span><span class="o">());</span>
+            <span class="o">}</span>
+            <span class="kt">int</span> <span class="n">top</span> <span class="o">=</span> <span class="n">stack1</span><span class="o">.</span><span class="na">pop</span><span class="o">();</span>
+            <span class="c1">//清空stack2并且将stack1中剩余的数据转移到stack2中</span>
+            <span class="n">stack2</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+            <span class="k">while</span><span class="o">(!</span><span class="n">stack1</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+                <span class="n">stack2</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="n">stack1</span><span class="o">.</span><span class="na">pop</span><span class="o">());</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="n">top</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    
+    <span class="cm">/*
+     * 用两个queue实现一个stack
+     * queue1 
+     * queue2
+     * 当push数据的时候，queue1将数据全部按照队列的方式转移到queue2,
+     * 然后将数据加入queue1
+     * 然后将数据按照队列的方式从queue2转移回queue1
+     * 
+     * 当pop的时候，直接读取queue1队列即可
+     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">pushStackByQueue</span><span class="o">(</span><span class="kt">int</span> <span class="n">num</span><span class="o">){</span>
+        <span class="n">queue2</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+        <span class="k">while</span><span class="o">(!</span><span class="n">queue1</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="n">queue2</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">queue1</span><span class="o">.</span><span class="na">removeFirst</span><span class="o">());</span>
+        <span class="o">}</span>
+        <span class="n">queue1</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">num</span><span class="o">);</span>
+        <span class="k">while</span><span class="o">(!</span><span class="n">queue2</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="n">queue1</span><span class="o">.</span><span class="na">addLast</span><span class="o">(</span><span class="n">queue2</span><span class="o">.</span><span class="na">removeFirst</span><span class="o">());</span>
+        <span class="o">}</span>
+        <span class="n">queue2</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">popStackByQueue</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span><span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">queue1</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="s">"this stack is empty !"</span><span class="o">);</span>
+        <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+            <span class="k">return</span> <span class="n">queue1</span><span class="o">.</span><span class="na">removeFirst</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====下面是队列的输出====="</span><span class="o">);</span>
+        <span class="n">addQueueByStack</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="n">addQueueByStack</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        <span class="n">addQueueByStack</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span>
+        <span class="n">addQueueByStack</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+        <span class="n">addQueueByStack</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">removeQueueByStack</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">removeQueueByStack</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">removeQueueByStack</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">removeQueueByStack</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">removeQueueByStack</span><span class="o">());</span>
+        
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"====下面是栈的输出======"</span><span class="o">);</span>
+        <span class="n">pushStackByQueue</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="n">pushStackByQueue</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        <span class="n">pushStackByQueue</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span>
+        <span class="n">pushStackByQueue</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+        <span class="n">pushStackByQueue</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">popStackByQueue</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">popStackByQueue</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">popStackByQueue</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">popStackByQueue</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">popStackByQueue</span><span class="o">());</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">popStackByQueue</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">/////////======下面是输出========</span>
+<span class="cm">/*
+====下面是队列的输出=====
+1
+2
+3
+4
+5
+====下面是栈的输出======
+5
+4
+3
+2
+1
+Exception in thread "main" java.lang.Exception: this stack is empty !
+    at Chapter2.QueueAndStack.popStackByQueue(QueueAndStack.java:64)
+    at Chapter2.QueueAndStack.main(QueueAndStack.java:93)
+
+*/</span>
+</code></pre></div></div>
+
+<h1 id="heading-136-实现快速排序">1.3.6 实现快速排序</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">QuickSort</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">swap</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">arr</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">,</span> <span class="kt">int</span> <span class="n">j</span><span class="o">){</span>
+        <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+        <span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">];</span>
+        <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">k</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">sort</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">arr</span><span class="o">,</span><span class="kt">int</span> <span class="n">start</span><span class="o">,</span> <span class="kt">int</span> <span class="n">end</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">start</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="kt">int</span> <span class="n">key</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">start</span><span class="o">];</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">end</span><span class="o">;</span>
+        <span class="k">for</span><span class="o">(;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">j</span><span class="o">;){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&lt;</span> <span class="n">key</span> <span class="o">&amp;&amp;</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">key</span><span class="o">){</span>
+                <span class="n">i</span><span class="o">++;</span>
+            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">key</span> <span class="o">&amp;&amp;</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">key</span><span class="o">){</span>
+                <span class="n">j</span><span class="o">--;</span>
+            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&lt;</span> <span class="n">key</span> <span class="o">&amp;&amp;</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">&lt;</span> <span class="n">key</span><span class="o">){</span>
+                <span class="n">i</span><span class="o">++;</span>
+            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">key</span> <span class="o">&amp;&amp;</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">&lt;</span> <span class="n">key</span><span class="o">){</span>
+                <span class="n">swap</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">i</span><span class="o">,</span><span class="n">j</span><span class="o">);</span>
+                <span class="n">j</span><span class="o">--;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">key</span><span class="o">){</span>
+            <span class="n">i</span><span class="o">--;</span>
+            <span class="n">swap</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">start</span><span class="o">,</span><span class="n">i</span><span class="o">);</span>
+        <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+            <span class="n">swap</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">start</span><span class="o">,</span><span class="n">i</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">sort</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">start</span><span class="o">,</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+        <span class="n">sort</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">,</span><span class="n">end</span><span class="o">);</span>
+        
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="o">{</span><span class="mi">4</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">7</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">9</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">2</span><span class="o">};</span>
+        <span class="n">sort</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">a</span><span class="o">));</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p><strong>插入排序思想</strong>：每一次都将key插入到已经排序好的序列
+初始：5 4 8 1 6 9 7
+第一：5 4 9 1 6 9 7（key = 5）经过第一轮，5已经是排序好的序列了，key = 4
+第二：4 5 9 1 6 9 7（key = 2）经过第二轮，4 5已经排序好了，key = 9
+…….以此类推</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>选择排序思想</strong>：每次都选择最小的数放在最前面
+初始：5 4 8 1 6 9 7
+第一：1 5 4 8 6 9 7 选择1 并且把1放在最前面，然后看 5 4 8 6 9 7 这个序列，再选择最小的放在前面。
+第二：1 4 5 8 6 9 7
+…….以此类推</p>
+</blockquote>
+
+<h1 id="heading-137-归并排序">1.3.7 归并排序</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MergeSort</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">sort</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">arr</span><span class="o">,</span> <span class="kt">int</span> <span class="n">start</span><span class="o">,</span> <span class="kt">int</span> <span class="n">end</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">start</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="o">){</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="kt">int</span> <span class="n">q</span> <span class="o">=</span> <span class="o">(</span><span class="n">start</span><span class="o">+</span><span class="n">end</span><span class="o">)/</span><span class="mi">2</span><span class="o">;</span>
+        <span class="n">sort</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">start</span><span class="o">,</span><span class="n">q</span><span class="o">);</span>
+        <span class="n">sort</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="o">,</span><span class="n">end</span><span class="o">);</span>
+        <span class="n">merge</span><span class="o">(</span><span class="n">arr</span><span class="o">,</span> <span class="n">start</span><span class="o">,</span> <span class="n">q</span><span class="o">,</span> <span class="n">end</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">merge</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">arr</span><span class="o">,</span> <span class="kt">int</span> <span class="n">start</span><span class="o">,</span> <span class="kt">int</span> <span class="n">q</span><span class="o">,</span> <span class="kt">int</span> <span class="n">end</span><span class="o">){</span>
+        <span class="kt">int</span><span class="o">[]</span> <span class="n">temp</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="o">];</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">start</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="o">;</span>
+        <span class="k">for</span><span class="o">(;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">q</span> <span class="o">&amp;&amp;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">end</span><span class="o">;){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&lt;=</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]){</span>
+                <span class="n">temp</span><span class="o">[</span><span class="n">i</span><span class="o">-</span><span class="n">start</span><span class="o">+(</span><span class="n">j</span><span class="o">-(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="o">))]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+                <span class="n">i</span><span class="o">++;</span>
+            <span class="o">}</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]){</span>
+                <span class="n">temp</span><span class="o">[</span><span class="n">i</span><span class="o">-</span><span class="n">start</span><span class="o">+(</span><span class="n">j</span><span class="o">-(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="o">))]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">];</span>
+                <span class="n">j</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">i</span> <span class="o">&lt;=</span> <span class="n">q</span><span class="o">){</span>
+            <span class="n">temp</span><span class="o">[</span><span class="n">i</span><span class="o">-</span><span class="n">start</span><span class="o">+(</span><span class="n">j</span><span class="o">-(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="o">))]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+            <span class="n">i</span><span class="o">++;</span>
+        <span class="o">}</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">j</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="o">){</span>
+            <span class="n">temp</span><span class="o">[</span><span class="n">i</span><span class="o">-</span><span class="n">start</span><span class="o">+(</span><span class="n">j</span><span class="o">-(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="o">))]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">];</span>
+            <span class="n">j</span><span class="o">++;</span>
+        <span class="o">}</span>
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">start</span><span class="o">;</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="o">;</span> <span class="n">k</span><span class="o">++){</span>
+            <span class="n">arr</span><span class="o">[</span><span class="n">k</span><span class="o">]</span> <span class="o">=</span> <span class="n">temp</span><span class="o">[</span><span class="n">k</span><span class="o">-</span><span class="n">start</span><span class="o">];</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="o">{</span><span class="mi">5</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">9</span><span class="o">,</span><span class="mi">7</span><span class="o">};</span>
+        <span class="n">sort</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">a</span><span class="o">));</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+<h1 id="heading-138-利用二进制位运算">1.3.8 利用二进制位运算</h1>
+<p><strong>（1）统计 一个数的二进制里有多少个 1 **
+**（2）统计 两个十进制数的二进制位有多少位不一样</strong></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter2</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sum1</span> <span class="o">{</span>
+    <span class="c1">//设置一个判断数，一直向左移位</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">sumOf1First</span><span class="o">(</span><span class="kt">int</span> <span class="n">num</span><span class="o">){</span>
+        <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">flag</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">){</span>
+            <span class="k">if</span><span class="o">((</span><span class="n">num</span> <span class="o">&amp;</span> <span class="n">flag</span><span class="o">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="n">count</span> <span class="o">++;</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">flag</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">count</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//num &amp; (num-1) 可以去掉num最右面的1</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">sumOf1Secound</span><span class="o">(</span><span class="kt">int</span> <span class="n">num</span><span class="o">){</span>
+        <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">num</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">){</span>
+            <span class="n">count</span><span class="o">++;</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">&amp;</span> <span class="o">(</span><span class="n">num</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">count</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">//判断两个数的二进制有几位不一样</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">sumDiffPos</span><span class="o">(</span><span class="kt">int</span> <span class="n">num1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">num2</span><span class="o">){</span>
+        <span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="n">num1</span> <span class="o">^</span> <span class="n">num2</span><span class="o">;</span>
+        <span class="k">return</span> <span class="nf">sumOf1Secound</span><span class="o">(</span><span class="n">num</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sumOf1First</span><span class="o">(</span><span class="mi">9</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sumOf1Secound</span><span class="o">(</span><span class="mi">9</span><span class="o">));</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sumDiffPos</span><span class="o">(</span><span class="mi">9</span><span class="o">,</span> <span class="mi">8</span><span class="o">));</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+<span class="c1">////////======输出=========</span>
+<span class="cm">/*
+2
+2
+1
+*/</span>
+</code></pre></div></div>
+
+<h1 id="heading-139-实现函数double-doublepowerdouble-base-int-expoent-求base的expoent次方-不用函数库不考虑大数问题">1.3.9 实现函数double doublePower(double base, int expoent) 求base的expoent次方， 不用函数库，不考虑大数问题.</h1>
+
+<pre><code class="language-javas">package Chapter2;
+
+public class DoublePow {
+    public static double doublePower(double base, int expoent) throws Exception{
+        if(base == 0.0){
+            if(expoent &lt; 0){
+                throw new Exception("the base and the expoent can't all &lt; 0");
+            }else{
+                return 1;
+            }
+        }
+        if(expoent == 0){
+            return 1;
+        }
+        double result = 1.0;
+        if(expoent &lt; 0){
+//          result = doublePowerPositive(base, -expoent);
+            result = doublePowerPositiveREC(base, expoent);
+            result = 1/result;
+        }else{
+            result = doublePowerPositiveREC(base, expoent);
+//          result = doublePowerPositive(base, expoent);
+        }
+        return result;
+    }
+    //第一个算子
+    //仅仅是用循环进行乘积运算，效率不高
+    private static double doublePowerPositive(double base, double expoent){
+        double result = 1.0;
+        for(int i = 0; i &lt; expoent; i++){
+            result *= base;
+        }
+        return result;
+    }
+    //第二个算子
+    //用方程 a(n) = a(n/2)*a(n/2) n是偶数
+    //     a(n) = a((n-1)/2)*a((n-1)/2)*a n是奇数
+    public static double doublePowerPositiveREC(double base, int expoent){
+        if(expoent == 1){
+            return base;
+        }
+        if(expoent == 0){
+            return 1;
+        }
+        double result = doublePowerPositiveREC(base, expoent/2);
+        result *= result;
+        if((expoent &amp; 1) == 1){
+             result *= base;
+        }
+        return result;
+    }
+    public static void main(String[] args) {
+        try {
+            System.out.println(doublePower(3.0, 2));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+</code></pre>
+
+<h1 id="heading-1310-打印1到最大的n位数大数">1.3.10 打印1到最大的n位数（大数）</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PrintOneToMaxNumOfN</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printOneToMaxN</span><span class="o">(</span><span class="kt">int</span> <span class="n">n</span><span class="o">){</span>
+        <span class="kt">int</span><span class="o">[]</span> <span class="n">number</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="o">];</span>
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+            <span class="n">number</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">while</span><span class="o">(!</span><span class="n">increase</span><span class="o">(</span><span class="n">number</span><span class="o">)){</span>
+            <span class="n">printBigNum</span><span class="o">(</span><span class="n">number</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">increase</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">number</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">overflow</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">nSum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">carry</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">number</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">--){</span>
+            <span class="n">nSum</span> <span class="o">=</span> <span class="n">number</span><span class="o">[</span><span class="n">i</span><span class="o">]+</span><span class="n">carry</span><span class="o">;</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">i</span> <span class="o">==</span> <span class="o">(</span><span class="n">number</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">)){</span>
+                <span class="n">nSum</span><span class="o">++;</span>
+            <span class="o">}</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">nSum</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="o">){</span>
+                <span class="n">carry</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+                <span class="n">nSum</span> <span class="o">-=</span> <span class="mi">10</span><span class="o">;</span>
+            <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+                <span class="n">carry</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="n">number</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">nSum</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">number</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">){</span>
+            <span class="n">overflow</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">overflow</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printBigNum</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">number</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">flag</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">number</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">number</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">flag</span><span class="o">)</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">number</span><span class="o">[</span><span class="n">i</span><span class="o">]);</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">printOneToMaxN</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+<span class="c1">/////====运行结果=====</span>
+<span class="cm">/*
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+.....
+*/</span>
+</code></pre></div></div>
+<h1 id="heading-1311-知道链表头和链表中的一个节点用o1的复杂度将这个节点从链表中删除">1.3.11 知道链表头和链表中的一个节点，用O(1)的复杂度将这个节点从链表中删除。</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">Chapter1.Node</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter1.TheKNumInLast</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DeleteANode</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">deleteANode</span><span class="o">(</span><span class="nc">Node</span> <span class="n">root</span><span class="o">,</span> <span class="nc">Node</span> <span class="n">node</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">root</span><span class="o">==</span><span class="kc">null</span> <span class="o">||</span> <span class="n">node</span><span class="o">==</span><span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">node</span> <span class="o">==</span> <span class="n">root</span><span class="o">){</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="nc">Node</span> <span class="n">nowNode</span> <span class="o">=</span> <span class="n">root</span><span class="o">;</span>
+            <span class="k">while</span><span class="o">(</span><span class="n">nowNode</span><span class="o">!=</span><span class="kc">null</span><span class="o">){</span>
+                <span class="k">if</span><span class="o">(</span><span class="n">nowNode</span><span class="o">.</span><span class="na">next</span> <span class="o">==</span> <span class="n">node</span><span class="o">){</span>
+                    <span class="n">nowNode</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+                <span class="o">}</span>
+                <span class="n">nowNode</span> <span class="o">=</span> <span class="n">nowNode</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="nc">Node</span> <span class="n">nextNode</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+        <span class="n">node</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="n">nextNode</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+        <span class="n">node</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">nextNode</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+        <span class="n">nextNode</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Node</span> <span class="n">nodeList</span> <span class="o">=</span> <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">createList</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="nc">Node</span> <span class="n">aNode</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="nc">Node</span> <span class="n">head</span> <span class="o">=</span> <span class="n">nodeList</span><span class="o">;</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">head</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">head</span><span class="o">.</span><span class="na">getValue</span><span class="o">()</span> <span class="o">==</span> <span class="mi">6</span><span class="o">){</span>
+                <span class="n">aNode</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">deleteANode</span><span class="o">(</span><span class="n">nodeList</span><span class="o">,</span> <span class="n">aNode</span><span class="o">);</span>
+        <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">printList</span><span class="o">(</span><span class="n">nodeList</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">//=======输出========</span>
+<span class="cm">/*
+1
+2
+3
+4
+5
+6
+8
+9
+10
+
+*/</span>
+</code></pre></div></div>
+
+<h1 id="heading-1312-交换数组中的奇数偶数将偶数排在前面奇数排在后面程序代码可复用">1.3.12 交换数组中的奇数，偶数，将偶数排在前面，奇数排在后面。（程序代码可复用）</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">interface</span> <span class="nc">SwapFactor</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;{</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSwap</span><span class="o">(</span><span class="no">T</span> <span class="n">t</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="kd">class</span> <span class="nc">ParitySwap</span> <span class="kd">implements</span> <span class="nc">SwapFactor</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;{</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSwap</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">num</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(((</span><span class="kt">int</span><span class="o">)</span><span class="n">num</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span><span class="o">){</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SwapArray</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;{</span>
+    <span class="kd">private</span> <span class="nc">SwapFactor</span> <span class="n">swapFactor</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="no">T</span><span class="o">[]</span> <span class="n">arr</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="nf">SwapArray</span><span class="o">(</span><span class="nc">SwapFactor</span> <span class="n">swapFactor</span><span class="o">,</span> <span class="no">T</span><span class="o">[]</span> <span class="n">arr</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">swapFactor</span> <span class="o">=</span> <span class="n">swapFactor</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">swapArray</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span><span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">arr</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="s">"the array is empty"</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="o">){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">swapFactor</span><span class="o">.</span><span class="na">isSwap</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">])</span> <span class="o">&amp;&amp;</span> <span class="n">swapFactor</span><span class="o">.</span><span class="na">isSwap</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">])){</span>
+                <span class="n">i</span><span class="o">++;</span>
+            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(!</span><span class="n">swapFactor</span><span class="o">.</span><span class="na">isSwap</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">])</span> <span class="o">&amp;&amp;!</span><span class="n">swapFactor</span><span class="o">.</span><span class="na">isSwap</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">])){</span>
+                <span class="n">j</span><span class="o">--;</span>
+            <span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">swapFactor</span><span class="o">.</span><span class="na">isSwap</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">])</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">swapFactor</span><span class="o">.</span><span class="na">isSwap</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">])){</span>
+                <span class="n">i</span><span class="o">++;</span>
+            <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+                <span class="no">T</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+                <span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">];</span>
+                <span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">temp</span><span class="o">;</span>
+                <span class="n">i</span><span class="o">++;</span>
+            <span class="o">}</span>
+            
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">swap</span><span class="o">(</span><span class="no">T</span> <span class="n">a</span><span class="o">,</span> <span class="no">T</span> <span class="n">b</span><span class="o">){</span>
+        <span class="no">T</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">temp</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Integer</span><span class="o">[]</span> <span class="n">arr</span> <span class="o">=</span> <span class="o">{</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">7</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="mi">9</span><span class="o">};</span>
+        <span class="nc">SwapFactor</span> <span class="n">swapFactor</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ParitySwap</span><span class="o">();</span>
+        <span class="nc">SwapArray</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">swapArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SwapArray</span><span class="o">&lt;&gt;(</span><span class="n">swapFactor</span><span class="o">,</span> <span class="n">arr</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">swapArray</span><span class="o">.</span><span class="na">swapArray</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="nl">each:</span> <span class="n">arr</span><span class="o">){</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">each</span><span class="o">+</span><span class="s">" "</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-1313-翻转链表">1.3.13 翻转链表</h1>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">Chapter1.Node</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter1.TheKNumInLast</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReverseList</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">Node</span> <span class="nf">reverseList</span><span class="o">(</span><span class="nc">Node</span> <span class="n">root</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span><span class="o">{</span>
+        <span class="nc">Node</span> <span class="n">reverseHead</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="nc">Node</span> <span class="n">nowNode</span> <span class="o">=</span> <span class="n">root</span><span class="o">;</span>
+        <span class="nc">Node</span> <span class="n">prevNode</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">nowNode</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="nc">Node</span> <span class="n">nextNode</span> <span class="o">=</span> <span class="n">nowNode</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">nextNode</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="n">reverseHead</span> <span class="o">=</span> <span class="n">nowNode</span><span class="o">;</span>
+            <span class="n">nowNode</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">prevNode</span><span class="o">;</span>
+            
+            <span class="n">prevNode</span> <span class="o">=</span> <span class="n">nowNode</span><span class="o">;</span>
+            <span class="n">nowNode</span> <span class="o">=</span> <span class="n">nextNode</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">reverseHead</span><span class="o">;</span>
+        
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Node</span> <span class="n">list</span> <span class="o">=</span> <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">createList</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Node</span> <span class="n">reserveList</span> <span class="o">=</span> <span class="n">reverseList</span><span class="o">(</span><span class="n">list</span><span class="o">);</span>
+            <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">printList</span><span class="o">(</span><span class="n">reserveList</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h1 id="heading-1314-合并两个链表">1.3.14 合并两个链表</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">Chapter1.Node</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter1.TheKNumInLast</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MergeTwoList</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">Node</span> <span class="nf">mergeTwoList</span><span class="o">(</span><span class="nc">Node</span> <span class="n">root1</span><span class="o">,</span> <span class="nc">Node</span> <span class="n">root2</span><span class="o">){</span>
+        <span class="nc">Node</span> <span class="n">head</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">root1</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">root2</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">root1</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">)</span>
+            <span class="k">return</span> <span class="n">root2</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">root2</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span> <span class="n">root1</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">root1</span><span class="o">.</span><span class="na">getValue</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">root2</span><span class="o">.</span><span class="na">getValue</span><span class="o">()){</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="n">root2</span><span class="o">;</span>
+            <span class="n">head</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">mergeTwoList</span><span class="o">(</span><span class="n">root1</span><span class="o">,</span> <span class="n">root2</span><span class="o">.</span><span class="na">next</span><span class="o">);</span>
+        <span class="o">}</span><span class="k">else</span><span class="o">{</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="n">root1</span><span class="o">;</span>
+            <span class="n">head</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">mergeTwoList</span><span class="o">(</span><span class="n">root1</span><span class="o">.</span><span class="na">next</span><span class="o">,</span> <span class="n">root2</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">head</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Node</span> <span class="n">root1</span> <span class="o">=</span> <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">createList</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="nc">Node</span> <span class="n">root2</span> <span class="o">=</span> <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">createList</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="nc">Node</span> <span class="n">root</span> <span class="o">=</span> <span class="n">mergeTwoList</span><span class="o">(</span><span class="n">root1</span><span class="o">,</span> <span class="n">root2</span><span class="o">);</span>
+        <span class="nc">TheKNumInLast</span><span class="o">.</span><span class="na">printList</span><span class="o">(</span><span class="n">root</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+<h1 id="heading-1315-判断一个二叉树是否是另一个二叉树的子树">1.3.15 判断一个二叉树是否是另一个二叉树的子树</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">Chapter1.Node</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter2.BinaryTreeNode</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ChildOfBinaryTree</span> <span class="o">{</span>
+    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isChildOfBinaryTree</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">childRoot</span><span class="o">,</span> <span class="nc">BinaryTreeNode</span> <span class="n">fatherRoot</span><span class="o">){</span>
+        <span class="kt">boolean</span> <span class="n">result</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">childRoot</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">fatherRoot</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">childRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">()</span> <span class="o">==</span> <span class="n">fatherRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">())</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">isChildRootOfFatherRoot</span><span class="o">(</span><span class="n">childRoot</span><span class="o">,</span> <span class="n">fatherRoot</span><span class="o">);</span>
+            <span class="k">if</span><span class="o">(!</span><span class="n">result</span><span class="o">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">isChildOfBinaryTree</span><span class="o">(</span><span class="n">childRoot</span><span class="o">,</span> <span class="n">fatherRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">);</span>
+            <span class="k">if</span><span class="o">(!</span><span class="n">result</span><span class="o">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">isChildOfBinaryTree</span><span class="o">(</span><span class="n">childRoot</span><span class="o">,</span> <span class="n">fatherRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isChildRootOfFatherRoot</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">childRoot</span><span class="o">,</span> <span class="nc">BinaryTreeNode</span> <span class="n">fatherRoot</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">childRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">fatherRoot</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">childRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">()</span> <span class="o">!=</span> <span class="n">fatherRoot</span><span class="o">.</span><span class="na">getValue</span><span class="o">())</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">return</span> <span class="nf">isChildRootOfFatherRoot</span><span class="o">(</span><span class="n">childRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">,</span> <span class="n">fatherRoot</span><span class="o">.</span><span class="na">leftNode</span><span class="o">)</span> <span class="o">&amp;&amp;</span>
+                <span class="n">isChildRootOfFatherRoot</span><span class="o">(</span><span class="n">childRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">,</span> <span class="n">fatherRoot</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">BinaryTreeNode</span> <span class="n">treeFather</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="nc">BinaryTreeNode</span> <span class="n">treeChild</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="c1">//父类书初始化</span>
+        <span class="n">treeFather</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">6</span><span class="o">);</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">7</span><span class="o">);</span>
+    
+        <span class="c1">//子类树初始化</span>
+        <span class="n">treeChild</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeChild</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        
+        <span class="n">treeChild</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeChild</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+        
+        <span class="n">treeChild</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeChild</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">ChildOfBinaryTree</span><span class="o">.</span><span class="na">isChildOfBinaryTree</span><span class="o">(</span><span class="n">treeChild</span><span class="o">,</span> <span class="n">treeFather</span><span class="o">));</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+<h1 id="heading-1316-镜像二叉树">1.3.16 镜像二叉树</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.function.BinaryOperator</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">Chapter1.TheKNumInLast</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter2.BinaryTreeNode</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">Chapter2.BinaryTreeOprate</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ImageBinaryTree</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">imageTree</span><span class="o">(</span><span class="nc">BinaryTreeNode</span> <span class="n">root</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">root</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="nc">BinaryTreeNode</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">leftNode</span><span class="o">;</span>
+        <span class="n">root</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">rightNode</span><span class="o">;</span>
+        <span class="n">root</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="n">temp</span><span class="o">;</span>
+        
+        <span class="n">imageTree</span><span class="o">(</span><span class="n">root</span><span class="o">.</span><span class="na">leftNode</span><span class="o">);</span>
+        <span class="n">imageTree</span><span class="o">(</span><span class="n">root</span><span class="o">.</span><span class="na">rightNode</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">BinaryTreeNode</span> <span class="n">treeFather</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="c1">//二叉树构建</span>
+        <span class="n">treeFather</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">4</span><span class="o">);</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">leftNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">leftNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">6</span><span class="o">);</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">rightNode</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BinaryTreeNode</span><span class="o">();</span>
+        <span class="n">treeFather</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">rightNode</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="mi">7</span><span class="o">);</span>
+    
+        <span class="n">imageTree</span><span class="o">(</span><span class="n">treeFather</span><span class="o">);</span>
+        <span class="nc">BinaryTreeOprate</span><span class="o">.</span><span class="na">printTreeFirstRoot</span><span class="o">(</span><span class="n">treeFather</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="c1">//=======输出========</span>
+<span class="cm">/*
+1
+3
+7
+6
+2
+5
+4
+*/</span>
+</code></pre></div></div>
+
+<h1 id="heading-1317-顺时针打印数组">1.3.17 顺时针打印数组</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">Chapter3</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ClockwiseArray</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">printClockwiseArray</span><span class="o">(</span><span class="kt">int</span><span class="o">[][]</span> <span class="n">arr</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">arr</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">weight</span> <span class="o">=</span> <span class="n">arr</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        
+        <span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="n">weight</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">h</span> <span class="o">=</span> <span class="n">height</span><span class="o">;</span>
+        
+        <span class="k">while</span><span class="o">(</span><span class="n">w</span> <span class="o">&gt;</span> <span class="o">(</span><span class="n">weight</span><span class="o">/</span><span class="mi">2</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="o">(</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="o">)){</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">weight</span><span class="o">-</span><span class="n">w</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">w</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">height</span><span class="o">-</span><span class="n">h</span><span class="o">][</span><span class="n">i</span><span class="o">]+</span><span class="s">" "</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="o">(</span><span class="n">height</span><span class="o">-</span><span class="n">h</span><span class="o">+</span><span class="mi">1</span><span class="o">);</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="o">(</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span> <span class="n">j</span><span class="o">++){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">][</span><span class="n">w</span><span class="o">]+</span><span class="s">" "</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">w</span><span class="o">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="o">(</span><span class="n">weight</span><span class="o">-</span><span class="n">w</span><span class="o">);</span> <span class="n">i</span><span class="o">--){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">h</span><span class="o">][</span><span class="n">i</span><span class="o">]+</span><span class="s">" "</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="o">(</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="o">(</span><span class="n">height</span><span class="o">-</span><span class="n">h</span><span class="o">+</span><span class="mi">1</span><span class="o">);</span> <span class="n">j</span><span class="o">--){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">j</span><span class="o">][</span><span class="n">weight</span><span class="o">-</span><span class="n">w</span><span class="o">]+</span><span class="s">" "</span><span class="o">);</span>
+            <span class="o">}</span>
+<span class="c1">//          System.out.println("w = "+w);</span>
+<span class="c1">//          System.out.println("h = "+h);</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">weight</span> <span class="o">&gt;</span> <span class="n">height</span><span class="o">){</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">(</span><span class="n">weight</span><span class="o">-</span><span class="n">w</span><span class="o">);</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="o">(</span><span class="n">w</span><span class="o">);</span> <span class="n">i</span><span class="o">++)</span>
+            <span class="o">{</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">h</span><span class="o">][</span><span class="n">i</span><span class="o">]+</span><span class="s">" "</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">height</span> <span class="o">&gt;=</span> <span class="n">weight</span><span class="o">){</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">(</span><span class="n">height</span><span class="o">-</span><span class="n">h</span><span class="o">);</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="o">(</span><span class="n">h</span><span class="o">);</span> <span class="n">i</span><span class="o">++)</span>
+            <span class="o">{</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">arr</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">w</span><span class="o">]+</span><span class="s">" "</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span><span class="o">[][]</span> <span class="n">arr</span> <span class="o">=</span> <span class="o">{</span>
+                <span class="o">{</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">50</span><span class="o">},</span>
+                <span class="o">{</span><span class="mi">5</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">7</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="mi">60</span><span class="o">},</span>
+                <span class="o">{</span><span class="mi">9</span><span class="o">,</span><span class="mi">10</span><span class="o">,</span><span class="mi">11</span><span class="o">,</span><span class="mi">12</span><span class="o">,</span><span class="mi">70</span><span class="o">}</span>
+        <span class="o">};</span>
+        <span class="n">printClockwiseArray</span><span class="o">(</span><span class="n">arr</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="c1">//====输出=====</span>
+<span class="cm">/*
+1 2 3 4 50 60 70 12 11 10 9 5 6 7 8 
+*/</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>博客迁移自 <a href="http://blog.csdn.net/GC_chao">GC-CSDN</a></p>
+</blockquote>
+:ET

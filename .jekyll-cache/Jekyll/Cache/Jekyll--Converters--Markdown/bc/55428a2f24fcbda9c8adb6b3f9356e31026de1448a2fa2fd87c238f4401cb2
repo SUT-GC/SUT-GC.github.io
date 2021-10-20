@@ -1,0 +1,293 @@
+I".�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-16-最接近的三数之和" id="markdown-toc-heading-16-最接近的三数之和">16 最接近的三数之和</a></li>
+  <li><a href="#heading-17-电话号码的字母组合" id="markdown-toc-heading-17-电话号码的字母组合">17. 电话号码的字母组合</a></li>
+  <li><a href="#heading-19-删除链表的倒数第n个节点" id="markdown-toc-heading-19-删除链表的倒数第n个节点">19 删除链表的倒数第N个节点</a></li>
+  <li><a href="#heading-22-括号生成" id="markdown-toc-heading-22-括号生成">22 括号生成</a></li>
+  <li><a href="#heading-23-合并k个排序链表" id="markdown-toc-heading-23-合并k个排序链表">23 合并K个排序链表</a></li>
+</ul>
+
+<h1 id="heading-16-最接近的三数之和">16 最接近的三数之和</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">threeSumClosest</span><span class="p">(</span><span class="n">nums</span> <span class="p">[]</span><span class="kt">int</span><span class="p">,</span> <span class="n">target</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="n">minDiscount</span> <span class="o">:=</span> <span class="n">math</span><span class="o">.</span><span class="n">MaxInt64</span>
+	<span class="n">result</span> <span class="o">:=</span> <span class="n">target</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span> <span class="p">{</span>
+				<span class="k">continue</span>
+			<span class="p">}</span>
+
+			<span class="k">for</span> <span class="n">k</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span> <span class="n">k</span><span class="o">++</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">i</span> <span class="o">||</span> <span class="n">k</span> <span class="o">==</span> <span class="n">j</span> <span class="p">{</span>
+					<span class="k">continue</span>
+				<span class="p">}</span>
+
+				<span class="n">discount</span> <span class="o">:=</span> <span class="kt">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">Abs</span><span class="p">(</span><span class="kt">float64</span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">target</span><span class="p">)))</span>
+				<span class="k">if</span> <span class="n">discount</span> <span class="o">&lt;</span> <span class="n">minDiscount</span> <span class="p">{</span>
+					<span class="n">minDiscount</span> <span class="o">=</span> <span class="n">discount</span>
+					<span class="n">result</span> <span class="o">=</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>暴力也通过了</p>
+</blockquote>
+
+<h1 id="heading-17-电话号码的字母组合">17. 电话号码的字母组合</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
+    
+    
+    <span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="nf">letterCombinations</span><span class="o">(</span><span class="nc">String</span> <span class="n">digits</span><span class="o">)</span> <span class="o">{</span>
+        
+        <span class="k">if</span><span class="o">(</span><span class="n">digits</span><span class="o">.</span><span class="na">length</span><span class="o">()==</span><span class="mi">0</span><span class="o">||</span><span class="n">digits</span><span class="o">==</span><span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;();</span>
+        
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="s">"abc"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span><span class="s">"def"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span><span class="s">"ghi"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">5</span><span class="o">,</span><span class="s">"jkl"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">6</span><span class="o">,</span><span class="s">"mno"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">7</span><span class="o">,</span><span class="s">"pqrs"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span><span class="s">"tuv"</span><span class="o">);</span>
+        <span class="n">map</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="mi">9</span><span class="o">,</span><span class="s">"wxyz"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="nf">letterCombinations</span><span class="o">(</span><span class="n">digits</span><span class="o">,</span><span class="n">map</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+    
+    <span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="nf">letterCombinations</span><span class="o">(</span><span class="nc">String</span> <span class="n">digits</span><span class="o">,</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">){</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+        
+        <span class="k">if</span><span class="o">(</span><span class="n">digits</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">){</span>
+            <span class="nc">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">digits</span><span class="o">));</span>
+            <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">s</span><span class="o">.</span><span class="na">length</span><span class="o">();</span><span class="n">i</span><span class="o">++){</span>
+                <span class="n">now</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">""</span><span class="o">+</span><span class="n">s</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="n">now</span><span class="o">;</span>
+        <span class="o">}</span>
+        
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">pre</span> <span class="o">=</span> <span class="n">letterCombinations</span><span class="o">(</span><span class="n">digits</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span><span class="n">map</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">head</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">digits</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span><span class="mi">1</span><span class="o">)));</span>
+        
+        
+        <span class="k">for</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span> <span class="o">:</span> <span class="n">pre</span><span class="o">){</span>
+           <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">head</span><span class="o">.</span><span class="na">length</span><span class="o">();</span><span class="n">j</span><span class="o">++){</span>
+               <span class="n">now</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">head</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">j</span><span class="o">)+</span><span class="n">s</span><span class="o">);</span>
+           <span class="o">}</span>
+            
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">now</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-19-删除链表的倒数第n个节点">19 删除链表的倒数第N个节点</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">type</span> <span class="n">Stack</span> <span class="k">struct</span> <span class="p">{</span>
+	<span class="n">l</span>       <span class="p">[]</span><span class="k">interface</span><span class="p">{}</span>
+	<span class="n">maxSize</span> <span class="kt">int</span>
+	<span class="n">nowSize</span> <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">InitStack</span><span class="p">(</span><span class="n">size</span> <span class="kt">int</span><span class="p">)</span> <span class="o">*</span><span class="n">Stack</span> <span class="p">{</span>
+	<span class="n">defaultSize</span> <span class="o">:=</span> <span class="m">10</span>
+	<span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="n">size</span> <span class="o">=</span> <span class="n">defaultSize</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="n">Stack</span><span class="p">{</span><span class="nb">make</span><span class="p">([]</span><span class="k">interface</span><span class="p">{},</span> <span class="n">defaultSize</span><span class="p">),</span> <span class="n">defaultSize</span><span class="p">,</span> <span class="m">0</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">stack</span> <span class="o">*</span><span class="n">Stack</span><span class="p">)</span> <span class="n">IsEmpty</span><span class="p">()</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="n">stack</span><span class="o">.</span><span class="n">l</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">||</span> <span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span> <span class="o">==</span> <span class="m">0</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">stack</span> <span class="o">*</span><span class="n">Stack</span><span class="p">)</span> <span class="n">Put</span><span class="p">(</span><span class="n">e</span> <span class="k">interface</span><span class="p">{})</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span> <span class="o">&lt;</span> <span class="n">stack</span><span class="o">.</span><span class="n">maxSize</span> <span class="p">{</span>
+		<span class="n">stack</span><span class="o">.</span><span class="n">l</span><span class="p">[</span><span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span><span class="p">]</span> <span class="o">=</span> <span class="n">e</span>
+		<span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span><span class="o">++</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">stack</span><span class="o">.</span><span class="n">Dilatation</span><span class="p">()</span>
+		<span class="n">stack</span><span class="o">.</span><span class="n">Put</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">stack</span> <span class="o">*</span><span class="n">Stack</span><span class="p">)</span> <span class="n">Top</span><span class="p">()</span> <span class="k">interface</span><span class="p">{}</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="n">stack</span><span class="o">.</span><span class="n">l</span><span class="p">[</span><span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span><span class="o">-</span><span class="m">1</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">stack</span> <span class="o">*</span><span class="n">Stack</span><span class="p">)</span> <span class="n">Pop</span><span class="p">()</span> <span class="k">interface</span><span class="p">{}</span> <span class="p">{</span>
+	<span class="n">p</span> <span class="o">:=</span> <span class="n">stack</span><span class="o">.</span><span class="n">Top</span><span class="p">()</span>
+	<span class="n">stack</span><span class="o">.</span><span class="n">l</span><span class="p">[</span><span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span><span class="o">-</span><span class="m">1</span><span class="p">]</span> <span class="o">=</span> <span class="no">nil</span>
+	<span class="n">stack</span><span class="o">.</span><span class="n">nowSize</span><span class="o">--</span>
+	<span class="k">return</span> <span class="n">p</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">stack</span> <span class="o">*</span><span class="n">Stack</span><span class="p">)</span> <span class="n">Dilatation</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">newMaxSize</span> <span class="o">:=</span> <span class="n">stack</span><span class="o">.</span><span class="n">maxSize</span> <span class="o">*</span> <span class="m">2</span>
+	<span class="n">newList</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="k">interface</span><span class="p">{},</span> <span class="n">newMaxSize</span><span class="p">)</span>
+
+	<span class="nb">copy</span><span class="p">(</span><span class="n">newList</span><span class="p">,</span> <span class="n">stack</span><span class="o">.</span><span class="n">l</span><span class="p">)</span>
+
+	<span class="n">stack</span><span class="o">.</span><span class="n">l</span> <span class="o">=</span> <span class="n">newList</span>
+	<span class="n">stack</span><span class="o">.</span><span class="n">maxSize</span> <span class="o">=</span> <span class="n">newMaxSize</span>
+<span class="p">}</span>
+
+
+<span class="k">func</span> <span class="n">removeNthFromEnd</span><span class="p">(</span><span class="n">head</span> <span class="o">*</span><span class="n">ListNode</span><span class="p">,</span> <span class="n">n</span> <span class="kt">int</span><span class="p">)</span> <span class="o">*</span><span class="n">ListNode</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">head</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">head</span>
+	<span class="p">}</span>
+
+	<span class="n">stack</span> <span class="o">:=</span> <span class="n">InitStack</span><span class="p">(</span><span class="m">10</span><span class="p">)</span>
+	<span class="n">temp</span> <span class="o">:=</span> <span class="n">head</span>
+	<span class="k">for</span> <span class="p">;</span> <span class="n">temp</span> <span class="o">!=</span> <span class="no">nil</span><span class="p">;</span> <span class="p">{</span>
+		<span class="n">stack</span><span class="o">.</span><span class="n">Put</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+		<span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">Next</span>
+	<span class="p">}</span>
+
+	<span class="k">var</span> <span class="n">end</span> <span class="o">*</span><span class="n">ListNode</span> <span class="o">=</span> <span class="no">nil</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">node</span> <span class="o">:=</span> <span class="n">stack</span><span class="o">.</span><span class="n">Pop</span><span class="p">()</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">ListNode</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">n</span><span class="o">-</span><span class="m">1</span> <span class="p">{</span>
+			<span class="n">end</span> <span class="o">=</span> <span class="n">node</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="n">lastEnd</span> <span class="o">:=</span> <span class="n">stack</span><span class="o">.</span><span class="n">Pop</span><span class="p">()</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">ListNode</span><span class="p">)</span>
+	<span class="n">lastEnd</span><span class="o">.</span><span class="n">Next</span> <span class="o">=</span> <span class="n">end</span>
+
+	<span class="k">return</span> <span class="n">head</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>给个牛逼的递归解法</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
+    <span class="c1">//递归做法</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="nc">ListNode</span> <span class="nf">removeNthFromEnd</span><span class="o">(</span><span class="nc">ListNode</span> <span class="n">head</span><span class="o">,</span> <span class="kt">int</span> <span class="n">n</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">head</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">head</span><span class="o">.</span><span class="na">next</span> <span class="o">=</span> <span class="n">removeNthFromEnd</span><span class="o">(</span><span class="n">head</span><span class="o">.</span><span class="na">next</span><span class="o">,</span><span class="n">n</span><span class="o">);</span>
+        <span class="n">i</span><span class="o">++;</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">i</span><span class="o">==</span><span class="n">n</span><span class="o">)</span> <span class="k">return</span> <span class="n">head</span><span class="o">.</span><span class="na">next</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">head</span><span class="o">;</span>
+     <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="heading-22-括号生成">22 括号生成</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">func</span> <span class="n">generateParenthesis</span><span class="p">(</span><span class="n">n</span> <span class="kt">int</span><span class="p">)</span> <span class="p">[]</span><span class="kt">string</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">r</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="m">0</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="m">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">append</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s">"()"</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">s1</span> <span class="o">:=</span> <span class="n">generateParenthesis</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">s2</span> <span class="o">:=</span> <span class="n">generateParenthesis</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="m">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">s1</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+			<span class="n">s2</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span>
+		<span class="p">}</span>
+
+		<span class="k">for</span> <span class="n">j</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="n">k</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s2</span><span class="p">);</span> <span class="n">k</span><span class="o">++</span> <span class="p">{</span>
+				<span class="n">ns</span> <span class="o">:=</span> <span class="s">"("</span> <span class="o">+</span> <span class="n">s1</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="s">")"</span> <span class="o">+</span> <span class="n">s2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+				<span class="n">r</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">ns</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">r</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p><a href="https://leetcode-cn.com/problems/generate-parentheses/solution/zui-jian-dan-yi-dong-de-dong-tai-gui-hua-bu-lun-da/">思路题解</a></p>
+</blockquote>
+
+<h1 id="heading-23-合并k个排序链表">23 合并K个排序链表</h1>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c">/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */</span>
+<span class="k">func</span> <span class="n">mergeKLists</span><span class="p">(</span><span class="n">lists</span> <span class="p">[]</span><span class="o">*</span><span class="n">ListNode</span><span class="p">)</span> <span class="o">*</span><span class="n">ListNode</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lists</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="no">nil</span>
+	<span class="p">}</span>
+
+	<span class="k">var</span> <span class="n">r</span> <span class="o">*</span><span class="n">ListNode</span> <span class="o">=</span> <span class="no">nil</span>
+	<span class="k">var</span> <span class="n">re</span> <span class="o">*</span><span class="n">ListNode</span> <span class="o">=</span> <span class="no">nil</span>
+	<span class="k">for</span> <span class="p">;</span> <span class="p">;</span> <span class="p">{</span>
+		<span class="k">var</span> <span class="n">min</span> <span class="o">*</span><span class="n">ListNode</span> <span class="o">=</span> <span class="no">nil</span>
+		<span class="k">var</span> <span class="n">hitI</span> <span class="kt">int</span> <span class="o">=</span> <span class="m">0</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="o">:=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lists</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="n">lists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+				<span class="k">continue</span>
+			<span class="p">}</span>
+
+			<span class="k">if</span> <span class="n">min</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+				<span class="n">min</span> <span class="o">=</span> <span class="n">lists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+				<span class="n">hitI</span> <span class="o">=</span> <span class="n">i</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="n">min</span> <span class="o">!=</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">lists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">Val</span> <span class="o">&lt;=</span> <span class="n">min</span><span class="o">.</span><span class="n">Val</span> <span class="p">{</span>
+				<span class="n">min</span> <span class="o">=</span> <span class="n">lists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+				<span class="n">hitI</span> <span class="o">=</span> <span class="n">i</span>
+			<span class="p">}</span>
+
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">min</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="k">break</span>
+		<span class="p">}</span>
+
+		<span class="n">lists</span><span class="p">[</span><span class="n">hitI</span><span class="p">]</span> <span class="o">=</span> <span class="n">lists</span><span class="p">[</span><span class="n">hitI</span><span class="p">]</span><span class="o">.</span><span class="n">Next</span>
+
+		<span class="k">if</span> <span class="n">re</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">r</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="n">min</span><span class="o">.</span><span class="n">Val</span><span class="p">,</span> <span class="no">nil</span><span class="p">}</span>
+			<span class="n">re</span> <span class="o">=</span> <span class="n">r</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">re</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">re</span><span class="o">.</span><span class="n">Next</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ListNode</span><span class="p">{</span><span class="n">min</span><span class="o">.</span><span class="n">Val</span><span class="p">,</span> <span class="no">nil</span><span class="p">}</span>
+			<span class="n">re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">Next</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="n">r</span>
+<span class="p">}</span>
+</code></pre></div></div>
+:ET

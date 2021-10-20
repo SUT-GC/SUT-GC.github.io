@@ -1,0 +1,444 @@
+I"9l<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-groovy-特殊点" id="markdown-toc-heading-groovy-特殊点">GROOVY 特殊点</a>    <ul>
+      <li><a href="#heading-默认导入" id="markdown-toc-heading-默认导入">默认导入</a></li>
+      <li><a href="#heading-轻量级java" id="markdown-toc-heading-轻量级java">轻量级Java</a></li>
+    </ul>
+  </li>
+  <li><a href="#heading-groovy-语法" id="markdown-toc-heading-groovy-语法">GROOVY 语法</a>    <ul>
+      <li><a href="#heading-循环" id="markdown-toc-heading-循环">循环</a></li>
+      <li><a href="#heading-安全导航操作" id="markdown-toc-heading-安全导航操作">安全导航操作</a></li>
+      <li><a href="#heading-异常处理" id="markdown-toc-heading-异常处理">异常处理</a></li>
+      <li><a href="#heading-javabean" id="markdown-toc-heading-javabean">javaBean</a></li>
+      <li><a href="#heading-灵活的初始化和具名参数" id="markdown-toc-heading-灵活的初始化和具名参数">灵活的初始化和具名参数</a></li>
+      <li><a href="#heading-可选形参" id="markdown-toc-heading-可选形参">可选形参</a></li>
+      <li><a href="#heading-多赋值" id="markdown-toc-heading-多赋值">多赋值</a></li>
+      <li><a href="#heading-实现接口" id="markdown-toc-heading-实现接口">实现接口</a></li>
+      <li><a href="#heading-bool求值" id="markdown-toc-heading-bool求值">Bool求值</a></li>
+      <li><a href="#heading-操作符重载" id="markdown-toc-heading-操作符重载">操作符重载</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-groovy-特殊点">GROOVY 特殊点</h1>
+
+<h2 id="heading-默认导入">默认导入</h2>
+
+<ul>
+  <li>java.lang</li>
+  <li>java.util</li>
+  <li>java.io</li>
+  <li>java.net</li>
+  <li>java.math.BigDecimal</li>
+  <li>java.math.BigInteger</li>
+  <li>groovy.lang</li>
+  <li>groovy.util</li>
+</ul>
+
+<h2 id="heading-轻量级java">轻量级Java</h2>
+
+<ul>
+  <li>Return 可选</li>
+  <li>分号分隔符可选</li>
+  <li>方法和类默认是public</li>
+  <li>?. 只分派不为null的对象</li>
+  <li>可以使用具名参数初始化javaBean</li>
+  <li>不需要捕获自己不关心的异常</li>
+  <li>static方法也可以使用this来引用Class</li>
+</ul>
+
+<h1 id="heading-groovy-语法">GROOVY 语法</h1>
+
+<blockquote>
+  <p>默认支持JAVA语法，所以所有<code class="language-plaintext highlighter-rouge">.groovy</code>文件中可以使用JAVA语法</p>
+</blockquote>
+
+<h2 id="heading-循环">循环</h2>
+
+<ul>
+  <li>range</li>
+</ul>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="o">(</span><span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span> <span class="n">i</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>upto</li>
+</ul>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">0</span><span class="o">.</span><span class="na">upto</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span> <span class="n">it</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>it 是什么？ upto方法接受一个闭包参数，如果闭包只需要一个参数，在groovy中可以使用默认的名字it来标示该参数， 切记用</p>
+</blockquote>
+
+<ul>
+  <li>times</li>
+</ul>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">10</span><span class="o">.</span><span class="na">times</span> <span class="o">{</span>
+    <span class="n">print</span><span class="o">(</span><span class="n">it</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>times 是默认从0开始，upto 是给定上限</p>
+</blockquote>
+
+<ul>
+  <li>step</li>
+</ul>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">0</span><span class="o">.</span><span class="na">step</span><span class="o">(</span><span class="mi">10</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">print</span><span class="o">(</span><span class="n">it</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>步长 0～10 步长2</p>
+</blockquote>
+
+<h2 id="heading-安全导航操作">安全导航操作</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">?.</code></li>
+</ul>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">foo</span><span class="o">(</span><span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">str</span><span class="o">?.</span><span class="na">reverse</span><span class="o">()</span>
+<span class="o">}</span>
+
+<span class="n">println</span> <span class="nf">foo</span><span class="o">(</span><span class="s1">'hello'</span><span class="o">)</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>str 不为null，则调用 str.reverse(), 这里包含了dolast未默认返回值的动作</p>
+</blockquote>
+
+<h2 id="heading-异常处理">异常处理</h2>
+
+<ul>
+  <li>可以不显式catch异常， 自动向上抛</li>
+</ul>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">openFile</span><span class="o">(</span><span class="n">fileName</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">new</span> <span class="nf">FileInputStream</span><span class="o">(</span><span class="n">fileName</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">openFile</span><span class="o">(</span><span class="n">fileName</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="nf">FileInputStream</span><span class="o">(</span><span class="n">fileName</span><span class="o">)</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">println</span><span class="o">(</span><span class="n">ex</span><span class="o">)</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>变量ex前面没有任何类型， 代表可以捕获任何异常， 但是注意： 不能捕获除Exception之外的Error或者Throuwable， 要捕获的话需要显示声明 catch (Trowable th)</p>
+</blockquote>
+
+<h2 id="heading-javabean">javaBean</h2>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Two</span> <span class="o">{</span>
+    <span class="kt">def</span> <span class="kd">final</span> <span class="n">name</span>
+    <span class="kd">private</span> <span class="kt">def</span> <span class="n">address</span>
+
+    <span class="nf">Two</span><span class="o">(</span><span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="o">}</span>
+
+<span class="c1">//    void setAddress(newAddress) {</span>
+<span class="c1">//        throw new IllegalAccessException("error")</span>
+<span class="c1">//    }</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="n">two</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Two</span><span class="o">(</span><span class="s1">'gc'</span><span class="o">)</span>
+<span class="c1">// two.name = 'gc2' 会抛异常</span>
+<span class="n">two</span><span class="o">.</span><span class="na">address</span> <span class="o">=</span> <span class="s1">'222'</span> <span class="c1">//不会抛异常，如果需要限制, 需要重写 setAddress方法</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.name"</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.address"</span><span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="heading-灵活的初始化和具名参数">灵活的初始化和具名参数</h2>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Two</span> <span class="o">{</span>
+    <span class="kt">def</span> <span class="kd">final</span> <span class="n">name</span>
+    <span class="kd">private</span> <span class="kt">def</span> <span class="n">address</span>
+    <span class="kt">def</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">z</span>
+
+<span class="c1">//    void setAddress(newAddress) {</span>
+<span class="c1">//        throw new IllegalAccessException("error")</span>
+<span class="c1">//    }</span>
+<span class="o">}</span>
+
+<span class="c1">// def two = new Two(name: 'gc', address: 'add', x: 1, y: 2, z: 3) 会报错，因为这个操作并不是构造器，所以会在构造器之后执行</span>
+<span class="kt">def</span> <span class="n">two</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Two</span><span class="o">(</span><span class="nl">address:</span> <span class="s1">'add'</span><span class="o">,</span> <span class="nl">x:</span> <span class="mi">1</span><span class="o">,</span> <span class="nl">y:</span> <span class="mi">2</span><span class="o">,</span> <span class="nl">z:</span> <span class="mi">3</span><span class="o">)</span>
+<span class="c1">// two.name = 'gc2' 会抛异常</span>
+<span class="n">two</span><span class="o">.</span><span class="na">address</span> <span class="o">=</span> <span class="s1">'222'</span> <span class="c1">//不会抛异常，如果需要限制, 需要重写 setAddress方法</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.name"</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.address"</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.z"</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.x"</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$two.y"</span><span class="o">)</span>
+</code></pre></div></div>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">access</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">z</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span> <span class="s2">"$x, $y, $z"</span>
+<span class="o">}</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+<span class="n">access</span><span class="o">(</span><span class="nl">x:</span> <span class="mi">1</span><span class="o">,</span> <span class="nl">y:</span> <span class="mi">2</span><span class="o">,</span> <span class="nl">z:</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">50</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+<span class="n">access</span><span class="o">(</span><span class="mi">50</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="nl">x:</span> <span class="mi">1</span><span class="o">,</span> <span class="nl">y:</span> <span class="mi">2</span><span class="o">,</span> <span class="nl">z:</span> <span class="mi">3</span><span class="o">)</span>
+
+<span class="c1">//1, 2, 3</span>
+<span class="c1">////[x:1, y:2, z:3], 50, true</span>
+<span class="c1">////[x:1, y:2, z:3], 50, true</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>如果groovy方法实参中存在map，则会自动将map传递给第一个形参， 如果要强制哪个参数为map， 可以 <code class="language-plaintext highlighter-rouge">access(x, Map y, z)</code> 这样写</p>
+</blockquote>
+
+<h2 id="heading-可选形参">可选形参</h2>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">access</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">'y'</span><span class="o">,</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">10</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span> <span class="s2">"$x, $y, $z"</span>
+<span class="o">}</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这里可选形参必须放在参数列表末尾， 方便在固有接口中增加参数，便于接口演进设计</p>
+</blockquote>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">access</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">'y'</span><span class="o">,</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">10</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span> <span class="s2">"$x, $y, $z, $args"</span>
+<span class="o">}</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+
+<span class="n">access</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="s1">'4'</span><span class="o">,</span> <span class="s1">'5'</span><span class="o">)</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>groovy 可以把参数最末尾的数组列表设置为可选的, 注意数组列表必须放在实参最末尾</p>
+</blockquote>
+
+<h2 id="heading-多赋值">多赋值</h2>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">access</span><span class="o">(</span><span class="n">str1</span><span class="o">,</span> <span class="n">str2</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">[</span><span class="n">str1</span><span class="o">,</span> <span class="n">str2</span><span class="o">]</span> <span class="c1">// 最后一句未默认返回, 这里必须返回数组</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="o">(</span><span class="n">str1</span><span class="o">,</span> <span class="n">str2</span><span class="o">)</span> <span class="o">=</span> <span class="n">access</span><span class="o">(</span><span class="s2">"gc1"</span><span class="o">,</span> <span class="s2">"gc2"</span><span class="o">)</span> <span class="c1">// 接受返回值的外面可以把数组拆开</span>
+<span class="kt">def</span> <span class="n">args1</span> <span class="o">=</span> <span class="n">access</span><span class="o">(</span><span class="s2">"gc1"</span><span class="o">,</span> <span class="s2">"gc2"</span><span class="o">)</span> <span class="c1">// 也可以不拆开</span>
+
+<span class="n">println</span><span class="o">(</span><span class="s2">"$str1, $str2"</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="s2">"$args1"</span><span class="o">)</span>
+
+<span class="c1">//gc1, gc2</span>
+<span class="c1">//[gc1, gc2]</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>这样交换变量就变得很方便</p>
+</blockquote>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="nf">access</span><span class="o">(</span><span class="n">str1</span><span class="o">,</span> <span class="n">str2</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">[</span><span class="n">str2</span><span class="o">,</span> <span class="n">str1</span><span class="o">]</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="o">(</span><span class="n">str1</span><span class="o">,</span> <span class="n">str2</span><span class="o">)</span> <span class="o">=</span> <span class="n">access</span><span class="o">(</span><span class="s2">"gc1"</span><span class="o">,</span> <span class="s2">"gc2"</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="s2">"$str1, $str2"</span><span class="o">)</span>
+
+<span class="c1">//gc2 , gc1</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>如果左侧变量和右侧返回值数量一样，则一一映射，如果右面比左面多，则丢弃， 如果左面比右面多，则附null  <br />
+如果左面的变量类型为基本类型，则附值为null的时候会抛异常 因为 int x = null 是非法的</p>
+</blockquote>
+
+<h2 id="heading-实现接口">实现接口</h2>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">aOne</span><span class="o">(</span><span class="n">str</span><span class="o">)</span>
+
+    <span class="kt">void</span> <span class="nf">aTwo</span><span class="o">()</span>
+
+    <span class="kt">void</span> <span class="nf">aThree</span><span class="o">(</span><span class="n">str1</span><span class="o">,</span> <span class="n">str2</span><span class="o">,</span> <span class="n">str3</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="nf">useA</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">a</span><span class="o">.</span><span class="na">aOne</span><span class="o">(</span><span class="s2">"hello"</span><span class="o">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="na">aTwo</span><span class="o">()</span>
+<span class="c1">//    a.aThree(1, 2, 3) // 将会异常， 因为在调用的时候无法区分it到底是哪个参数</span>
+<span class="o">}</span>
+
+<span class="n">useA</span><span class="o">({</span> <span class="n">println</span><span class="o">(</span><span class="n">it</span><span class="o">)</span> <span class="o">}</span> <span class="k">as</span> <span class="n">A</span><span class="o">)</span>
+
+<span class="cm">/**
+ hello
+ null
+ **/</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>groovy 并不强制实现接口中的所有方法，只需要实现自己关心的方法就行， 如果确定为未实现的方法永远不会被调用，则没有问题， 否则会有异常</p>
+</blockquote>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">A</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">aOne</span><span class="o">(</span><span class="n">str</span><span class="o">)</span>
+
+    <span class="kt">void</span> <span class="nf">aTwo</span><span class="o">()</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="nf">useA</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">a</span><span class="o">.</span><span class="na">aOne</span><span class="o">(</span><span class="s2">"hello"</span><span class="o">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="na">aTwo</span><span class="o">()</span>
+<span class="o">}</span>
+
+<span class="n">useA</span><span class="o">({</span>
+    <span class="nl">aOne:</span>
+    <span class="o">{</span>
+        <span class="n">println</span><span class="o">(</span><span class="n">it</span><span class="o">)</span>
+    <span class="o">}</span>
+    <span class="nl">aTwo:</span>
+    <span class="o">{</span>
+        <span class="n">println</span><span class="o">(</span><span class="s2">"hello world"</span><span class="o">)</span>
+    <span class="o">}</span>
+
+<span class="o">}</span> <span class="k">as</span> <span class="n">A</span><span class="o">)</span>
+
+<span class="cm">/**
+ hello
+ hello world"
+ **/</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>如果要实现的接口中由多个方法且实现姿势不一样，可以用 <code class="language-plaintext highlighter-rouge">{methodName: {methodBody}, ....}</code> 的姿势来实现</p>
+</blockquote>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">AI</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">methodOne</span><span class="o">()</span>
+<span class="o">}</span>
+
+<span class="kd">interface</span> <span class="nc">AII</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">methodOne</span><span class="o">(</span><span class="n">str</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+    <span class="kt">def</span> <span class="nf">useA</span><span class="o">(</span><span class="n">AI</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">a</span><span class="o">.</span><span class="na">methodOne</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">B</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="n">B</span><span class="o">()</span>
+<span class="kt">def</span> <span class="n">methodName</span> <span class="o">=</span> <span class="s2">"useA"</span>
+<span class="kt">def</span> <span class="n">interfaceName</span> <span class="o">=</span> <span class="s2">"AI"</span>
+
+<span class="n">b</span><span class="o">.</span><span class="s2">"$methodName"</span><span class="o">({</span> <span class="n">print</span><span class="o">(</span><span class="s2">"hello world"</span><span class="o">)</span> <span class="o">}.</span><span class="na">asType</span><span class="o">(</span><span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s2">"$interfaceName"</span><span class="o">)))</span> <span class="c1">// 注意，这里不能使用 '$interfaceName' 单引号</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>上面的方法使用了动态的实现接口的方法</p>
+</blockquote>
+
+<h2 id="heading-bool求值">Bool求值</h2>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">def</span> <span class="n">bool1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="kt">def</span> <span class="n">bool2</span> <span class="o">=</span> <span class="s2">"hello"</span>
+<span class="kt">def</span> <span class="n">bool3</span> <span class="o">=</span> <span class="o">[]</span>
+
+
+<span class="k">if</span> <span class="o">(</span><span class="n">bool1</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">print</span><span class="o">(</span><span class="n">bool1</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">bool2</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">print</span><span class="o">(</span><span class="n">bool2</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">bool3</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">print</span><span class="o">(</span><span class="n">bool3</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>groovy 不像java对bool值那么挑剔，以下表中列举了类型与布尔值的对应关系</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">类型</th>
+      <th style="text-align: center">为真的条件</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Boolean</td>
+      <td style="text-align: center">true</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Collection</td>
+      <td style="text-align: center">集合不为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Character</td>
+      <td style="text-align: center">值不为0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">CharSequence</td>
+      <td style="text-align: center">长度不为0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Iterator</td>
+      <td style="text-align: center">hasNext为true</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Number</td>
+      <td style="text-align: center">double不为0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Map</td>
+      <td style="text-align: center">不为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Matcher</td>
+      <td style="text-align: center">至少有一个匹配</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Object[]</td>
+      <td style="text-align: center">长度大于0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">其他任何类型</td>
+      <td style="text-align: center">引用不为null</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="heading-操作符重载">操作符重载</h2>
+
+<blockquote>
+  <p>在groovy中，每一个操作符都映射到一个标准方法，这些方法在java中可以直接使用，在groovy中即可以使用方法，也可以使用操作符</p>
+</blockquote>
+
+:ET

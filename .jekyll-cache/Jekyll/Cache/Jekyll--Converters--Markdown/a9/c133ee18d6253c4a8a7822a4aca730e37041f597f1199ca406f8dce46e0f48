@@ -1,0 +1,93 @@
+I"�<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-谈谈事物" id="markdown-toc-heading-谈谈事物">谈谈事物</a>    <ul>
+      <li><a href="#heading-事务是什么" id="markdown-toc-heading-事务是什么">事务是什么</a></li>
+      <li><a href="#heading-事务的好处" id="markdown-toc-heading-事务的好处">事务的好处</a></li>
+      <li><a href="#heading-事务的特性" id="markdown-toc-heading-事务的特性">事务的特性。</a></li>
+      <li><a href="#heading-事务的分类" id="markdown-toc-heading-事务的分类">事务的分类</a></li>
+      <li><a href="#heading-innodb本地事务" id="markdown-toc-heading-innodb本地事务">InnoDB本地事务</a>        <ul>
+          <li><a href="#heading-事务持久性" id="markdown-toc-heading-事务持久性">事务持久性</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="heading-谈谈事物">谈谈事物</h1>
+
+<h2 id="heading-事务是什么">事务是什么</h2>
+
+<p>事务是指单个逻辑单元组成的一系列操作，事务是无法分割的，事务必须作为一个完整的单元成功或者失败。</p>
+
+<blockquote>
+  <p>举个例子：你在网上某个平台买了一本书，你在平台上付款给书店，书店把书给你，在这个过程中，任何失败的举措（比如你没有付款，书店没有发书）都会导致整个交易流程的失败，而失败之后，你的钱不会少，书店的书不会少， 这个网络平台所做的事情，就是事务操作。 换句话说，事务要保证参与事务的所有单元在事务成功之前，面向数据资源层面的操作将不会被永久的更新。</p>
+</blockquote>
+
+<h2 id="heading-事务的好处">事务的好处</h2>
+
+<p>有了事务，就可以方便的使得“多用户之间共享资源”成为可能。这样使得资源利用率最大化的同时，保证资源不会因为作业而变得空闲或者浪费甚至损失。</p>
+
+<blockquote>
+  <p>在拿上面的例子来说: 有个平台能够确保你付款就一定能够买到书，或者你买不到书就不会有任何资源上的损失，那么这就可以让资源在多用户之间共享</p>
+</blockquote>
+
+<h2 id="heading-事务的特性">事务的特性。</h2>
+
+<p>Jim Gray定义了一个可靠的事务系统的属性，首字母缩写为ACID：atomicity（原子性）,consistency（一致性）,isolation（隔离性）,durability（耐久性）。</p>
+
+<ul>
+  <li>原子性： 事务所包含的逻辑单元要么全部执行成功，要么全部执行失败， 包括但不限于 资源变更，消息或传感器的发送</li>
+  <li>一致性： 事务是对状态的正确转换，以组为单位采取的行动不违反与状态相关联的完整性约束，即资源必须是一个状态转换成另一个状态，不能存在中间态</li>
+  <li>隔离性： 事务隔离性是说事物与事物之间在一定程度上是不相互影响的，或者影响程度是可知的</li>
+  <li>持久性： 即当事务执行完成后，对数据资源的操作是永久的，不管是系统宕机或是其他因素，如果系统宕机，当系统重启后变更的数据资源仍然存在</li>
+</ul>
+
+<h2 id="heading-事务的分类">事务的分类</h2>
+
+<p>事务根据应用场景，大致可分为 本地事务 和 分布式事务。</p>
+
+<p>本地事务最具有代表的就是 Mysql InnoDB 所提供的事务，而分布式事务最基础的理论便是 CAP 理论。</p>
+
+<h2 id="heading-innodb本地事务">InnoDB本地事务</h2>
+
+<p>Mysql的InnoDB完美提供了本地事务的操作和实现，即满足ACID所有特性，下面我们聊聊InnoDB具体是怎么实现事务中的各种特性的。</p>
+
+<h3 id="heading-事务持久性">事务持久性</h3>
+
+<p>InnoDB用RedoLog来实现事务的持久性，RedoLog分为两部分，一部分是 RedoLog Buffer, 一部分是 RedoLog File, Buffer是容易丢失的，File是持久的，那概念上来说，就是当事务提交(Commit)的时候，RedoLog 要写入到File中，才能保证事务的持久性。但本身File和Buffer的写入性能会有差别，所以InnoDB提供了参数<code class="language-plaintext highlighter-rouge">innodb_flush_log_at_trx_commit</code>让用户自由选择，该变量有3种值：0、1、2，默认为1。但注意，这个变量只是控制commit动作是否刷新log buffer到磁盘。</p>
+
+<ul>
+  <li>当设置为1的时候，事务每次提交都会将log buffer中的日志写入os buffer并调用fsync()刷到log file on disk中。这种方式即使系统崩溃也不会丢失任何数据，但是因为每次提交都写入磁盘，IO的性能较差。</li>
+  <li>当设置为0的时候，事务提交时不会将log buffer中日志写入到os buffer，而是每秒写入os buffer并调用fsync()写入到log file on disk中。也就是说设置为0时是(大约)每秒刷新写入到磁盘中的，当系统崩溃，会丢失1秒钟的数据。</li>
+  <li>当设置为2的时候，每次提交都仅写入到os buffer，然后是每秒调用fsync()将os buffer中的日志写入到log file on disk。</li>
+</ul>
+
+<p>有一个变量 <code class="language-plaintext highlighter-rouge">innodb_flush_log_at_timeout</code> 的值为1秒，该变量表示的是刷日志的频率</p>
+
+<p>下面展示了 当 <code class="language-plaintext highlighter-rouge">innodb_flush_log_at_trx_commit</code> 取不同的值时候，插入10w条数据大约的耗时</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">级别</th>
+      <th style="text-align: center">时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">15.48 sec</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: center">3.41 sec</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">2.10 sec</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>从时间上来看，虽然0比2相差没多长时间，但是0比2安全，但仍然都有丢失1s数据的风险。</p>
+
+:ET

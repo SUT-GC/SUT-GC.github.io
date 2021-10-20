@@ -1,0 +1,292 @@
+I"�J<ul class="toc" id="markdown-toc">
+  <li><a href="#heading-背景" id="markdown-toc-heading-背景">背景</a></li>
+  <li><a href="#heading-流程图" id="markdown-toc-heading-流程图">流程图</a></li>
+  <li><a href="#heading-startsh" id="markdown-toc-heading-startsh">start.sh</a></li>
+  <li><a href="#heading-dockerfile" id="markdown-toc-heading-dockerfile">DockerFile</a></li>
+  <li><a href="#heading-不足" id="markdown-toc-heading-不足">不足</a></li>
+</ul>
+
+<h1 id="heading-背景">背景</h1>
+
+<p>今天说的这个东西也是我接触Docker的原因，当初接触Docker不是为了搞什么Docker集群，不是为了将服务器Docker化， 仅仅是为了做一个简单的Python的发布系统</p>
+
+<p>现在有一个Python的项目Roger，非官方的，为了在发布代码流程上做偷懒，所以想把发布流程自动化，自动到什么程度呢： 每次将代码push或者merge到github的master的时候，服务器自动更新代码，运行新代码。</p>
+
+<p>如果不自动化会怎么样? 看段伪代码</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>开发新代码;
+
+本地测试通过;
+
+if 没有依赖更新:
+    用fcp或者sfcp命令将代码拷贝到服务器制定目录下;
+else:
+    登陆服务器;
+    停掉服务(因为更新python代码可能会因为没有依赖报错);
+    登出服务器;
+    用fcp或者sfcp命令将代码拷贝到服务器制定目录下;
+    登陆服务器;
+    执行 pip instll -r requirments.txt;
+    运行服务
+    
+</code></pre></div></div>
+
+<p>注意的是，每次有新的功能，都要这样不厌其烦的尽心代码“发布”, 而且是本次测试通过的代码放在服务器上能顺利运行的情况下……</p>
+
+<p>我们把一部分操作自动化之后会是什么样子呢？</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>func 自动化发布代码函数(){
+    将代码git clone到tmp目录;
+    执行pip install -r requirments.txt;
+    cd 到真正提供服务的代码目录;
+    git pull
+}
+
+开发新代码;
+
+本地测试通过;
+
+推送代码到gitlab;
+
+自动化发布代码函数(); //这一步不需要人为执行，是根据监听gitlab自动执行
+</code></pre></div></div>
+
+<p>这样依赖，基本就实现自动化发布了把～ 虽然很简陋，但是却可以“坚持”下去，不是么？</p>
+
+<p>但是还有问题：如果master代码是错误的呢？ 我们是不是把异常代码发布到服务上去了呢？ 结果就是服务死掉了</p>
+
+<p>有没有能解决这个问题的办法呢？ 答案是：有</p>
+
+<p>虽然同样很low， 但是能解决问题就是好办法～</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+func 自动化发布代码函数(){
+    将代码放入临时文件中;
+    将代码运行在Docker上（访问端口要换一下）;
+    对这个Docker提供的“服务”进行自动化测试;
+    if 测试成功:
+        用真正提供服务的端口启动Docker;
+    else:
+        将自动化测试的结果以发布日志的形式暴露出来;
+}
+
+开发新代码;
+
+本地测试通过;
+
+推送代码到gitlab;
+
+自动化发布代码函数();
+
+</code></pre></div></div>
+
+<p>这个流程下来，是不是更好一点了呢？ 所以，为了实现这个简易的自动化发布流程，我决定学习Docker～～～</p>
+<h1 id="heading-流程图">流程图</h1>
+
+<p><img src="/files/images/roger%E4%BB%A3%E7%A0%81%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt="img1" /></p>
+
+<p>结合流程图中的流程， 说一下这个东西开发的大致流程:</p>
+
+<ul>
+  <li>开发者在非Master分支上编写代码</li>
+  <li>编写成功后，测试</li>
+  <li>测试成功后Merge代码到Master</li>
+  <li>触发jekins，拉Master代码，运行start.sh build镜像</li>
+  <li>Docker使用非线上端口启动该镜像</li>
+  <li>使用准备好的脚本对改镜像进行测试</li>
+  <li>测试通过后 将线上正在运行的机器停掉， 然后用线上端口启动该镜像</li>
+</ul>
+
+<h1 id="heading-startsh">start.sh</h1>
+
+<p>这个</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nv">PROJECT_DIR</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>
+<span class="nv">PROJECT_PORT</span><span class="o">=</span>8888
+<span class="nv">DOCKER_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">PROJECT_DIR</span><span class="k">}</span>/Dcokerfile
+<span class="nv">HOST_FILE</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">DOCKER_FILE</span><span class="o">=</span><span class="nv">$2</span>
+<span class="nv">DOCKER_SERVER_VERSION</span><span class="o">=</span><span class="sb">`</span><span class="nb">date</span> +%s<span class="sb">`</span>
+<span class="nv">DOCKER_SERVER_TAG</span><span class="o">=</span>rmb-data/roger-server:<span class="k">${</span><span class="nv">DOCKER_SERVER_VERSION</span><span class="k">}</span>
+<span class="nv">DOCKER_RUN_PORT</span><span class="o">=</span>8888
+<span class="nv">DOCKER_TEST_PORT</span><span class="o">=</span>8889
+<span class="nv">DOCKER_RUN_LABEL</span><span class="o">=</span>roger-run
+<span class="nv">DOCKER_TEST_LABEL</span><span class="o">=</span>roger-test
+<span class="nv">DOCKER_RUN_NAME</span><span class="o">=</span>roger-server
+<span class="nv">DOCKER_TEST_NAME</span><span class="o">=</span>roger-test-server
+
+<span class="nb">echo</span> <span class="s2">"HOST_FILE: </span><span class="nv">$HOST_FILE</span><span class="s2">, DOCKER_FILE: </span><span class="nv">$DOCKER_FILE</span><span class="s2">"</span>
+
+<span class="k">function </span>check_cmd_result <span class="o">{</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="nt">-eq</span> 0  <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">echo</span> <span class="s2">"[SUCCESS] </span><span class="nv">$2</span><span class="s2">"</span>
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"[ERROR] </span><span class="nv">$2</span><span class="s2">"</span>
+        <span class="nb">exit </span>1
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="k">function </span>ping_server_result <span class="o">{</span>
+    <span class="nv">PING_RESULT</span><span class="o">=</span><span class="sb">`</span>curl <span class="nt">-s</span>  http://localhost:<span class="k">${</span><span class="nv">DOCKER_TEST_PORT</span><span class="k">}</span>/job/ping<span class="sb">`</span>
+    <span class="nb">echo</span> <span class="nv">$PING_RESULT</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$PING_RESULT</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"pong"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        return </span>0
+    <span class="k">else
+        return </span>1
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="k">function </span>ping_server_result_with_try <span class="o">{</span>
+    <span class="nv">test_count</span><span class="o">=</span>1
+    <span class="nv">try_count</span><span class="o">=</span>100
+    <span class="k">while</span> <span class="o">[</span> <span class="nv">$test_count</span> <span class="nt">-lt</span> <span class="nv">$try_count</span> <span class="o">]</span>
+    <span class="k">do
+        </span><span class="nb">sleep </span>1
+        <span class="nb">echo</span> <span class="s2">"ping </span><span class="nv">$test_count</span><span class="s2"> times...."</span>
+        ping_server_result
+        <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> <span class="nt">-eq</span> 0 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="s2">"[SUCCESS] ping test"</span>
+            <span class="nb">break
+        </span><span class="k">else
+            </span><span class="nb">echo</span> <span class="s2">"[ERROR] ping test </span><span class="nv">$test_count</span><span class="s2"> times"</span>
+        <span class="k">fi
+        </span><span class="nv">test_count</span><span class="o">=</span><span class="nv">$[</span> <span class="nv">$test_count</span> + 1 <span class="o">]</span>
+    <span class="k">done
+
+    if</span> <span class="o">[[</span> <span class="nv">$test_count</span> <span class="o">==</span>  <span class="nv">$try_count</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+        return </span>1
+    <span class="k">else
+        return </span>0
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="k">function </span>build_server_result_with_try <span class="o">{</span>
+    <span class="nv">now_count</span><span class="o">=</span>1
+    <span class="nv">max_count</span><span class="o">=</span>4
+    <span class="k">while</span> <span class="o">[</span> <span class="nv">$now_count</span> <span class="nt">-lt</span> <span class="nv">$max_count</span> <span class="o">]</span>
+    <span class="k">do
+        </span><span class="nb">sleep </span>1
+        <span class="nb">echo</span> <span class="s2">"start build docker image </span><span class="k">${</span><span class="nv">DOCKER_SERVER_TAG</span><span class="k">}</span><span class="s2"> </span><span class="nv">$now_count</span><span class="s2"> times"</span>
+        docker build <span class="nt">--label</span> roger-server <span class="nt">-t</span> <span class="k">${</span><span class="nv">DOCKER_SERVER_TAG</span><span class="k">}</span> <span class="nb">.</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> <span class="nt">-eq</span> 0 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="s2">"[SUCCESS] build images </span><span class="nv">$now_count</span><span class="s2"> times"</span>
+            <span class="nb">break
+        </span><span class="k">else
+            </span><span class="nb">echo</span> <span class="s2">"[ERROR] build images </span><span class="nv">$now_count</span><span class="s2"> times"</span>
+        <span class="k">fi
+        </span><span class="nv">now_count</span><span class="o">=</span><span class="nv">$[</span> <span class="nv">$now_count</span> + 1  <span class="o">]</span>
+    <span class="k">done
+
+    if</span> <span class="o">[[</span> <span class="nv">$now_count</span> <span class="o">==</span> <span class="nv">$max_count</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+        return </span>1
+    <span class="k">else
+        return </span>0
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="nb">echo</span> <span class="s2">"into project dir </span><span class="k">${</span><span class="nv">PROJECT_DIR</span><span class="k">}</span><span class="s2">"</span>
+<span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
+
+<span class="c"># try 3 times to build</span>
+build_server_result_with_try
+check_cmd_result <span class="nv">$?</span> <span class="s2">"build server images"</span>
+
+<span class="nb">echo</span> <span class="s2">"list docker images..."</span>
+docker images
+
+<span class="nb">echo</span> <span class="s2">"clear test server container </span><span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span><span class="s2">..."</span>
+docker stop <span class="si">$(</span>docker ps <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span><span class="si">)</span>
+docker <span class="nb">rm</span> <span class="si">$(</span>docker ps <span class="nt">-a</span> <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span><span class="si">)</span>
+
+<span class="nb">echo</span> <span class="s2">"start run test server </span><span class="k">${</span><span class="nv">DOCKER_SERVER_TAG</span><span class="k">}</span><span class="s2">..."</span>
+docker run <span class="nt">-d</span> <span class="nt">-p</span> <span class="k">${</span><span class="nv">DOCKER_TEST_PORT</span><span class="k">}</span>:<span class="k">${</span><span class="nv">PROJECT_PORT</span><span class="k">}</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">HOST_FILE</span><span class="k">}</span>:<span class="k">${</span><span class="nv">DOCKER_FILE</span><span class="k">}</span>  <span class="nt">--name</span> <span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span>  <span class="k">${</span><span class="nv">DOCKER_SERVER_TAG</span><span class="k">}</span>
+check_cmd_result <span class="nv">$?</span> <span class="s2">"run test server"</span>
+
+<span class="c"># ping test 100 times, if all fail, error.</span>
+<span class="nb">echo</span> <span class="s2">"start ping server...."</span>
+ping_server_result_with_try
+check_cmd_result <span class="nv">$?</span> <span class="s2">"ping test server"</span>
+
+<span class="nb">echo</span> <span class="s2">"stop and remove test server container </span><span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span><span class="s2">..."</span>
+docker stop <span class="si">$(</span>docker ps <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span><span class="si">)</span>
+docker <span class="nb">rm</span> <span class="si">$(</span>docker ps <span class="nt">-a</span> <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">DOCKER_TEST_NAME</span><span class="k">}</span><span class="si">)</span>
+check_cmd_result <span class="nv">$?</span> <span class="s2">"stop and remove test server container"</span>
+
+<span class="nb">echo</span> <span class="s2">"stop and remove the old run server container  by name=</span><span class="k">${</span><span class="nv">DOCKER_RUN_NAME</span><span class="k">}</span><span class="s2">"</span>
+docker stop <span class="si">$(</span>docker ps <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">DOCKER_RUN_NAME</span><span class="k">}</span><span class="si">)</span>
+docker <span class="nb">rm</span> <span class="si">$(</span>docker ps <span class="nt">-a</span> <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">DOCKER_RUN_NAME</span><span class="k">}</span><span class="si">)</span>
+docker rmi <span class="si">$(</span>docker images <span class="nt">-q</span> <span class="nt">-f</span> <span class="nv">dangling</span><span class="o">=</span><span class="nb">true</span><span class="si">)</span>
+
+<span class="nb">echo</span> <span class="s2">"start run server by name=</span><span class="k">${</span><span class="nv">DOCKER_RUN_NAME</span><span class="k">}</span><span class="s2">..."</span>
+docker run <span class="nt">-d</span> <span class="nt">-p</span> <span class="k">${</span><span class="nv">DOCKER_RUN_PORT</span><span class="k">}</span>:<span class="k">${</span><span class="nv">PROJECT_PORT</span><span class="k">}</span> <span class="nt">-v</span> <span class="k">${</span><span class="nv">HOST_FILE</span><span class="k">}</span>:<span class="k">${</span><span class="nv">DOCKER_FILE</span><span class="k">}</span>  <span class="nt">--name</span> <span class="k">${</span><span class="nv">DOCKER_RUN_NAME</span><span class="k">}</span>  <span class="k">${</span><span class="nv">DOCKER_SERVER_TAG</span><span class="k">}</span>
+check_cmd_result <span class="nv">$?</span> <span class="s2">"run roger-server ..."</span>
+
+<span class="nb">echo</span> <span class="s2">"pring docker ps"</span>
+docker ps
+
+<span class="nb">echo</span> <span class="s2">"--------------------------------"</span>
+<span class="nb">echo</span> <span class="s2">"---FINISH START ROGER-SERVER---"</span>
+<span class="nb">echo</span> <span class="s2">"--------------------------------"</span>
+
+</code></pre></div></div>
+
+<p>这里加入了些重试的机制， 比如在 build Dockerfile的时候， 会因为网络原因拉包异常， 所以重试了三次</p>
+
+<h1 id="heading-dockerfile">DockerFile</h1>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 基本镜像 python3.4.5 + ubuntu </span>
+FROM daocloud.io/library/python:3.4.5-wheezy
+<span class="c"># 拷贝项目文件到容器 /root 目录下</span>
+COPY <span class="nb">.</span> /root/
+<span class="c"># 设置环境变量</span>
+ENV <span class="nv">PYTHONPATH</span><span class="o">=</span>/root/
+<span class="c"># 设置工作目录</span>
+WORKDIR /root/
+<span class="c"># 运行命令，安装相关依赖</span>
+RUN <span class="nb">pwd</span> <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> <span class="nb">ls</span> <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> pip <span class="nb">install</span> <span class="nt">-r</span> requirements.txt <span class="nt">-i</span> https://pypi.douban.com/simple
+
+<span class="c"># 启动项目</span>
+CMD python3 bin/run.py
+
+</code></pre></div></div>
+
+<p>这里的DockerFile其实很简单， 安装python依赖， Copy代码(DockerFile 是放在代码根目录下的), 设置工作目录， 安装python依赖，</p>
+
+<h1 id="heading-不足">不足</h1>
+
+<p>这个只是个简易的发布系统， 仅仅做了代码带线上的发布， 其实中间有很多缺点， 也有很多可以做的地方。。。</p>
+
+<ul>
+  <li>测试环境</li>
+</ul>
+
+<p>测试环境是必不可少的环境， 因为我们开发和测试是分开的， 开发完之后把代码发布到测试环境， 测试成功之后才能发布上线。</p>
+
+<ul>
+  <li>分支发布</li>
+</ul>
+
+<p>比如想要把某个分支发布到线上，而不是发布master，这种更灵活的操作性， 要好好考虑考虑</p>
+
+<ul>
+  <li>容器控制台</li>
+</ul>
+
+<p>一些其他开源软件便可以使用</p>
+
+<ul>
+  <li>集群发布</li>
+</ul>
+
+<p>这个很重要， 毕竟集群是一个公司必须具备的， 就算两三台机器， 为了可用性， 也要做集群发布，  如果一台一台的发布， 如何 一并发布到线上， 都是需要考虑的。</p>
+
+<ul>
+  <li>发布状态触达</li>
+</ul>
+
+<p>这个用jekins就够了， 当然也可以包装一下</p>
+:ET
