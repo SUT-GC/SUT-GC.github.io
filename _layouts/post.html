@@ -43,9 +43,37 @@ layout: blog
                             {% assign tags_list = page.tags | sort %} {% include helpers/tags_list %}
                         </ul>
                     </div>
-                    <div itemprop="articleBody">
-                        {{ content }}
-                    </div>
+                    <div id="pagePassword" style="display:none">{{ page.encryption }}</div>
+                    {% if page.encryption != null %}
+                        <div id ="postInputPassDiv" style="display" >
+                            <input id="passwordInput" type="text" name="password" placeholder="输入密码">
+                            <button id="passwordInputSubmit" onclick="checkPassWorkd()">确认</button>
+                        </div>
+                        <div id ="postContentDiv" style="display: none;" itemprop="articleBody">
+                            {{ content }}
+                        </div>
+                        <script type="text/javascript">
+                            let inputDiv = document.getElementById("passwordInput")
+                            let inputSubmit = document.getElementById("passwordInputSubmit") 
+                            let postContentDiv = document.getElementById("postContentDiv") 
+                            let postInputPassDiv = document.getElementById("postInputPassDiv")
+                            let pagePassword = document.getElementById("pagePassword") 
+                            
+                            function checkPassWorkd() {
+                                if (inputDiv.value == pagePassword.innerText) {
+                                    postInputPassDiv.style.display="none";
+                                    postContentDiv.style.display=""
+                                } else {
+                                    alert("密码错误")
+                                }
+                            }
+                        </script>
+                    {% else %}
+                        <div itemprop="articleBody">
+                            {{ content }}
+                        </div>
+                    {% endif %}
+
                 </div>
             </div>
             <footer class="unit-foot">

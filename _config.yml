@@ -21,8 +21,8 @@ sass:
   style: compressed
 
 # Site Data
-title: 简约不简单
-description: "编程改变世界"
+title: WinterSun&GC
+description: "I promise if you let me, I'll love you like the movies"
 keywords: 'jekyll,theme,igouc,blog'
 author:
   name: gc
@@ -39,7 +39,7 @@ home:
   section1: <h2>I promise if you let me, I'll love you like the movies.</h2>
 
 blog:
-  footer_content: 编程改变世界
+  footer_content: I promise if you let me, I'll love you like the movies
 paths:
   home: /
   blog: /blog/

@@ -38,7 +38,7 @@ en-ca:
 en-nz:
   <<: *en
 zh: &zh
-  about: '关于'
+  about: '关于我们'
   articles: '文章列表'
   back_to_top: '返回顶部'
   categories: '文章分类'

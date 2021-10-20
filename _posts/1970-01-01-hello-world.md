@@ -4,6 +4,7 @@ title: "Hello World 伊始之初"
 description: "一切又重新开始，像第一次那样"
 categories: [随笔]
 tags: [live]
+encryption: "hello world"
 ---
 
 * Kramdown table of contents
