@@ -432,7 +432,8 @@ public class Main {
 
 #### 4.4.5 ForkJoinPool 的核心参数
 
-**核心线程数：** 
+**核心线程数：**     
+
 * 默认线程数 Runtime.*getRuntime*().availableProcessors() 
 * 最小线程数 1
 
@@ -446,6 +447,7 @@ public ForkJoinPool() {
 
 ```
 
-**队列大小：**
+**队列大小：**    
+
 ![](https://int32-blog.oss-cn-beijing.aliyuncs.com/9A49C9D7-55E1-48FC-8CAB-F915DE4134F5.png)
 
