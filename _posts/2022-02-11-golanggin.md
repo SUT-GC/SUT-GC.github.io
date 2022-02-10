@@ -8,6 +8,7 @@ tags: [golang]
 
 * Kramdown table of contents
 {:toc .toc}
+
 # Go 学习笔记 - gin
 ## 1 介绍
 Gin 是 golang 的一个微框架，对于golang而言，web框架的依赖，远比java，python 等小，自身的 `net/http`  已经足够简单，性能也非常不错。而借助 gin 可以节省很多时间，因为做了很多常用的封装。
