@@ -10,83 +10,85 @@ tags: [golang]
 {:toc .toc}
 
 # Go 学习笔记 - gin
-
 ## 1 介绍
 Gin 是 golang 的一个微框架，对于golang而言，web框架的依赖，远比java，python 等小，自身的 `net/http`  已经足够简单，性能也非常不错。而借助 gin 可以节省很多时间，因为做了很多常用的封装。
 
 ## 2 安装
-1. 需要 go 版本 1.10+, 通过 `go get -u github.com/gin-gonic/gin` 安装gin
-2. 将gin导入代码 `import “github.com/gin-gonic/gin”` 
-3. 导入 net/http 包 `import net/http` ，因为需要里面的常量 如 `http.StatusOK` 
+1. 需要 go 版本 1.10+, 通过 `go get -u github.com/gin-gonic/gin` 安装gin。            
+2. 将gin导入代码 `import “github.com/gin-gonic/gin”`           
+3. 导入 net/http 包 `import net/http` ，因为需要里面的常量 如 `http.StatusOK`             
 
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/helloworld", func(context *gin.Context) {
-		context.String(http.StatusOK, "hello %s", "gc")
-	})
+  r := gin.Default()
+  r.GET("/helloworld", func(context *gin.Context) {
+    context.String(http.StatusOK, "hello %s", "gc")
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 ```
 
 ## 3. 路由
-1. Gin 的路由可以是最基本的输出字符串 `context.String(code, str, value)` 
-2. 可以获取API参数
+1. Gin 的路由可以是最基本的输出字符串 `context.String(code, str, value)`             
+2. 可以获取API参数            
+
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/helloworld/:name/*action", func(context *gin.Context) {
-		name := context.Param("name")
-		action := context.Param("action")
-		context.String(http.StatusOK, "hello %s, action:%s", name, action)
-	})
+  r := gin.Default()
+  r.GET("/helloworld/:name/*action", func(context *gin.Context) {
+    name := context.Param("name")
+    action := context.Param("action")
+    context.String(http.StatusOK, "hello %s, action:%s", name, action)
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 
 // URL: http://localhost:8081/helloworld/gc/hello/world
 // TEXT: hello gc, action:/hello/world
 ```
 
-3. 可以使用 QueryString
+3. 可以使用 QueryString            
+
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/helloworld", func(context *gin.Context) {
-		name := context.DefaultQuery("name", "gc")
-		context.String(http.StatusOK, "hello %s", name)
-	})
+  r := gin.Default()
+  r.GET("/helloworld", func(context *gin.Context) {
+    name := context.DefaultQuery("name", "gc")
+    context.String(http.StatusOK, "hello %s", name)
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 
 // URL: http://localhost:8081/helloworld?name=%E5%93%88%E5%93%88
 // TEXT: hello 哈哈
 ```
 
-4. 可以使用form表单
+4. 可以使用form表单            
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -110,24 +112,24 @@ func main() {
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 func main() {
-	r := gin.Default()
-	r.POST("/form", func(context *gin.Context) {
-		username := context.PostForm("username")
-		password := context.PostForm("userpassword")
+  r := gin.Default()
+  r.POST("/form", func(context *gin.Context) {
+    username := context.PostForm("username")
+    password := context.PostForm("userpassword")
 
-		context.String(http.StatusOK, "username:%s, password:%s", username, password)
-	})
+    context.String(http.StatusOK, "username:%s, password:%s", username, password)
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 ```
 
-5. 可以上传单个文件
+5. 可以上传单个文件            
 
 ```html
 <!DOCTYPE html>
@@ -171,7 +173,8 @@ func main() {
 }
 ```
 
-限制文件大小的demo
+限制文件大小的demo            
+
 ```go
 package main
 
@@ -207,7 +210,8 @@ func main() {
 }
 ```
 
-6. 可以上传多个文件
+6. 可以上传多个文件            
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -266,9 +270,9 @@ func main() {
 
 ```
 
-7. Router Group 使用
+7. Router Group 使用            
 
-为了方便管理一些相同的url，可以将router打包
+为了方便管理一些相同的url，可以将router打包            
 
 ```go
 package main
@@ -310,11 +314,11 @@ func submit(c *gin.Context) {
 }
 ```
 
-8. 路由拆分单独文件或包
+8. 路由拆分单独文件或包            
 
-当项目的规模增大后就不太适合继续在项目的main.go文件中去实现路由注册相关逻辑了，我们会倾向于把路由部分的代码都拆分出来，形成一个单独的文件或包。
+当项目的规模增大后就不太适合继续在项目的main.go文件中去实现路由注册相关逻辑了，我们会倾向于把路由部分的代码都拆分出来，形成一个单独的文件或包。            
 
-我们在routers.go文件中定义并注册路由信息：
+我们在routers.go文件中定义并注册路由信息：            
 
 ```go
 package main
@@ -338,7 +342,7 @@ func setupRouter() *gin.Engine {
 }
 ```
 
-在 `main` 中调用：
+在 `main` 中调用：            
 
 ```go
 func main() {
@@ -349,7 +353,7 @@ func main() {
 }
 ```
 
-此时的目录结构:
+此时的目录结构:            
 
 ```text
 gin_demo
@@ -359,7 +363,7 @@ gin_demo
 └── routers.go
 ```
 
-路由单独成包也可以:
+路由单独成包也可以:            
 
 ```text
 gin_demo
@@ -409,7 +413,7 @@ func main() {
 }
 ```
 
-Main 函数也可以这样写：
+Main 函数也可以这样写：            
 
 ```go
 func main() {
@@ -422,8 +426,8 @@ func main() {
 }
 ```
 
-有时候项目规模实在太大，那么我们就更倾向于把业务拆分的更详细一些，例如把不同的业务代码拆分成不同的APP。
-因此我们在项目目录下单独定义一个app目录，用来存放我们不同业务线的代码文件，这样就很容易进行横向扩展。大致目录结构如下：
+有时候项目规模实在太大，那么我们就更倾向于把业务拆分的更详细一些，例如把不同的业务代码拆分成不同的APP。            
+因此我们在项目目录下单独定义一个app目录，用来存放我们不同业务线的代码文件，这样就很容易进行横向扩展。大致目录结构如下：            
 
 ```
 gin_demo
@@ -441,129 +445,131 @@ gin_demo
     └── routers.go
 ```
 
-## 4. gin 数据解析和绑定
-1. 客户端传入，后端接受并解析到结构体。
+## 4. gin 数据解析和绑定            
+1. 客户端传入，后端接受并解析到结构体。            
 
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 type Login struct {
-	// binding:"required"修饰的字段，若接收为空值，则报错，是必须字段
-	Username string `json:"username" form:"username" xml:"username" bson:"username" binding:"required"`
-	Password string `json:"password" form:"password" xml:"password" bson:"password" binding:"required"`
+  // binding:"required"修饰的字段，若接收为空值，则报错，是必须字段
+  Username string `json:"username" form:"username" xml:"username" bson:"username" binding:"required"`
+  Password string `json:"password" form:"password" xml:"password" bson:"password" binding:"required"`
 }
 
 func main() {
-	r := gin.Default()
-	r.POST("/login", func(context *gin.Context) {
-		var login Login
+  r := gin.Default()
+  r.POST("/login", func(context *gin.Context) {
+    var login Login
 
-		err := context.ShouldBindJSON(&login)
+    err := context.ShouldBindJSON(&login)
 
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
-			return
-		}
+    if err != nil {
+      context.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+      return
+    }
 
-		if login.Username != "root" || login.Password != "root" {
-			context.JSON(http.StatusBadRequest, gin.H{"msg": "账号或者密码错误"})
-			return
-		}
+    if login.Username != "root" || login.Password != "root" {
+      context.JSON(http.StatusBadRequest, gin.H{"msg": "账号或者密码错误"})
+      return
+    }
 
-		context.JSON(http.StatusOK, gin.H{"msg": "登陆成功"})
-	})
+    context.JSON(http.StatusOK, gin.H{"msg": "登陆成功"})
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 ```
 
-`1. BindJSON` 和 `2. ShouldBindJSON` 和 `3. ShouldBindWith` 的区别：1会在header中写入400状态码，2是不会写入400状态码，3 根据另一个参数绑定json
+`1. BindJSON` 和 `2. ShouldBindJSON` 和 `3. ShouldBindWith` 的区别：1会在header中写入400状态码，2是不会写入400状态码，3 根据另一个参数绑定json            
 
-使用Form绑定
+使用Form绑定            
+
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 type Login struct {
-	// binding:"required"修饰的字段，若接收为空值，则报错，是必须字段
-	Username string `json:"username" form:"username" uri:"username" xml:"username" bson:"username" binding:"required"`
-	Password string `json:"password" form:"password" uri:"password" xml:"password" bson:"password" binding:"required"`
+  // binding:"required"修饰的字段，若接收为空值，则报错，是必须字段
+  Username string `json:"username" form:"username" uri:"username" xml:"username" bson:"username" binding:"required"`
+  Password string `json:"password" form:"password" uri:"password" xml:"password" bson:"password" binding:"required"`
 }
 
 func main() {
-	r := gin.Default()
-	r.POST("/login", func(context *gin.Context) {
-		var login Login
+  r := gin.Default()
+  r.POST("/login", func(context *gin.Context) {
+    var login Login
 
-		err := context.ShouldBind(&login)
+    err := context.ShouldBind(&login)
 
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
-			return
-		}
+    if err != nil {
+      context.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+      return
+    }
 
-		if login.Username != "root" || login.Password != "root" {
-			context.JSON(http.StatusBadRequest, gin.H{"msg": "账号或者密码错误"})
-			return
-		}
+    if login.Username != "root" || login.Password != "root" {
+      context.JSON(http.StatusBadRequest, gin.H{"msg": "账号或者密码错误"})
+      return
+    }
 
-		context.JSON(http.StatusOK, gin.H{"msg": "登陆成功"})
-	})
+    context.JSON(http.StatusOK, gin.H{"msg": "登陆成功"})
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 ```
 
-使用Uri
+使用Uri            
+
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+  "github.com/gin-gonic/gin"
+  "net/http"
 )
 
 type Login struct {
-	// binding:"required"修饰的字段，若接收为空值，则报错，是必须字段
-	Username string `json:"username" form:"username" uri:"username" xml:"username" bson:"username" binding:"required"`
-	Password string `json:"password" form:"password" uri:"password" xml:"password" bson:"password" binding:"required"`
+  // binding:"required"修饰的字段，若接收为空值，则报错，是必须字段
+  Username string `json:"username" form:"username" uri:"username" xml:"username" bson:"username" binding:"required"`
+  Password string `json:"password" form:"password" uri:"password" xml:"password" bson:"password" binding:"required"`
 }
 
 func main() {
-	r := gin.Default()
-	r.POST("/login/:username/:password", func(context *gin.Context) {
-		var login Login
+  r := gin.Default()
+  r.POST("/login/:username/:password", func(context *gin.Context) {
+    var login Login
 
-		err := context.ShouldBindUri(&login)
+    err := context.ShouldBindUri(&login)
 
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
-			return
-		}
+    if err != nil {
+      context.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+      return
+    }
 
-		if login.Username != "root" || login.Password != "root" {
-			context.JSON(http.StatusBadRequest, gin.H{"msg": "账号或者密码错误"})
-			return
-		}
+    if login.Username != "root" || login.Password != "root" {
+      context.JSON(http.StatusBadRequest, gin.H{"msg": "账号或者密码错误"})
+      return
+    }
 
-		context.JSON(http.StatusOK, gin.H{"msg": "登陆成功"})
-	})
+    context.JSON(http.StatusOK, gin.H{"msg": "登陆成功"})
+  })
 
-	r.Run(":8081")
+  r.Run(":8081")
 }
 ```
 
-## 5. gin 渲染
-1. 各种数据格式的响应，支持：json、结构体、XML、YAML类似于java的properties、ProtoBuf
+## 5. gin 渲染            
+1. 各种数据格式的响应，支持：json、结构体、XML、YAML类似于java的properties、ProtoBuf            
 
 ```go
 package main
@@ -620,12 +626,13 @@ func main() {
 }
 ```
 
-2. HTML 模版渲染
+2. HTML 模版渲染            
 
-* gin支持加载HTML模板, 然后根据模板参数进行配置并返回相应的数据，本质上就是字符串替换
-* LoadHTMLGlob()方法可以加载模板文件
+* gin支持加载HTML模板, 然后根据模板参数进行配置并返回相应的数据，本质上就是字符串替换            
+* LoadHTMLGlob()方法可以加载模板文件            
 
-后端代码：
+后端代码：            
+
 ```go
 package main
 
@@ -645,7 +652,8 @@ func main() {
 }
 ```
 
-Html 模版代码：
+Html 模版代码：            
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -661,7 +669,8 @@ Html 模版代码：
 </html>
 ```
 
-目录结构：
+目录结构：            
+
 ```
 gin_demo
 ├── main.go
@@ -670,7 +679,8 @@ gin_demo
     └── index.html
 ```
 
-如果想要进行头尾分离，就是下面的写法：
+如果想要进行头尾分离，就是下面的写法：            
+
 ```
 gin_demo
 ├── main.go
@@ -682,7 +692,9 @@ gin_demo
     └── user
         └── index.html
 ```
-* `user/index.html` 文件代码：
+
+* `user/index.html` 文件代码：            
+
 ```html
 {{ define "user/index.html" }}
 
@@ -692,7 +704,9 @@ gin_demo
 
 {{ end }}
 ```
-* `public/header.html` 文件代码
+
+* `public/header.html` 文件代码            
+
 ```html
 {{define "public/header"}}
 <!DOCTYPE html>
@@ -707,19 +721,23 @@ gin_demo
 
 {{end}}
 ```
-* `public/footer.html` 文件代码
+
+* `public/footer.html` 文件代码            
+            
 ```html
 {{define "public/footer"}}
 </body>
 </html>
 {{ end }}
 ```
-如果你需要引入静态文件需要定义一个静态文件目录
+
+如果你需要引入静态文件需要定义一个静态文件目录            
+
 ```
 r.Static("/assets", "./assets")
 ```
 
-3. 重定向
+3. 重定向            
 
 ```go
 package main
@@ -739,10 +757,10 @@ func main() {
 }
 ```
 
-4. 同步/异步
+4. 同步/异步            
 
-* goroutine机制可以方便地实现异步处理
-* 另外，在启动新的goroutine时，不应该使用原始上下文，必须使用它的只读副本
+* goroutine机制可以方便地实现异步处理            
+* 另外，在启动新的goroutine时，不应该使用原始上下文，必须使用它的只读副本            
 
 ```go
 package main
@@ -778,11 +796,12 @@ func main() {
 }
 ```
 
-## 6. 中间件
-1. 全局中间件
+## 6. 中间件            
+1. 全局中间件            
 
 
 
-## X. 参考文档
+## X. 参考文档            
 [Gitbook](https://www.topgoer.com/)
+
 
