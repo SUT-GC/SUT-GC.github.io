@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "问题 - 为什么NoSQL不支持事务"
+title: "为什么NoSQL不支持事务"
 description: "记录自己对世间的疑问和思考"
 categories: [问题]
 tags: [database]
@@ -9,7 +9,7 @@ tags: [database]
 * Kramdown table of contents
 {:toc .toc}
 
-# 问题 - 为什么NoSQL不支持事务
+# 为什么NoSQL不支持事务
 
 ## 1. 背景
 
