@@ -6,6 +6,9 @@ categories: [工作]
 tags: [Code]
 ---
 
+* Kramdown table of contents
+{:toc .toc}
+
 # 并发函数调用工具类
 
 ## 1 背景
