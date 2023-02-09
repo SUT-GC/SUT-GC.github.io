@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>ChatGPT</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <br/>
+        <br/>
+        <el-progress :text-inside="true" :stroke-width="18" :percentage="percent"></el-progress>
+        <br/>
+        <br/>
+        <div class="request" v-loading="loading">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="问题内容">
+                    <el-input v-model="form.question"></el-input>
+                </el-form-item>
+                <el-form-item label="最大字数">
+                    <el-input v-model="form.max_words"></el-input>
+                </el-form-item>
+                <el-form-item label="模型选择">
+                    <el-select v-model="form.model" placeholder="请选择活动区域">
+                        <el-option label="text-davinci-003" value="text-davinci-003"></el-option>
+                        <el-option label="text-davinci-002" value="text-davinci-002"></el-option>
+                        <el-option label="text-davinci-001" value="text-davinci-001"></el-option>
+                        <el-option label="text-curie-001" value="text-curie-001"></el-option>
+                        <el-option label="text-babbage-001" value="text-babbage-001"></el-option>
+                        <el-option label="text-ada-001" value="text-ada-001"></el-option>
+                        <el-option label="davinci-instruct-beta" value="davinci-instruct-beta"></el-option>
+                        <el-option label="curie-instruct-beta" value="curie-instruct-beta"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="onSubmit">立刻请求</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+        <div class="response">
+            <el-table :data="log" border style="width: 100%">
+                <el-table-column type="index" label="#" width="50"></el-table-column>
+                <el-table-column prop="model" label="模型"></el-table-column>
+                <el-table-column prop="question" label="问题"></el-table-column> 
+                <el-table-column prop="answer" label="答案"></el-table-column>
+            </el-table>
+        </div>
+    </div>
+</body>
+<!-- 先引入 Vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="https://unpkg.com/axios/dist/axios.js"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    //最重要的一步 调用请求的开始
+    Vue.prototype.$http = axios;
+
+    new Vue({
+        el: '#app',
+        data: {
+            form: {
+                "question":"say test",
+                "max_words": 100,
+                "model": "text-davinci-003"
+            },
+            loading: false,
+            percent: 0,
+            log: []
+        },
+        methods: {
+            onSubmit() {
+                v = this
+                this.loading = true
+                this.percent = 30
+                console.log(this.form);
+                this.$http.post('https://chatgpt.igouc.cn/chat/sendQuestion', this.form)
+                    .then(function (res) {
+                        data = res.data
+                        console.log("data..", data)
+                        if (data.code == 2000) {
+                            v.log.push({
+                                "model": v.form.model,
+                                "question": v.form.question,
+                                "answer": data.data.answer
+                            })
+                        } else {
+                            v.log.push({
+                                "model": v.form.model,
+                                "question": v.form.question,
+                                "answer": data.message
+                            })
+                        }
+
+                        v.loading = false
+                        v.percent = 100
+                    }, function (res) {
+                        console.log("res", res)
+                        v.log.push({
+                            "model": v.form.model,
+                            "question": v.form.question,
+                            "answer": "服务异常"
+                        })
+                        v.loading = false
+                        v.percent = 100
+                    });
+            }
+        }
+    })
+</script>
+
+</html>
