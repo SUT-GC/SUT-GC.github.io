@@ -207,7 +207,7 @@
                             "prompt": this.question
                         }
 
-                        promise = this.$http.post("http://digitalocean.igouc.cn:8000/chatGPT/imageCompletion", requestBody)
+                        promise = this.$http.post("https://digitalocean.igouc.cn/chatGPT/imageCompletion", requestBody)
 
                         promise.then((res) => {
                             data = res.data
@@ -271,7 +271,7 @@
 
                             console.log("requestBody", requestBody)
 
-                            promise = this.$http.post("http://digitalocean.igouc.cn:8000/chatGPT/chatCompletion", requestBody)
+                            promise = this.$http.post("https://digitalocean.igouc.cn/chatGPT/chatCompletion", requestBody)
                             promise.then((res) => {
                                 data = res.data
                                 console.log("data..", data)
@@ -311,7 +311,7 @@
                             }
                             console.log("requestBody", requestBody)
                             
-                            promise = this.$http.post("http://digitalocean.igouc.cn:8000/chatGPT/normalCompletion", requestBody)
+                            promise = this.$http.post("https://digitalocean.igouc.cn/chatGPT/normalCompletion", requestBody)
                             promise.then((res) => {
                                 data = res.data
                                 console.log("data..", data)
