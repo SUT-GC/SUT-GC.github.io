@@ -6,47 +6,65 @@
     <title>ChatGPT</title>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link href="https://cdn.bootcss.com/highlight.js/8.0/styles/monokai_sublime.min.css" rel="stylesheet">
 </head>
 
 <body>
     <div id="app">
-        <br/>
-        <br/>
+        <br />
+        <br />
         <el-progress :text-inside="true" :stroke-width="18" :percentage="percent"></el-progress>
-        <br/>
-        <br/>
+        <br />
+        <br />
         <div class="request" v-loading="loading">
             <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="请求配置">
+                    <el-collapse>
+                        <el-collapse-item title="" name="">
+                            <el-form ref="form" label-width="80px">
+                                <el-form-item label="请求源">
+                                    <el-select v-model="useSource" placeholder="请选择" @change="handleChangeSource">
+                                        <el-option v-for="item in sourceList" :key="item.value" :label="item.label"
+                                            :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item v-if="!hideImage" label="内容">
+                                    <el-switch v-model="useImage" active-text="画画" inactive-text="问题"
+                                        @change="handleChangeUseImage">
+                                </el-form-item>
+                                <el-form-item v-if="!hideWithContext" label="上下文">
+                                    <el-switch v-model="withContext" active-text="带上下文" inactive-text="不带上下文"
+                                        @change="handleChangeUseContext"></el-switch>
+                                </el-form-item>
+                                <el-form-item v-if="!hideModelID" label="模型">
+                                    <el-radio v-model="radio" label="1">{{modelID}}</el-radio>
+                                </el-form-item>
+                                <el-form-item v-if="!hideTemp" label="温度">
+                                    <el-slider v-model="temp" label="温度"></el-slider>
+                                </el-form-item>
+                            </el-form>
+                        </el-collapse-item>
+                    </el-collapse>
+                </el-form-item>
                 <el-form-item label="问题内容">
-                    <el-input v-model="form.question"></el-input>
-                </el-form-item>
-                <el-form-item label="最大字数">
-                    <el-input-number v-model="form.max_words"></el-input-number>
-                </el-form-item>
-                <el-form-item label="模型选择">
-                    <el-select v-model="form.model" placeholder="请选择活动区域">
-                        <el-option label="text-davinci-003" value="text-davinci-003"></el-option>
-                        <el-option label="text-davinci-002" value="text-davinci-002"></el-option>
-                        <el-option label="text-davinci-001" value="text-davinci-001"></el-option>
-                        <el-option label="text-curie-001" value="text-curie-001"></el-option>
-                        <el-option label="text-babbage-001" value="text-babbage-001"></el-option>
-                        <el-option label="text-ada-001" value="text-ada-001"></el-option>
-                        <el-option label="davinci-instruct-beta" value="davinci-instruct-beta"></el-option>
-                        <el-option label="curie-instruct-beta" value="curie-instruct-beta"></el-option>
-                    </el-select>
+                    <el-input type="textarea" v-model="question" :autosize="{ minRows: 1, maxRows: 20}"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="onSubmit">立刻请求</el-button>
+                    <el-button type="warning" @click="onClear">清空历史</el-button>
                 </el-form-item>
             </el-form>
         </div>
-        <div class="response">
-            <el-table :data="log" border style="width: 100%">
-                <el-table-column type="index" label="#" width="50"></el-table-column>
-                <el-table-column prop="model" label="模型"></el-table-column>
-                <el-table-column prop="question" label="问题"></el-table-column> 
-                <el-table-column prop="answer" label="答案"></el-table-column>
-            </el-table>
+        <div class="response" v-for="(item,index) in showItems">
+            <el-card class="box-card item-card">
+                <div slot="header" class="clearfix" v-html="item.question">
+                </div>
+                <div v-html="item.innterHtml">
+                </div>
+                <el-button style="float: right; padding: 3px 0" type="text" @click="onDelete(index)">删除</el-button>
+            </el-card>
+
         </div>
     </div>
 </body>
@@ -55,61 +73,409 @@
 <script src="https://unpkg.com/axios/dist/axios.js"></script>
 <!-- 引入组件库 -->
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/marked/2.0.3/marked.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
 <script>
     //最重要的一步 调用请求的开始
     Vue.prototype.$http = axios;
+    hljs.initHighlightingOnLoad();
+
+    var rendererMD = new marked.Renderer();
+    marked.setOptions({
+        renderer: rendererMD,
+        gfm: true,
+        tables: true,
+        breaks: false,
+        pedantic: false,
+        sanitize: false,
+        smartLists: true,
+        smartypants: false
+    });
+    marked.setOptions({
+        highlight: function (code) {
+            return hljs.highlightAuto(code).value;
+        }
+    });
 
     new Vue({
         el: '#app',
         data: {
-            form: {
-                "question":"say test",
-                "max_words": 100,
-                "model": "text-davinci-003"
-            },
+            sourceList: [
+                { value: "BaiXing", label: "百姓（推荐）" },
+                { value: "WenXin", label: "文心" },
+                { value: "ChatGPT", label: "OpenAI" }
+            ],
+            radio: '1',
+            hideImage: false,
+            useImage: false,
+            useSource: "BaiXing",
+            hideWithContext: true,
+            withContext: false,
+            context: [],
+            hideTemp: true,
+            temp: 60,
+            hideTokenSize: true,
+            maxToken: 1000,
+            hideModelID: true,
+            modelID: "",
+            question: "",
             loading: false,
             percent: 0,
-            log: []
+            promptSwitch: false,
+            prompt: "",
+            logItems: [],
+            showItems: [],
+            form: {}
         },
         methods: {
+            formatTemp() {
+                return this.temp / 100
+            },
             onSubmit() {
                 v = this
                 this.loading = true
-                this.percent = 30
-                console.log(this.form);
-                this.$http.post('https://chatgpt.igouc.cn/chat/sendQuestion', this.form)
-                    .then(function (res) {
+                this.percent = 10
+                interval = setInterval(() => {
+                    if (v.percent >= 90) {
+                        return
+                    }
+                    this.percent += 1
+                }, 300);
+
+                item = {
+                    "question": this.question,
+                    "id": this.generateUUID()
+                }
+
+                var requestBody;
+                if (this.useSource === "WenXin" || this.useSource === "BaiXing") {
+                    requestBody = {
+                        "question": this.question
+                    }
+
+                    if (this.useSource === "WenXin") {
+                        requestBody.question = "问题: " + requestBody.question + " &文心一言"
+                    } else {
+                        if (this.useImage) {
+                            requestBody.question = "画画 " + requestBody.question,
+                            requestBody.isImage = true
+                            item.isImage = true
+                        } else {
+
+                        }
+                    }
+
+                    console.log(requestBody)
+
+                    promise = this.$http.post("https://chatgpt.igouc.cn/chat/sendQuestion", requestBody)
+                    promise.then((res) => {
                         data = res.data
                         console.log("data..", data)
-                        if (data.code == 2000) {
-                            v.log.push({
-                                "model": v.form.model,
-                                "question": v.form.question,
-                                "answer": data.data.answer
-                            })
+
+                        if (data.code === 2000) {
+                            item.answer = requestBody.isImage ? `![图片](${data.data.answer})` : data.data.answer
+                            item.innterHtml = marked(item.answer)
                         } else {
-                            v.log.push({
-                                "model": v.form.model,
-                                "question": v.form.question,
-                                "answer": data.message
-                            })
+                            item.answer = data.message
+                            item.innterHtml = marked(item.answer)
                         }
 
+                        this.showItems.unshift(item)
+                        this.logItems.push(item)
+
                         v.loading = false
-                        v.percent = 100
-                    }, function (res) {
-                        console.log("res", res)
-                        v.log.push({
-                            "model": v.form.model,
-                            "question": v.form.question,
-                            "answer": "服务异常"
-                        })
+                        clearInterval(interval)
+                        v.percent = 100 
+                    }).catch((error) => {
+                        console.log(error);
+                        item.answer = "服务异常"
+                        item.innterHtml = marked(item.answer)
+
+                        this.showItems.unshift(item)
+                        this.logItems.push(item)
+
                         v.loading = false
+                        clearInterval(interval)
                         v.percent = 100
                     });
+                } else if (this.useSource === "ChatGPT") {
+                    if (this.useImage) {
+                        item.isImage = true
+
+                        requestBody = {
+                            "prompt": this.question
+                        }
+
+                        promise = this.$http.post("http://digitalocean.igouc.cn:8000/chatGPT/imageCompletion", requestBody)
+
+                        promise.then((res) => {
+                            data = res.data
+                            console.log("data..", data)
+
+                            if (data.code === 2000) {
+                                item.answer = `![图片](${data.data})`
+                                item.innterHtml = marked(item.answer)
+                            } else {
+                                item.answer = data.message
+                                item.innterHtml = marked(item.answer)
+                            }
+
+                            this.showItems.unshift(item)
+                            this.logItems.push(item)
+
+                            v.loading = false
+                            clearInterval(interval)
+                            v.percent = 100
+                        }).catch((error) => {
+                            console.log(error);
+                            item.answer = "服务异常"
+                            item.innterHtml = marked(item.answer)
+
+                            this.showItems.unshift(item)
+                            this.logItems.push(item)
+
+                            v.loading = false
+                            clearInterval(interval)
+                            v.percent = 100
+                        });
+                    } else {
+                        if (this.withContext) {
+                            item.withContext = true
+                            requestBody = {
+                                "model":"gpt-3.5-turbo-0301",
+                                "temperature": this.formatTemp(),
+                                "max_token": 1000,
+                                "message":[]
+                            }
+
+                            for (let i = 0 ; i < this.logItems.length; i++) {
+                                if (this.logItems[i].isImage) {
+                                    continue
+                                }
+                                requestBody.message.push({
+                                    "role": "user",
+                                    "content": this.logItems[i].question
+                                })
+
+                                requestBody.message.push({
+                                    "role": "assistant",
+                                    "content": this.logItems[i].answer
+                                })
+                            }
+
+                            requestBody.message.push({
+                                "role": "user",
+                                "content": this.question
+                            })
+
+                            console.log("requestBody", requestBody)
+
+                            promise = this.$http.post("http://digitalocean.igouc.cn:8000/chatGPT/chatCompletion", requestBody)
+                            promise.then((res) => {
+                                data = res.data
+                                console.log("data..", data)
+
+                                if (data.code === 2000) {
+                                    item.answer = data.data.content
+                                    item.innterHtml = marked(item.answer)
+                                } else {
+                                    item.answer = data.message
+                                    item.innterHtml = marked(item.answer)
+                                }
+
+                                this.showItems.unshift(item)
+                                this.logItems.push(item)
+
+                                v.loading = false
+                                clearInterval(interval)
+                                v.percent = 100
+                            }).catch((error) => {
+                                console.log(error);
+                                item.answer = "服务异常"
+                                item.innterHtml = marked(item.answer)
+
+                                this.showItems.unshift(item)
+                                this.logItems.push(item)
+
+                                v.loading = false
+                                clearInterval(interval)
+                                v.percent = 100
+                            });
+                        } else {
+                            requestBody = {
+                                "model":"text-davinci-003",
+                                "temperature": this.formatTemp(),
+                                "prompt":this.question,
+                                "max_token": 1000
+                            }
+                            console.log("requestBody", requestBody)
+                            
+                            promise = this.$http.post("http://digitalocean.igouc.cn:8000/chatGPT/normalCompletion", requestBody)
+                            promise.then((res) => {
+                                data = res.data
+                                console.log("data..", data)
+
+                                if (data.code === 2000) {
+                                    item.answer = data.data
+                                    item.innterHtml = marked(item.answer)
+                                } else {
+                                    item.answer = data.message
+                                    item.innterHtml = marked(item.answer)
+                                }
+
+                                this.showItems.unshift(item)
+                                this.logItems.push(item)
+
+                                v.loading = false
+                                clearInterval(interval)
+                                v.percent = 100
+                            }).catch((error) => {
+                                console.log(error);
+                                item.answer = "服务异常"
+                                item.innterHtml = marked(item.answer)
+
+                                this.showItems.unshift(item)
+                                this.logItems.push(item)
+
+                                v.loading = false
+                                clearInterval(interval)
+                                v.percent = 100
+                            });
+                        }
+                        
+                    }
+                    
+                }
+
+                console.log("showItems", this.showItems)
+                console.log("logItems", this.logItems)
+            },
+
+            onClear() {
+                this.logItems = []
+                this.showItems = []
+            },
+
+            onDelete(index) {
+                var deleteId = ""
+                for (let i = 0; i < this.showItems.length; i++) {
+                    if (i === index) {
+                        deleteId = this.showItems[i].id
+                        break
+                    }
+                }
+
+                var newShowItems = []
+                var newLogItems = []
+
+                for (let i = 0; i < this.showItems.length; i++) {
+                    if (this.showItems[i].id === deleteId) {
+                        continue
+                    }
+                    newShowItems.push(this.showItems[i])
+                }
+
+                for (let i = 0; i < this.logItems.length; i++) {
+                    if (this.logItems[i].id === deleteId) {
+                        continue
+                    }
+                    newLogItems.push(this.logItems[i])
+                }
+
+                this.showItems = newShowItems
+                this.logItems = newLogItems
+            },
+
+            handleChangeSource() {
+                console.log("source", this.useSource)
+                if (this.useSource === "WenXin") {
+                    this.hideModelID = true
+                    this.hideTemp = true
+                    this.hideTokenSize = true
+                    this.hideWithContext = true
+                    this.hideImage = true
+                }
+                if (this.useSource === "BaiXing") {
+                    this.hideModelID = true
+                    this.hideTemp = true
+                    this.hideTokenSize = true
+                    this.hideWithContext = true
+                    this.hideImage = false
+                }
+                if (this.useSource === "ChatGPT") {
+                    this.hideModelID = false
+                    this.hideTemp = false
+                    this.hideTokenSize = false
+                    this.hideWithContext = false
+                    this.hideImage = false
+                }
+
+                if (this.useSource === "ChatGPT") {
+                    this.hideModelID = false
+                } else {
+                    this.hideModelID = true
+                }
+
+                if (this.useSource === "ChatGPT" && this.withContext) {
+                    this.modelID = "gpt-3.5-turbo-0301"
+                } else {
+                    this.modelID = "text-davinci-003"
+                }
+            },
+
+            handleChangeUseImage() {
+                if (this.useImage) {
+                    this.hideModelID = true
+                    this.hideWithContext = true
+                    this.hideTemp = true
+                } else {
+                    if (this.useSource === "ChatGPT") {
+                        this.hideModelID = false
+                        this.hideWithContext = false
+                        this.hideTemp = false
+                    }
+                }
+                console.log("useImage", this.useImage)
+                console.log("hideWithContext", this.hideWithContext)
+                console.log("hideModelID", this.hideModelID)
+            },
+
+            handleChangeUseContext() {
+                if (this.withContext) {
+                    this.modelID = "gpt-3.5-turbo-0301"
+                } else {
+                    this.modelID = "text-davinci-003"
+                }
+                console.log("withContext", this.withContext)
+            },
+
+            generateUUID() {
+                var d = new Date().getTime();
+                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = (d + Math.random() * 16) % 16 | 0;
+                    d = Math.floor(d / 16);
+                    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+                return uuid;
             }
         }
     })
 </script>
+
+<style>
+    .request {
+        margin: 20px;
+    }
+
+    .response {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .item-card {
+        margin: 10px;
+    }
+</style>
 
 </html>
