@@ -3,7 +3,7 @@ layout: post
 title: "领域建设：单品活动"
 description: "领域建设：单品活动"
 categories: [工作]
-tags: [SOA]
+tags: [总结]
 ---
 
 * Kramdown table of contents
