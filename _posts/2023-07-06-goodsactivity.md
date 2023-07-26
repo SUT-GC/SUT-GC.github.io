@@ -2,7 +2,7 @@
 layout: post
 title: "单品活动-C端架构演进和稳定性建设"
 description: "单品活动-C端架构演进和稳定性建设"
-categories: [学习]
+categories: [工作]
 tags: [总结]
 ---
 

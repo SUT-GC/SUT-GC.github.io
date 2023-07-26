@@ -3,7 +3,7 @@ layout: post
 title: "商户标签系统构想"
 description: "精益求精，好的产品总是出自那些不满足现状的人"
 categories: [工作]
-tags: [Service]
+tags: [总结]
 ---
 
 # 商户标签系统的构想

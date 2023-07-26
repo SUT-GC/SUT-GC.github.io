@@ -3,7 +3,7 @@ layout: post
 title: "可扩展的三层代码设计"
 description: "加油"
 categories: [工作]
-tags: [code]
+tags: [总结]
 ---
 
 * Kramdown table of contents

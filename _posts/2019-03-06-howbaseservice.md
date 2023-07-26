@@ -3,7 +3,7 @@ layout: post
 title: "服务分层以及基础服务的定位"
 description: "才疏学浅，但敢于总结"
 categories: [工作]
-tags: [SOA]
+tags: [总结]
 ---
 
 * Kramdown table of contents

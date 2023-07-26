@@ -3,7 +3,7 @@ layout: post
 title: "你觉得基础服务的代码应该怎么写呢？"
 description: "沉淀·不忘初心"
 categories: [工作]
-tags: [Service]
+tags: [总结]
 ---
 
 * Kramdown table of contents
@@ -337,7 +337,7 @@ final public class Publisher<T extends BaseEvent> {
 }
 ```
 
-##### 基本事件格式 BaseEvent 
+##### 基本事件格式 BaseEvent
 
 ```java
 abstract public class BaseEvent<T> {

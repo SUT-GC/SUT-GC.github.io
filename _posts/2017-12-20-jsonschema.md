@@ -75,11 +75,11 @@ description 必须是一个string， 无实际用途，标注
 
 default 默认值，当不存在该属性的时候，则默认填充的值
 
-### type    
+### type
 
 type 必须是 ["integer", "string", "number", "object", "array", "boolean", "null"] 六种类型之一，number 和 integer 的区别在于 number 可以匹配任何数值（可以理解为java中的Double类型），而 integer 只可以匹配整数类型（可以理解为java中的Integer）    
 
-### enum    
+### enum
 
 enum 表示枚举类型，即json中的值必须是enum穷举中的任何一个，往往配合 type 为 ["integer", "number", "string"] 这三个使用，使用方式如下:    
 
