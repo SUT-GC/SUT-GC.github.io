@@ -38,12 +38,12 @@ en-ca:
 en-nz:
   <<: *en
 zh: &zh
-  about: '关于我们'
+  about: '关于我'
   articles: '文章列表'
   back_to_top: '返回顶部'
   categories: '文章分类'
   close: '关闭'
-  copyright: '<p><small>本博客由<a href="mailto:gouchao2008@qq.com"> GC </a>基于 <a href="https://jekyllrb.com/"> Jekyll </a>和模版<a href=
+  copyright: '<p><small>本博客由<a href="mailto:gouchao2008@qq.com"> SutGC </a>基于 <a href="https://jekyllrb.com/"> Jekyll </a>和模版<a href=
   "https://github.com/yizeng/jekyll-theme-simple-texture"> ST </a> 开发.</small></p>'
   enter_blog: '进入博客'
   last_updated: '最后更新于'
