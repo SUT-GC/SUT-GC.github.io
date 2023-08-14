@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "领域建设：单品活动"
-description: "领域建设：单品活动"
+title: "单品活动-领域建设思考"
+description: "单品活动-领域建设思考"
 categories: [工作]
 tags: [总结]
 ---

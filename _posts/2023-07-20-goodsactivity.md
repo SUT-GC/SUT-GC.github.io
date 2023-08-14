@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "由单品活动C端价格计算代码重构引发的思考"
-description: "由单品活动C端价格计算代码重构引发的思考"
+title: "单品活动-C端价格计算代码重构引发的思考"
+description: "单品活动-C端价格计算代码重构引发的思考"
 categories: [工作]
 tags: [总结]
 ---
