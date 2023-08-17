@@ -24,7 +24,33 @@ Supplier<Boolean> newQuery = () -> {return xxx;}
 return migrateCompareControl.migrate(newQuery, oldQuery, new TypeReference<Boolean>() {}, goodsId, "test", new BooleanCompare());
 ````
 
+```java
+    @Override
+    @MethodMigrateAOP(control = MigrateCompareControl.class, targetClass = NewLogicServerImpl.class, targetMethod = "doSomeThingMethod", compare = ResultCompare.class)
+    public Result doSomeThingMethod(@MigrateSimpleKey Long goodsId) {
+        // do somethings 
+        return new Result();
+    }
+```
+
 ## 框架代码
+
+### MethodMigrateAOP
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+public @interface MethodMigrateAOP {
+    Class<? extends MigrateCompareControl> control();
+
+    Class targetClass();
+
+    String targetMethod();
+
+    Class<? extends BusinessCompare> compare();
+}
+
+```
 
 ### MigrateCompareControl
 
@@ -36,6 +62,11 @@ public interface MigrateCompareControl {
 
     <R> R migrateSync(Supplier<R> newQueryFunc, Supplier<R> oldQueryFunc, TypeReference<R> tr, Long sample,
             String key, BusinessCompare<R> businessCompare);
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.PARAMETER})
+public @interface MigrateSimpleKey {
 }
 
 ```
@@ -593,6 +624,157 @@ public class DefaultMigrateCompareControl extends MigrateCompareControlAbstract 
     public CompareGrayConfig getCompareGrayConfig(String key) {
         return this.defaultCompareGrayConfigMap.get(key);
     }
+}
+
+```
+
+### MethodMigrateAspect
+
+```java
+
+@Aspect
+@Component
+@Order(1) // 要求 迁移灰度的切面包在方法的最外层（默认切面优先级 是 int.max)
+public class MethodMigrateAspect {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodMigrateAspect.class);
+
+    final private Map<String, MigrateCompareControl> migrateCompareControlMap = new ConcurrentHashMap<>();
+    final private Map<Class, Object> classMapBean = new ConcurrentHashMap<>();
+
+    @Around(value = "@annotation(com.yiran.service.libra.common.logiccompare.aop.MethodMigrateAOP)")
+    public Object process(ProceedingJoinPoint pjp) throws Throwable {
+        // 应急开关
+        Boolean totalSwitch = LeoUtils.getBooleanProperty("methodMigrateAspect.total.switch", true);
+        if (BooleanUtils.isFalse(totalSwitch)) {
+            monitor("totalSwitch", "TotalSwitchClosed");
+            return pjp.proceed();
+        }
+
+        // 准备数据
+        Object[] args = pjp.getArgs();
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
+
+        String fromClassSimpleName = signature.getMethod().getDeclaringClass().getSimpleName();
+        String fromMethodName = signature.getMethod().getName();
+        Type genericReturnType = signature.getMethod().getGenericReturnType();
+        Annotation[][] parameterAnnotations = signature.getMethod().getParameterAnnotations();
+        String controlKey = String.format("%s.%s", fromClassSimpleName, fromMethodName);
+
+        MethodMigrateAOP annotation = signature.getMethod().getAnnotation(MethodMigrateAOP.class);
+        Class[] parameterTypes = signature.getParameterTypes();
+
+        Class<? extends MigrateCompareControl> controlClass = annotation.control();
+        Class<? extends BusinessCompare> compareUtil = annotation.compare();
+        Class<?> targetClass = annotation.targetClass();
+        String targetMethod = annotation.targetMethod();
+
+        MigrateCompareControl control = findMigrateControl(controlKey, controlClass);
+        if (null == control) {
+            // 如果没有找到切换的控制中心, 正常执行逻辑
+            monitor(controlKey, "MigrateControlNotFound");
+            return pjp.proceed();
+        }
+
+        Object targetClassBean = findTargetClassBean(targetClass);
+        if (null == targetClassBean) {
+            // 如果没有找到目标类的bean，正常执行逻辑
+            monitor(controlKey, "TargetBeanNotFound");
+            return pjp.proceed();
+        }
+
+        Long simpleKey = findSimpleKey(args, parameterAnnotations);
+        if (null == simpleKey) {
+            // 没有找到灰度的Key
+            monitor(controlKey, "SimpleKeyNotFound");
+            return pjp.proceed();
+        }
+
+        try {
+            Supplier<Object> oldQuery = () -> {
+                try {
+                    return pjp.proceed();
+                } catch (Throwable e) {
+                    throw new MethodMigrateException("老逻辑执行失败", e);
+                }
+            };
+
+            Supplier<Object> newQuery = () -> {
+                Method method = null;
+                try {
+                    method = targetClass.getDeclaredMethod(targetMethod, parameterTypes);
+                } catch (NoSuchMethodException e) {
+                    throw new MethodMigrateException("新逻辑Bean未找到", e);
+                }
+
+                Object newResult = null;
+                try {
+                    newResult = method.invoke(targetClassBean, args);
+                } catch (Throwable e) {
+                    throw new MethodMigrateException("新逻辑调用失败", e);
+                }
+
+                return newResult;
+            };
+
+            TypeReference<Object> typeRef = new TypeReference<Object>() {
+                @Override
+                public Type getType() {
+                    // 这里不管 TypeReference 上的范型是什么类型，真正用的都是 genericReturnType
+                    // genericReturnType 不会吞掉范型里面的类型，比如 List<GoodsActivityDetailDTO>, class 给的是 List.class, genericReturnType 给的是List<GoodsActivityDetailDTO>
+                    return genericReturnType;
+                }
+            };
+
+            return control.migrate(newQuery, oldQuery, typeRef, simpleKey, controlKey, compareUtil.newInstance());
+        } catch (Throwable e) {
+            // 如果中间异常了，这里再走一遍老逻辑，然后返回
+            LOGGER.error("MethodMigrateAspect run migrate exception", e);
+            monitor(controlKey, "UnknownException");
+            return pjp.proceed();
+        }
+    }
+
+    private Long findSimpleKey(Object[] args, Annotation[][] parameterAnnotations) {
+        for (int i = 0; i < args.length; i++) {
+            Annotation[] parameterAnnotation = parameterAnnotations[i];
+            for (Annotation annotation : parameterAnnotation) {
+                if (annotation instanceof MigrateSimpleKey) {
+                    return NumberUtils.objectToLong(args[i]);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Object findTargetClassBean(Class targetClass) {
+        Object bean = this.classMapBean.get(targetClass);
+        if (null != bean) {
+            return bean;
+        }
+
+        bean = ApplicationContextHolder.getBeanNotNull(targetClass);
+        this.classMapBean.put(targetClass, bean);
+
+        return bean;
+    }
+
+    private MigrateCompareControl findMigrateControl(String controlKey, Class<? extends MigrateCompareControl> controlClass) {
+        MigrateCompareControl migrateCompareControl = this.migrateCompareControlMap.get(controlKey);
+        if (null != migrateCompareControl) {
+            return migrateCompareControl;
+        }
+
+        migrateCompareControl = ApplicationContextHolder.getBeanNotNull(controlClass);
+        this.migrateCompareControlMap.put(controlKey, migrateCompareControl);
+
+        return migrateCompareControl;
+    }
+
+    private void monitor(String key, String desc) {
+        Cat.logEvent("MethodMigrateAOP", desc, "Error", String.format("%s_%s", key, desc));
+    }
+
 }
 
 ```
