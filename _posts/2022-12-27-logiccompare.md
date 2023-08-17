@@ -641,7 +641,7 @@ public class MethodMigrateAspect {
     final private Map<String, MigrateCompareControl> migrateCompareControlMap = new ConcurrentHashMap<>();
     final private Map<Class, Object> classMapBean = new ConcurrentHashMap<>();
 
-    @Around(value = "@annotation(com.yiran.service.libra.common.logiccompare.aop.MethodMigrateAOP)")
+    @Around(value = "@annotation(common.logiccompare.aop.MethodMigrateAOP)")
     public Object process(ProceedingJoinPoint pjp) throws Throwable {
         // 应急开关
         Boolean totalSwitch = LeoUtils.getBooleanProperty("methodMigrateAspect.total.switch", true);
