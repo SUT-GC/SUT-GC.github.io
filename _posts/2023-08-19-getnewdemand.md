@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "单品活动-C端价格计算代码重构引发的思考"
-description: "单品活动-C端价格计算代码重构引发的思考"
+title: "接到一个新需求应该怎么做？(V1.0)"
+description: "接到一个新需求应该怎么做？(V1.0)"
 categories: [思考]
 tags: [总结]
 ---
