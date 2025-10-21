@@ -104,17 +104,19 @@ layout: blog
                 {% endif %}
             </div>
         </div>
-        <div id="valine-comments">
-            <script type="text/javascript" src="//unpkg.com/valine/dist/Valine.min.js"></script>
-            <script type="text/javascript">
-                console.log("this is valine comments")
-                new Valine({
-                    el: '#valine-comments',
-                    appId: 'jQWG7vVqESQyyyPNUSvfUleu-MdYXbMMI',
-                    appKey: 'y9FIZVFavB4Kqe3Rn8uFTCJe',
-                    serverURLs: 'https://jqwg7vvq.api.lncldglobal.com'
-                })
-            </script>
-        </div>
+        <div id="valine-comments"></div>
+        <script src="https://unpkg.com/valine/dist/Valine.min.js"></script>
+        <script>
+            new Valine({
+                el: '#valine-comments',
+                appId: 'jQWG7vVqESQyyyPNUSvfUleu-MdYXbMMI',
+                appKey: 'y9FIZVFavB4Kqe3Rn8uFTCJe',
+                serverURLs: 'https://jqwg7vvq.api.lncldglobal.com',
+                placeholder: '说点什么吧...',
+                avatar: 'mp',
+                pageSize: 10,
+                lang: 'zh-CN'
+            })
+        </script>
     </div>
 </article>
