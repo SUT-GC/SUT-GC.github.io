@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Claude Code Router + 豆包完整配置指南（修复版）"
+title: "Claude Code Router + 豆包完整配置指南"
 description: "完整的 Claude Code Router + 豆包配置指南，从安装到使用的全流程教程。成本仅为 Claude 订阅的 20-30%！"
 categories: ["技术", "AI工具", "开发指南"]
 tags: ["Claude Code Router", "豆包", "Doubao", "火山引擎", "AI编程助手", "低成本AI"]
