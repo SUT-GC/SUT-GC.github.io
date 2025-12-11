@@ -1,6 +1,7 @@
 en: &en
   about: 'About'
   articles: 'Articles'
+  photography: 'Photography'
   back_to_top: 'Back to Top'
   categories: 'Categories'
   close: 'Close'
@@ -40,6 +41,7 @@ en-nz:
 zh: &zh
   about: '关于我'
   articles: '文章列表'
+  photography: '摄影'
   back_to_top: '返回顶部'
   categories: '文章分类'
   close: '关闭'

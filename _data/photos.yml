@@ -1,0 +1,41 @@
+# 摄影墙图片数据
+# 每次添加新图片，只需要在这里加一条记录
+
+# R2 图床基础地址，改成你自己的
+r2_base_url: "https://pub-fdfc441f67b04aa9ba3407881d2645ba.r2.dev"
+
+# 分类定义
+categories:
+  - id: all
+    name: 全部
+  - id: landscape
+    name: 风光
+  - id: portrait
+    name: 人像
+  - id: street
+    name: 街拍
+  - id: life
+    name: 生活
+
+# 图片列表
+photos:
+  # 示例图片，替换成你自己的
+  - filename: shoot/Screenshot-1210-151456.png
+    title: 示例图片
+    category: life
+    date: 2024-12-11
+    description: 这是一张示例图片
+    # exif 信息可选
+    # exif:
+    #   camera: Sony A7M4
+    #   lens: 24-70mm f/2.8
+    #   aperture: f/2.8
+    #   shutter: 1/500s
+    #   iso: 400
+
+  # 添加更多图片示例:
+  # - filename: landscape/sunset.jpg
+  #   title: 日落
+  #   category: landscape
+  #   date: 2024-12-10
+  #   description: 海边的日落

@@ -1,0 +1,203 @@
+---
+layout: blog
+---
+
+<div class="photography-wall">
+  <header class="photo-header">
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}
+    <p class="photo-description">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <!-- 分类筛选 -->
+  <nav class="photo-categories">
+    {% for cat in site.data.photos.categories %}
+    <button class="category-btn {% if cat.id == 'all' %}active{% endif %}" data-category="{{ cat.id }}">
+      {{ cat.name }}
+    </button>
+    {% endfor %}
+  </nav>
+
+  <!-- 图片网格 -->
+  <div class="photo-grid" id="photo-grid">
+    {% assign sorted_photos = site.data.photos.photos | sort: "date" | reverse %}
+    {% for photo in sorted_photos %}
+    <div class="photo-item"
+         data-category="{{ photo.category }}"
+         data-title="{{ photo.title }}"
+         data-description="{{ photo.description }}"
+         data-exif='{{ photo.exif | jsonify }}'>
+      <div class="photo-wrapper">
+        <img
+          src="{{ site.data.photos.r2_base_url }}/{{ photo.filename }}"
+          alt="{{ photo.title }}"
+          loading="lazy"
+        >
+        <div class="photo-overlay">
+          <h3>{{ photo.title }}</h3>
+          {% if photo.description %}
+          <p>{{ photo.description }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- 灯箱 -->
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+  <span class="lightbox-nav prev" onclick="navigateLightbox(-1)">&#10094;</span>
+  <span class="lightbox-nav next" onclick="navigateLightbox(1)">&#10095;</span>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="">
+  <div class="lightbox-info" id="lightbox-info"></div>
+</div>
+
+<script>
+(function() {
+  // 当前可见的图片列表和索引
+  let visiblePhotos = [];
+  let currentIndex = 0;
+
+  // 获取所有图片元素
+  function getVisiblePhotos() {
+    return Array.from(document.querySelectorAll('.photo-item:not(.hidden)'));
+  }
+
+  // 分类筛选
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const category = this.dataset.category;
+
+      // 更新按钮状态
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      // 筛选图片
+      document.querySelectorAll('.photo-item').forEach(item => {
+        if (category === 'all' || item.dataset.category === category) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      // 更新可见图片列表
+      visiblePhotos = getVisiblePhotos();
+    });
+  });
+
+  // 图片点击打开灯箱
+  document.getElementById('photo-grid').addEventListener('click', function(e) {
+    const wrapper = e.target.closest('.photo-wrapper');
+    if (!wrapper) return;
+
+    const item = wrapper.closest('.photo-item');
+    visiblePhotos = getVisiblePhotos();
+    currentIndex = visiblePhotos.indexOf(item);
+
+    if (currentIndex !== -1) {
+      showLightbox(currentIndex);
+    }
+  });
+
+  // 显示灯箱
+  function showLightbox(index) {
+    const item = visiblePhotos[index];
+    if (!item) return;
+
+    const img = item.querySelector('img');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxInfo = document.getElementById('lightbox-info');
+
+    lightboxImg.src = img.src;
+
+    // 构建信息显示
+    let infoHtml = '';
+    const title = item.dataset.title;
+    const description = item.dataset.description;
+
+    if (title) {
+      infoHtml += '<h3>' + title + '</h3>';
+    }
+    if (description) {
+      infoHtml += '<p>' + description + '</p>';
+    }
+
+    // EXIF 信息
+    try {
+      const exif = JSON.parse(item.dataset.exif || '{}');
+      if (exif && Object.keys(exif).length > 0) {
+        let exifParts = [];
+        if (exif.camera) exifParts.push(exif.camera);
+        if (exif.lens) exifParts.push(exif.lens);
+        if (exif.aperture) exifParts.push(exif.aperture);
+        if (exif.shutter) exifParts.push(exif.shutter);
+        if (exif.iso) exifParts.push('ISO ' + exif.iso);
+        if (exifParts.length > 0) {
+          infoHtml += '<div class="exif-info">' + exifParts.join(' · ') + '</div>';
+        }
+      }
+    } catch (e) {}
+
+    lightboxInfo.innerHTML = infoHtml;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    currentIndex = index;
+  }
+
+  // 关闭灯箱
+  window.closeLightbox = function() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  // 导航灯箱
+  window.navigateLightbox = function(direction) {
+    event.stopPropagation();
+    let newIndex = currentIndex + direction;
+
+    if (newIndex < 0) {
+      newIndex = visiblePhotos.length - 1;
+    } else if (newIndex >= visiblePhotos.length) {
+      newIndex = 0;
+    }
+
+    showLightbox(newIndex);
+  };
+
+  // 点击灯箱背景关闭
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this || e.target.classList.contains('lightbox-img')) {
+      closeLightbox();
+    }
+  });
+
+  // 键盘导航
+  document.addEventListener('keydown', function(e) {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox.classList.contains('active')) return;
+
+    switch(e.key) {
+      case 'Escape':
+        closeLightbox();
+        break;
+      case 'ArrowLeft':
+        navigateLightbox(-1);
+        break;
+      case 'ArrowRight':
+        navigateLightbox(1);
+        break;
+    }
+  });
+
+  // 初始化可见图片列表
+  visiblePhotos = getVisiblePhotos();
+})();
+</script>
+
+{{ content }}
