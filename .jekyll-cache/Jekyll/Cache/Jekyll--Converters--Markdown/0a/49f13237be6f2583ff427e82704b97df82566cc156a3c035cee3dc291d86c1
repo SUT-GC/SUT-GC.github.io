@@ -1,4 +1,4 @@
-I"%3<ul class="toc" id="markdown-toc">
+I"Y3<ul class="toc" id="markdown-toc">
   <li><a href="#heading-表" id="markdown-toc-heading-表">表</a>    <ul>
       <li><a href="#heading-表结构" id="markdown-toc-heading-表结构">表结构</a></li>
       <li><a href="#heading-为什么-is_valid-没有索引" id="markdown-toc-heading-为什么-is_valid-没有索引">为什么 is_valid 没有索引</a></li>
@@ -135,9 +135,9 @@
         <span class="k">break</span>
     
     <span class="k">for</span> <span class="n">shop_id</span> <span class="ow">in</span> <span class="n">shop_ids</span><span class="p">:</span>
-        <span class="n">do_some_things</span><span class="p">(</span><span class="n">shop_id</span><span class="p">)</span>
+        <span class="nf">do_some_things</span><span class="p">(</span><span class="n">shop_id</span><span class="p">)</span>
     
-    <span class="n">last_id</span> <span class="o">=</span> <span class="n">shop_ids</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">shop_ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">last_id</span> <span class="o">=</span> <span class="n">shop_ids</span><span class="p">[</span><span class="nf">len</span><span class="p">(</span><span class="n">shop_ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 </code></pre></div></div>
 
 <h2 id="heading-为什么不用-limit-offset">为什么不用 limit offset</h2>
@@ -158,7 +158,7 @@
 
 <p>使用 sqlalchemy 的话要这样写:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shop_ids</span> <span class="o">=</span> <span class="n">shop_session</span><span class="p">.</span><span class="n">query</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="nb">id</span><span class="p">).</span><span class="n">with_hint</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">,</span> <span class="s">'FORCE INDEX(ix_saturn_city_id)'</span><span class="p">).</span><span class="nb">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="n">saturn_city_id</span> <span class="o">==</span> <span class="n">xxx</span> <span class="p">).</span><span class="nb">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="n">is_valid</span> <span class="o">==</span> <span class="n">xxx</span><span class="p">).</span><span class="nb">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="nb">id</span> <span class="o">&gt;</span> <span class="n">last_id</span><span class="p">).</span><span class="n">limit</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shop_ids</span> <span class="o">=</span> <span class="n">shop_session</span><span class="p">.</span><span class="nf">query</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="nb">id</span><span class="p">).</span><span class="nf">with_hint</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">,</span> <span class="sh">'</span><span class="s">FORCE INDEX(ix_saturn_city_id)</span><span class="sh">'</span><span class="p">).</span><span class="nf">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="n">saturn_city_id</span> <span class="o">==</span> <span class="n">xxx</span> <span class="p">).</span><span class="nf">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="n">is_valid</span> <span class="o">==</span> <span class="n">xxx</span><span class="p">).</span><span class="nf">filter</span><span class="p">(</span><span class="n">Restaurant</span><span class="p">.</span><span class="nb">id</span> <span class="o">&gt;</span> <span class="n">last_id</span><span class="p">).</span><span class="nf">limit</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h1 id="heading-总结">总结</h1>

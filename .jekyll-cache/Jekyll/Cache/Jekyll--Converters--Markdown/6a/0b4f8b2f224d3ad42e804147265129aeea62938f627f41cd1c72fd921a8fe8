@@ -1,4 +1,4 @@
-I"�<ul class="toc" id="markdown-toc">
+I"ۑ<ul class="toc" id="markdown-toc">
   <li><a href="#heading-amqp" id="markdown-toc-heading-amqp">AMQP</a>    <ul>
       <li><a href="#heading-amqp-1" id="markdown-toc-heading-amqp-1">AMQP</a></li>
       <li><a href="#heading-amqp-0-9-1" id="markdown-toc-heading-amqp-0-9-1">AMQP 0-9-1</a></li>
@@ -81,58 +81,58 @@
 
 <p><strong>消息接受者</strong></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
 
 <span class="c1"># 生命Q
-</span><span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_default_q'</span><span class="p">)</span>
+</span><span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="nf">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_default_q</span><span class="sh">'</span><span class="p">)</span>
 <span class="n">queue</span> <span class="o">=</span> <span class="n">queue_result</span><span class="p">.</span><span class="n">method</span><span class="p">.</span><span class="n">queue</span>
 
 <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
-    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">method</span>
     <span class="k">print</span> <span class="n">properties</span>
     <span class="k">print</span> <span class="n">body</span>
 
 
 <span class="c1"># 接受消息, 指定接受的队列
-</span><span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
                       <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span>
                      <span class="p">)</span>
 
 
-<span class="k">print</span> <span class="s">'start consuming'</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">start consuming</span><span class="sh">'</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">start_consuming</span><span class="p">()</span>
 </code></pre></div></div>
 
 <p><strong>消息发送者</strong></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
-</span><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+</span><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
 <span class="c1"># 链接rabbitmq
-</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
-<span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+<span class="n">body</span> <span class="o">=</span> <span class="sh">"</span><span class="s">hello world</span><span class="sh">"</span>
 
 
 <span class="c1"># exchange = '' 表示使用默认交换机，往默认交换机上发消息，并且带着routingkey
-</span><span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">''</span><span class="p">,</span>
-                      <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo_default_q'</span><span class="p">,</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">basic_publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">''</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_default_q</span><span class="sh">'</span><span class="p">,</span>
                       <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">send success, body :%s</span><span class="sh">'</span> <span class="o">%</span> <span class="n">body</span>
 
-<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">connection</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
 </code></pre></div></div>
 
 <h2 id="heading-直连交换机">直连交换机</h2>
@@ -156,59 +156,59 @@
 
 <p><strong>消息接受者</strong></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
 <span class="c1"># 声明一个直连交换机E
-</span><span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'direct'</span><span class="p">)</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_direct</span><span class="sh">'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="sh">'</span><span class="s">direct</span><span class="sh">'</span><span class="p">)</span>
 <span class="c1"># 声明一个Q
-</span><span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">)</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_direct_q</span><span class="sh">'</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
-    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">body</span>
 
 <span class="c1"># 将E和Q绑定
-</span><span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">)</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_direct</span><span class="sh">'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_direct_q</span><span class="sh">'</span><span class="p">)</span>
 
 <span class="c1"># 这个Q接受消息，不带routingkey，因为直连交换机会将Q和key同名
-</span><span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
-                      <span class="n">queue</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">,</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_direct_q</span><span class="sh">'</span><span class="p">,</span>
                      <span class="p">)</span>
 
 
-<span class="k">print</span> <span class="s">'start consuming'</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">start consuming</span><span class="sh">'</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">start_consuming</span><span class="p">()</span>
 </code></pre></div></div>
 
 <p><strong>消息发送者</strong></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
-</span><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+</span><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
 <span class="c1"># 声明一个直连交换机E
-</span><span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'direct'</span><span class="p">)</span>
+</span><span class="n">channel</span><span class="p">.</span><span class="nf">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_direct</span><span class="sh">'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="sh">'</span><span class="s">direct</span><span class="sh">'</span><span class="p">)</span>
 
 <span class="c1"># 由于往直连交换机带rutingkey发送消息，会被自动转发给 与该E绑定的且与routingkey同名的Q
-</span><span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
-<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span>
-                      <span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_direct'</span><span class="p">,</span>
-                      <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo_direct_q'</span><span class="p">,</span>
+</span><span class="n">body</span> <span class="o">=</span> <span class="sh">"</span><span class="s">hello world</span><span class="sh">"</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">basic_publish</span><span class="p">(</span>
+                      <span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_direct</span><span class="sh">'</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_direct_q</span><span class="sh">'</span><span class="p">,</span>
                       <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">send success, body :%s</span><span class="sh">'</span> <span class="o">%</span> <span class="n">body</span>
 
-<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">connection</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
 </code></pre></div></div>
 
 <blockquote>
@@ -247,15 +247,15 @@
 
 <p><strong>消息接受者</strong></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
-<span class="n">exchange_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'fanout'</span><span class="p">)</span>
-<span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_fanout_q'</span><span class="p">)</span>
+<span class="n">exchange_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="nf">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_fanout</span><span class="sh">'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="sh">'</span><span class="s">fanout</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="nf">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_fanout_q</span><span class="sh">'</span><span class="p">)</span>
 
 <span class="k">print</span> <span class="n">exchange_result</span>
 <span class="k">print</span> <span class="n">exchange_result</span><span class="p">.</span><span class="n">method</span>
@@ -263,45 +263,45 @@
 <span class="n">queue</span> <span class="o">=</span> <span class="n">queue_result</span><span class="p">.</span><span class="n">method</span><span class="p">.</span><span class="n">queue</span>
 
 <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
-    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">body</span>
 
 
-<span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s">'demo_fanout_q'</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_fanout</span><span class="sh">'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_fanout_q</span><span class="sh">'</span><span class="p">)</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
-                      <span class="n">queue</span><span class="o">=</span><span class="s">'demo_fanout_q'</span><span class="p">,</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_fanout_q</span><span class="sh">'</span><span class="p">,</span>
                      <span class="p">)</span>
 
 
-<span class="k">print</span> <span class="s">'start consuming'</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">start consuming</span><span class="sh">'</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">start_consuming</span><span class="p">()</span>
 </code></pre></div></div>
 
 <p><strong>消息发送者</strong></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
-</span><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+</span><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'fanout'</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_fanout</span><span class="sh">'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="sh">'</span><span class="s">fanout</span><span class="sh">'</span><span class="p">)</span>
 
 
-<span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+<span class="n">body</span> <span class="o">=</span> <span class="sh">"</span><span class="s">hello world</span><span class="sh">"</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span>
-                      <span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_fanout'</span><span class="p">,</span>
-                      <span class="n">routing_key</span><span class="o">=</span><span class="s">''</span><span class="p">,</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">basic_publish</span><span class="p">(</span>
+                      <span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_fanout</span><span class="sh">'</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="sh">''</span><span class="p">,</span>
                       <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">send success, body :%s</span><span class="sh">'</span> <span class="o">%</span> <span class="n">body</span>
 
-<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">connection</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
 
 </code></pre></div></div>
 
@@ -317,58 +317,58 @@
 
 <p><strong>消息接受者</strong></p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
-<span class="n">exchange_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'topic'</span><span class="p">)</span>
-<span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'demo_topic_q'</span><span class="p">)</span>
+<span class="n">exchange_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="nf">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_topic</span><span class="sh">'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="sh">'</span><span class="s">topic</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">queue_result</span> <span class="o">=</span> <span class="n">channel</span><span class="p">.</span><span class="nf">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_topic_q</span><span class="sh">'</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
-    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">print</span> <span class="n">body</span>
 
 
-<span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s">'demo_topic_q'</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo.*'</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">queue_bind</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_topic</span><span class="sh">'</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_topic_q</span><span class="sh">'</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="sh">'</span><span class="s">demo.*</span><span class="sh">'</span><span class="p">)</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
-                      <span class="n">queue</span><span class="o">=</span><span class="s">'demo_topic_q'</span><span class="p">,</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">basic_consume</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span>
+                      <span class="n">queue</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_topic_q</span><span class="sh">'</span><span class="p">,</span>
                       <span class="n">no_ack</span><span class="o">=</span><span class="bp">True</span>
                      <span class="p">)</span>
 
 
-<span class="k">print</span> <span class="s">'start consuming'</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">start consuming</span><span class="sh">'</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">start_consuming</span><span class="p">()</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">start_consuming</span><span class="p">()</span>
 
 </code></pre></div></div>
 
 <p><strong>消息发送者</strong></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
-</span><span class="kn">import</span> <span class="nn">pika</span>
-<span class="kn">import</span> <span class="nn">time</span>
+</span><span class="kn">import</span> <span class="n">pika</span>
+<span class="kn">import</span> <span class="n">time</span>
 
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'guest'</span><span class="p">,</span> <span class="s">'guest'</span><span class="p">)</span>
-<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'localhost'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
-<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">PlainCredentials</span><span class="p">(</span><span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">guest</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="nc">BlockingConnection</span><span class="p">(</span><span class="n">pika</span><span class="p">.</span><span class="nc">ConnectionParameters</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="sh">'</span><span class="s">localhost</span><span class="sh">'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5672</span><span class="p">,</span>  <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">))</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="nf">channel</span><span class="p">()</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="s">'topic'</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_topic</span><span class="sh">'</span><span class="p">,</span> <span class="n">exchange_type</span><span class="o">=</span><span class="sh">'</span><span class="s">topic</span><span class="sh">'</span><span class="p">)</span>
 
 
-<span class="n">body</span> <span class="o">=</span> <span class="s">"hello world"</span>
+<span class="n">body</span> <span class="o">=</span> <span class="sh">"</span><span class="s">hello world</span><span class="sh">"</span>
 
-<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span>
-                      <span class="n">exchange</span><span class="o">=</span><span class="s">'demo_exchange_topic'</span><span class="p">,</span>
-                      <span class="n">routing_key</span><span class="o">=</span><span class="s">'demo.topic'</span><span class="p">,</span>
+<span class="n">channel</span><span class="p">.</span><span class="nf">basic_publish</span><span class="p">(</span>
+                      <span class="n">exchange</span><span class="o">=</span><span class="sh">'</span><span class="s">demo_exchange_topic</span><span class="sh">'</span><span class="p">,</span>
+                      <span class="n">routing_key</span><span class="o">=</span><span class="sh">'</span><span class="s">demo.topic</span><span class="sh">'</span><span class="p">,</span>
                       <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="s">'send success, body :%s'</span> <span class="o">%</span> <span class="n">body</span>
+<span class="k">print</span> <span class="sh">'</span><span class="s">send success, body :%s</span><span class="sh">'</span> <span class="o">%</span> <span class="n">body</span>
 
-<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">connection</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>
 
 </code></pre></div></div>
 

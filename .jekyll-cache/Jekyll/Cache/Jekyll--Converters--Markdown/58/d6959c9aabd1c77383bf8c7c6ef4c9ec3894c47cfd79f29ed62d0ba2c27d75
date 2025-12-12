@@ -1,4 +1,4 @@
-I"�<ul class="toc" id="markdown-toc">
+I"��<ul class="toc" id="markdown-toc">
   <li><a href="#heading-java文档自动化生成" id="markdown-toc-heading-java文档自动化生成">Java文档自动化生成</a>    <ul>
       <li><a href="#heading-0-问题" id="markdown-toc-heading-0-问题">0. 问题</a></li>
       <li><a href="#heading-1-设想" id="markdown-toc-heading-1-设想">1. 设想</a></li>
@@ -328,7 +328,7 @@ genJavaDoc:
     <span class="c">&lt;!-- import JavaScript --&gt;</span>
     <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://unpkg.com/element-ui/lib/index.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
     <span class="nt">&lt;script&gt;</span>
-        <span class="k">new</span> <span class="nx">Vue</span><span class="p">({</span>
+        <span class="k">new</span> <span class="nc">Vue</span><span class="p">({</span>
             <span class="na">el</span><span class="p">:</span> <span class="dl">'</span><span class="s1">#app</span><span class="dl">'</span><span class="p">,</span>
             <span class="na">data</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
                 <span class="k">return</span> <span class="p">{</span>
@@ -337,17 +337,17 @@ genJavaDoc:
                 <span class="p">}</span>
             <span class="p">},</span>
             <span class="na">computed</span><span class="p">:</span> <span class="p">{</span>
-                <span class="na">activity_appid_branch_info</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">file_dir</span><span class="p">[</span><span class="nb">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)][</span><span class="dl">'</span><span class="s1">branch</span><span class="dl">'</span><span class="p">]</span>
+                <span class="na">activity_appid_branch_info</span><span class="p">:</span> <span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">file_dir</span><span class="p">[</span><span class="nf">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)][</span><span class="dl">'</span><span class="s1">branch</span><span class="dl">'</span><span class="p">]</span>
                 <span class="p">},</span>
                 <span class="na">activity_appid_info</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">file_dir</span><span class="p">[</span><span class="nb">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)][</span><span class="dl">'</span><span class="s1">appid</span><span class="dl">'</span><span class="p">]</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">file_dir</span><span class="p">[</span><span class="nf">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span><span class="p">)][</span><span class="dl">'</span><span class="s1">appid</span><span class="dl">'</span><span class="p">]</span>
                 <span class="p">}</span>
             <span class="p">},</span>
             <span class="na">methods</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nx">handleSelect</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">keyPath</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">handleSelect</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">keyPath</span><span class="p">)</span> <span class="p">{</span>
                     <span class="k">this</span><span class="p">.</span><span class="nx">activityIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="o">+</span><span class="dl">''</span>
                 <span class="p">}</span>
             <span class="p">}</span>
@@ -360,7 +360,7 @@ genJavaDoc:
         <span class="nc">.spilt-line</span> <span class="p">{</span>
             <span class="nl">height</span><span class="p">:</span> <span class="m">1px</span><span class="p">;</span>
             <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-            <span class="nl">background-color</span><span class="p">:</span> <span class="m">#e6e6e6</span><span class="p">;</span>
+            <span class="nl">background-color</span><span class="p">:</span> <span class="nx">#e6e6e6</span><span class="p">;</span>
             <span class="nl">margin</span><span class="p">:</span> <span class="m">0px</span> <span class="m">0px</span> <span class="m">30px</span> <span class="m">0px</span><span class="p">;</span>
         <span class="p">}</span>
         <span class="nc">.doc-header</span> <span class="p">{</span>
@@ -396,50 +396,50 @@ genJavaDoc:
 <p>再加一个<code class="language-plaintext highlighter-rouge">replace_template.py</code>文件， 内容如下:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#! -*- coding:utf8 -*-
-</span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">json</span>
+</span><span class="kn">import</span> <span class="n">sys</span>
+<span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">json</span>
  
-<span class="nb">reload</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
-<span class="n">sys</span><span class="p">.</span><span class="n">setdefaultencoding</span><span class="p">(</span><span class="s">"utf-8"</span><span class="p">)</span>
+<span class="nf">reload</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
+<span class="n">sys</span><span class="p">.</span><span class="nf">setdefaultencoding</span><span class="p">(</span><span class="sh">"</span><span class="s">utf-8</span><span class="sh">"</span><span class="p">)</span>
  
 <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">file_dir</span><span class="p">):</span>
-    <span class="n">index_template_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"index.html.template"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span>
-    <span class="n">index_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"index.html"</span><span class="p">,</span> <span class="s">"w+"</span><span class="p">)</span>
-    <span class="k">print</span> <span class="s">'relace:'</span><span class="p">,</span> <span class="n">file_dir</span>
+    <span class="n">index_template_file</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">index.html.template</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">r</span><span class="sh">"</span><span class="p">)</span>
+    <span class="n">index_file</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">index.html</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">w+</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">print</span> <span class="sh">'</span><span class="s">relace:</span><span class="sh">'</span><span class="p">,</span> <span class="n">file_dir</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="n">index_template_file</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">index_template_file</span><span class="p">.</span><span class="nf">readline</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="nf">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">break</span>
  
-        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"GC_JAVA_DOC_FILE_DIR"</span><span class="p">,</span> <span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">file_dir</span><span class="p">))</span>
-        <span class="n">index_file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="sh">"</span><span class="s">GC_JAVA_DOC_FILE_DIR</span><span class="sh">"</span><span class="p">,</span> <span class="n">json</span><span class="p">.</span><span class="nf">dumps</span><span class="p">(</span><span class="n">file_dir</span><span class="p">))</span>
+        <span class="n">index_file</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
  
-    <span class="n">index_file</span><span class="p">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">index_file</span><span class="p">.</span><span class="nf">flush</span><span class="p">()</span>
  
 <span class="k">def</span> <span class="nf">list_dir</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
-    <span class="s">'''
+    <span class="sh">'''</span><span class="s">
         build dir struct
-    '''</span>
+    </span><span class="sh">'''</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">file_names</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+    <span class="n">file_names</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">file_names</span><span class="p">:</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s">'/'</span> <span class="o">+</span> <span class="n">file_name</span>
-        <span class="k">if</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span> <span class="o">+</span> <span class="n">file_name</span>
+        <span class="k">if</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
             <span class="n">one_info</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">one_info</span><span class="p">[</span><span class="s">'appid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
-            <span class="n">one_info</span><span class="p">[</span><span class="s">'branch'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">child_file_names</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="n">one_info</span><span class="p">[</span><span class="sh">'</span><span class="s">appid</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_name</span>
+            <span class="n">one_info</span><span class="p">[</span><span class="sh">'</span><span class="s">branch</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">child_file_names</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">child_file_name</span> <span class="ow">in</span> <span class="n">child_file_names</span><span class="p">:</span>
-                <span class="n">one_info</span><span class="p">[</span><span class="s">'branch'</span><span class="p">].</span><span class="n">append</span><span class="p">({</span><span class="s">"name"</span><span class="p">:</span> <span class="n">child_file_name</span><span class="p">})</span>
+                <span class="n">one_info</span><span class="p">[</span><span class="sh">'</span><span class="s">branch</span><span class="sh">'</span><span class="p">].</span><span class="nf">append</span><span class="p">({</span><span class="sh">"</span><span class="s">name</span><span class="sh">"</span><span class="p">:</span> <span class="n">child_file_name</span><span class="p">})</span>
  
-            <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">one_info</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">one_info</span><span class="p">)</span>
  
     <span class="k">return</span> <span class="n">result</span>
  
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
-    <span class="n">file_dir</span> <span class="o">=</span> <span class="n">list_dir</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
-    <span class="n">replace</span><span class="p">(</span><span class="n">file_dir</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
+    <span class="n">file_dir</span> <span class="o">=</span> <span class="nf">list_dir</span><span class="p">(</span><span class="sh">'</span><span class="s">.</span><span class="sh">'</span><span class="p">)</span>
+    <span class="nf">replace</span><span class="p">(</span><span class="n">file_dir</span><span class="p">)</span>
 </code></pre></div></div>
 
 <p>然后修改 .gitlab-ci.yml</p>

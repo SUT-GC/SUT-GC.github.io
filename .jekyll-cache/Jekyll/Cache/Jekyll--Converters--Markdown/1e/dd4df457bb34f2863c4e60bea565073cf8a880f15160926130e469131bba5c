@@ -13,19 +13,19 @@
  * @return {number}
  */</span>
 <span class="kd">var</span> <span class="nx">searchInsert</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">nums</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">nums</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="p">}</span>
 
     <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">target</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">||</span> <span class="nx">target</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+    <span class="k">for </span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if </span><span class="p">(</span><span class="nx">target</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">||</span> <span class="nx">target</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
             <span class="nx">result</span> <span class="o">=</span> <span class="nx">i</span>
             <span class="k">break</span>
         <span class="p">}</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if </span><span class="p">(</span><span class="nx">i</span> <span class="o">===</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">result</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span>
             <span class="k">break</span>
         <span class="p">}</span>
@@ -40,8 +40,8 @@
 </blockquote>
 
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">searchInsert</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">==</span> <span class="nx">target</span> <span class="o">||</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nx">target</span><span class="p">){</span>
+    <span class="k">for </span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="k">if </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">==</span> <span class="nx">target</span> <span class="o">||</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nx">target</span><span class="p">){</span>
             <span class="k">return</span> <span class="nx">i</span><span class="p">;</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -77,10 +77,10 @@
 <span class="p">}</span>
 
 <span class="kd">var</span> <span class="nx">countAndSay</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">n</span> <span class="o">===</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">n</span> <span class="o">===</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="dl">"</span><span class="s2">1</span><span class="dl">"</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nx">say</span><span class="p">(</span><span class="nx">countAndSay</span><span class="p">(</span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nf">say</span><span class="p">(</span><span class="nf">countAndSay</span><span class="p">(</span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
     <span class="p">}</span>
 <span class="p">};</span>
 </code></pre></div></div>
@@ -101,13 +101,13 @@ n=1时输出字符串1；n=2时，数上次字符串中的数值个数，因为�
     <span class="kd">let</span> <span class="nx">sum</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="kd">let</span> <span class="nx">temp</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span><span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">temp</span> <span class="o">+</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">if </span><span class="p">(</span><span class="nx">temp</span> <span class="o">+</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
             <span class="nx">temp</span> <span class="o">=</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
         <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
             <span class="nx">temp</span> <span class="o">=</span> <span class="nx">temp</span> <span class="o">+</span> <span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
         <span class="p">}</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="nx">temp</span> <span class="o">&gt;</span> <span class="nx">sum</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if </span><span class="p">(</span><span class="nx">temp</span> <span class="o">&gt;</span> <span class="nx">sum</span><span class="p">)</span> <span class="p">{</span>
             <span class="nx">sum</span> <span class="o">=</span> <span class="nx">temp</span>
         <span class="p">}</span>
     <span class="p">}</span>

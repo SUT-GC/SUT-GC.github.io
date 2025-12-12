@@ -31,8 +31,8 @@
 <span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
     <span class="nx">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
     <span class="nx">target</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="nx">result</span> <span class="o">=</span> <span class="nx">twoSum</span><span class="p">(</span><span class="nx">numbers</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
+    <span class="nx">result</span> <span class="o">=</span> <span class="nf">twoSum</span><span class="p">(</span><span class="nx">numbers</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
 <span class="p">})()</span>
 
 </code></pre></div></div>
@@ -64,7 +64,7 @@
  * @return {number}
  */</span>
 <span class="kd">var</span> <span class="nx">reverse</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">xStr</span> <span class="o">=</span> <span class="nx">x</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+    <span class="nx">xStr</span> <span class="o">=</span> <span class="nx">x</span><span class="p">.</span><span class="nf">toString</span><span class="p">();</span>
     
     <span class="nx">resultStr</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
 
@@ -88,7 +88,7 @@
 
         <span class="nx">resultStr</span> <span class="o">+=</span> <span class="nx">xStr</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
     <span class="p">}</span>
-   <span class="nx">resultInt</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">resultStr</span><span class="p">)</span> 
+   <span class="nx">resultInt</span> <span class="o">=</span> <span class="nc">Number</span><span class="p">(</span><span class="nx">resultStr</span><span class="p">)</span> 
 
    <span class="k">if</span><span class="p">(</span><span class="nx">resultInt</span> <span class="o">&gt;</span> <span class="mi">2147483647</span> <span class="o">||</span> <span class="nx">resultInt</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">2147483648</span><span class="p">){</span>
        <span class="nx">resultInt</span> <span class="o">=</span> <span class="mi">0</span>
@@ -129,10 +129,10 @@
     <span class="k">while</span><span class="p">(</span><span class="nx">x</span> <span class="o">&gt;</span> <span class="nx">revX</span><span class="p">){</span>
         <span class="nx">revX</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nx">revX</span> <span class="o">+</span> <span class="nx">x</span> <span class="o">%</span> <span class="mi">10</span>
         <span class="nx">x</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">/</span> <span class="mi">10</span>
-        <span class="nx">x</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">.</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+        <span class="nx">x</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">.</span><span class="nf">parseInt</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
     <span class="p">}</span>    
 
-    <span class="k">if</span><span class="p">(</span><span class="nx">x</span> <span class="o">===</span> <span class="nx">revX</span> <span class="o">||</span> <span class="nx">x</span> <span class="o">===</span> <span class="nb">Number</span><span class="p">.</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">revX</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)){</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">x</span> <span class="o">===</span> <span class="nx">revX</span> <span class="o">||</span> <span class="nx">x</span> <span class="o">===</span> <span class="nb">Number</span><span class="p">.</span><span class="nf">parseInt</span><span class="p">(</span><span class="nx">revX</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)){</span>
         <span class="k">return</span> <span class="kc">true</span>
     <span class="p">}</span><span class="k">else</span><span class="p">{</span>
         <span class="k">return</span> <span class="kc">false</span>
@@ -174,43 +174,43 @@
     <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="kd">var</span> <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">thousandDigit</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nf">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
             <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">thousandDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
             <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
     <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
-    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
 
     <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="kd">var</span> <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">hundredsDigit</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nf">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
             <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">hundredsDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
             <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
     <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
-    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
 
     <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="kd">var</span> <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">tenDigit</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nf">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
             <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">tenDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
             <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
     <span class="nx">resultNumber</span> <span class="o">+=</span> <span class="nx">addNumber</span>
-    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">substr</span><span class="p">(</span><span class="nx">deleteRomanIndex</span><span class="p">)</span>
              
 
     <span class="kd">var</span> <span class="nx">addNumber</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">singleDigit</span><span class="p">){</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nf">startsWith</span><span class="p">(</span><span class="nx">key</span><span class="p">)){</span>
             <span class="nx">addNumber</span> <span class="o">=</span> <span class="nx">singleDigit</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> 
             <span class="nx">deleteRomanIndex</span> <span class="o">=</span> <span class="nx">key</span><span class="p">.</span><span class="nx">length</span>
         <span class="p">}</span>
