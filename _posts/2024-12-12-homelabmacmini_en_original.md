@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Build HomeLab With Mac Mini"
+title: "Build HomeLab With Mac Mini (English)"
 description: "A complete guide to building your own HomeLab using a Mac Mini - from network gateway to media center, photo management, and IoT control."
-categories: [Tech, HomeLab]
-tags: [HomeLab, Mac Mini, NAS, Network, IoT]
+categories: [技术, 玩]
+tags: [HomeLab, Mac Mini, NAS, 网络代理, IoT, 家庭服务器]
 ---
 
 * Kramdown table of contents
