@@ -819,7 +819,7 @@ tags: ["GUI Agent", "AutoGLM", "ADB", "VLM", "人工智能", "自动化", "大�
     <!-- Hero -->
     <header class="hero">
         <div class="hero-badge">
-            <span>2025 技术全景</span>
+            <span>2026 技术全景</span>
         </div>
         <h1>GUI Agent</h1>
         <p class="hero-subtitle">
@@ -1464,7 +1464,7 @@ tags: ["GUI Agent", "AutoGLM", "ADB", "VLM", "人工智能", "自动化", "大�
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>GUI Agent 技术全景 © 2025 | 持续更新中</p>
+            <p>GUI Agent 技术全景 © 2026 | 持续更新中</p>
             <p style="margin-top: 12px;">
                 <a href="https://github.com/zai-org/Open-AutoGLM">Open-AutoGLM</a> ·
                 <a href="https://github.com/browser-use/browser-use">Browser-Use</a> ·
