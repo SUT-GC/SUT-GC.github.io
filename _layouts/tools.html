@@ -1,0 +1,117 @@
+---
+layout: blog
+---
+
+<div class="tools-page">
+  <header class="tools-header">
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}
+    <p class="tools-description">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <div class="tools-grid">
+    {% for tool in site.data.tools %}
+    <a href="{{ tool.url }}" class="tool-card" target="_blank" rel="noopener">
+      <div class="tool-icon">{{ tool.icon }}</div>
+      <div class="tool-info">
+        <h3>{{ tool.name }}</h3>
+        <p>{{ tool.description }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.tools-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.tools-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.tools-header h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.tools-description {
+  color: #666;
+  font-size: 1.1em;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  border-color: #d0d0d0;
+}
+
+.tool-icon {
+  font-size: 2.5em;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.tool-info h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.1em;
+  color: #333;
+}
+
+.tool-info p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #666;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .tools-header h1 {
+    font-size: 2em;
+  }
+
+  .tool-card {
+    padding: 18px;
+  }
+
+  .tool-icon {
+    font-size: 2em;
+    width: 50px;
+    height: 50px;
+  }
+}
+</style>
+
+{{ content }}
