@@ -11,3 +11,9 @@
   icon: "🤖"
   url: https://prompt.nuosheng.cloud/
   category: ai
+
+- name: MCP.so
+  description: MCP 服务器目录，发现和分享 AI 助手可用的工具集成
+  icon: "🔌"
+  url: https://mcp.so/zh
+  category: ai
