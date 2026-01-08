@@ -1,0 +1,33 @@
+# PPT 列表配置
+# 添加新 PPT 时，按以下格式添加：
+# - name: PPT 标题
+#   description: PPT 描述
+#   icon: emoji 图标
+#   url: PPT 链接
+#   date: 日期
+
+- name: Kotlin 分享
+  description: Kotlin 语言深入分享
+  icon: "📱"
+  url: /files/powerpoint/kotlin-thorough.html
+  date: 2017-09-16
+
+- name: 门店 LPD 分享
+  description: 门店 LPD 相关分享
+  icon: "📊"
+  url: /files/powerpoint/shop-lpd.html
+  date: 2018-12-16
+
+- name: DevOps & Docker
+  description: DevOps 与 Docker 技术分享
+  icon: "🐳"
+  url: /files/powerpoint/shop-devops-share.html
+  date: 2018-03-21
+
+- name: Agent Skills 布道与教学
+  description: Claude Code Agent Skills 实践分享
+  icon: "🤖"
+  url: /files/powerpoint/agent-skills/index.html
+  date: 2025-01-06
+
+  

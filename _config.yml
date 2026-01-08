@@ -1,6 +1,6 @@
 # Site Settings
 encoding: UTF-8
-exclude: ["*.gem", "*.gemspec", "Gemfile", "Gemfile.lock", "node_modules"]
+exclude: ["*.gem", "*.gemspec", "Gemfile", "Gemfile.lock", "node_modules", "_src"]
 lang: zh # Language code as defined in _data/i18n.yml. en, en-gb, en-us, zh, zh-cn, zh-tw etc.
 permalink: /blog/:year/:month/:day/:title/
 
@@ -48,5 +48,6 @@ paths:
   about: /blog/about/
   photography: /photography/
   tools: /tools/
+  pptpage: /ppt/
   ppt: /files/powerpoint/
   image: /files/images

@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-neon-blue: var(--neon-blue);
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-cyan: var(--neon-cyan);
+  
+  --font-orbitron: 'Orbitron', sans-serif;
+  --font-rajdhani: 'Rajdhani', sans-serif;
+}
+
+:root {
+  --background: #050510;
+  --foreground: #e0e0e0;
+  
+  --primary: #00f3ff;
+  --primary-foreground: #000000;
+  
+  --secondary: #bc13fe;
+  --secondary-foreground: #ffffff;
+  
+  --accent: #bc13fe;
+  --accent-foreground: #ffffff;
+  
+  --card: rgba(10, 10, 25, 0.7);
+  --card-foreground: #ffffff;
+  
+  --neon-blue: #00f3ff;
+  --neon-purple: #bc13fe;
+  --neon-cyan: #00fff0;
+  
+  --radius: 0.5rem;
+}
+
+body {
+  @apply bg-background text-foreground font-rajdhani overflow-hidden;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(188, 19, 254, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 10% 10%, rgba(0, 243, 255, 0.05) 0%, transparent 40%);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-orbitron tracking-wider;
+}
+
+.glass-panel {
+  @apply bg-black/40 backdrop-blur-md border border-white/10 shadow-xl rounded-xl;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.neon-text-blue {
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.7), 0 0 20px rgba(0, 243, 255, 0.5);
+}
+
+.neon-text-purple {
+  text-shadow: 0 0 10px rgba(188, 19, 254, 0.7), 0 0 20px rgba(188, 19, 254, 0.5);
+}
+
+.neon-border {
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.6);
+}
