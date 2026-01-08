@@ -97,8 +97,9 @@ const SectionDividerSlide = ({ slide }: { slide: SlideData }) => (
 );
 
 const ContentSlide = ({ slide }: { slide: SlideData }) => {
-  // Check if a point is a sub-item (starts with • or is indented)
-  const isSubItem = (point: string) => point.startsWith('•') || point.startsWith('- ');
+  // Check if a point is a sub-item (starts with •, -, or numbered like 1. 2. 3.)
+  const isSubItem = (point: string) =>
+    point.startsWith('•') || point.startsWith('- ') || /^\d+\.\s/.test(point);
 
   return (
     <div className="w-full h-full flex flex-col p-8 md:p-12 relative overflow-hidden">
