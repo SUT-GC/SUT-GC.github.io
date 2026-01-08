@@ -1,184 +1,435 @@
 import coverBg from "@/assets/cover-bg.jpg";
 import closingBg from "@/assets/closing-bg.jpg";
 
-export type SlideType = 'title-cover' | 'agenda' | 'section-divider' | 'content' | 'closing';
+export type SlideType =
+  | 'title-cover'
+  | 'agenda'
+  | 'section-divider'
+  | 'content'
+  | 'closing'
+  | 'comparison'      // 左右对比
+  | 'quote'           // 大引用金句
+  | 'pyramid'         // 金字塔层级图
+  | 'stats'           // 数据统计
+  | 'resources'       // 资源链接
+  | 'cta'             // 行动号召
+  | 'demo'            // Demo 页
+  | 'code-example'    // 代码示例
+  | 'timeline';       // 时间线成长图
 
 export interface SlideData {
   id: string;
   type: SlideType;
   title: string;
+  subtitle?: string;
   points?: string[];
   image?: string;
-  extra?: string; // For narrative bridge or notes
+  extra?: string;
+  // 用于 comparison 类型
+  leftTitle?: string;
+  leftPoints?: string[];
+  leftIcon?: string;
+  rightTitle?: string;
+  rightPoints?: string[];
+  rightIcon?: string;
+  // 用于 quote 类型
+  quote?: string;
+  quoteCn?: string;  // 英文金句的中文翻译
+  quoteAuthor?: string;
+  // 用于 pyramid 类型
+  pyramidLevels?: { title: string; description: string; icon?: string }[];
+  // 用于 stats 类型
+  stats?: { value: string; label: string; description?: string }[];
+  // 用于 resources 类型
+  resources?: { title: string; url: string; description?: string }[];
+  // 用于 code-example 类型
+  code?: string;
+  codeLanguage?: string;
 }
 
 export const slides: SlideData[] = [
+  // ============================================
+  // Slide 1: 封面
+  // ============================================
   {
     id: "cover",
     type: "title-cover",
-    title: "Agent Skills 布道与教学",
+    title: "Don't Build Agents.",
+    subtitle: "Build Skills.",
     points: [
-      "让 Agent 更专业、更可靠、更强大",
-      "面向开发者的实战指南"
+      "让 AI 拥有你的专业知识"
     ],
     image: coverBg
   },
+
+  // ============================================
+  // Slide 2: Agent 的悖论
+  // ============================================
   {
-    id: "agenda",
-    type: "agenda",
-    title: "目录",
-    points: [
-      "Why：为什么需要 Skills",
-      "How：如何在 Agent 中集成/激活",
-      "Flow：典型工作流 (Discovery → Activation)",
-      "Authoring：写好 SKILL.md 的关键要点",
-      "Ecosystem：生态兼容与采用现状"
-    ]
+    id: "paradox",
+    type: "comparison",
+    title: "Agent 的悖论：超强智能，缺失专业",
+    leftTitle: "Raw Intelligence",
+    leftIcon: "🌊",
+    leftPoints: [
+      "强大的通用智能",
+      "能从第一性原理推导",
+      "几乎无所不知"
+    ],
+    rightTitle: "Domain Expertise",
+    rightIcon: "🎯",
+    rightPoints: [
+      "专业工作的程序性知识",
+      "行业特定的最佳实践",
+      "团队内部的 SOP"
+    ],
+    quote: "Agents have intelligence and capabilities, but not always expertise that we need for real work.",
+    quoteCn: "Agent 有智能和能力，但不一定有我们实际工作所需的专业知识。"
   },
+
+  // ============================================
+  // Slide 3: 你会雇谁？
+  // ============================================
   {
-    id: "why-divider",
-    type: "section-divider",
-    title: "为什么需要 Skills",
-    points: [
-      "从通用助手到专业工具的进化"
-    ]
+    id: "who-to-hire",
+    type: "comparison",
+    title: "关键任务，你会雇谁？",
+    leftTitle: "The Genius",
+    leftIcon: "🧠",
+    leftPoints: [
+      "IQ 300 的数学天才",
+      "从第一性原理推导税法",
+      "过程缓慢、不一致、容易出错"
+    ],
+    rightTitle: "The Expert",
+    rightIcon: "⚙️",
+    rightPoints: [
+      "20 年经验的税务专家",
+      "使用成熟流程和深厚领域知识",
+      "可靠、高效、输出一致"
+    ],
+    quote: "For critical work, we need an expert, not a genius.",
+    extra: "关键工作，我们需要专家，而不是天才。"
   },
+
+  // ============================================
+  // Slide 4: 旧范式的问题
+  // ============================================
   {
-    id: "value-scenarios",
+    id: "old-paradigm",
     type: "content",
-    title: "Skills 能带来的价值与场景",
-    extra: "场景一：领域专家流程（法务审阅、数据分析）可封装为技能。场景二：新能力拓展（生成演示、构建 MCP 服务器）。场景三：可重复的工作流，提升一致性。",
+    title: "旧范式：一个领域，一个 Agent",
+    extra: "传统做法要求我们为每个场景构建独立的 Agent。这种模式不可扩展、很脆弱。",
     points: [
-      "领域专家流程：封装法务审阅、数据分析等专业SOP",
-      "新能力拓展：赋予 Agent 生成演示、构建服务器等新技能",
-      "可重复工作流：将多步操作标准化，提升一致性与可审计性",
-      "核心价值：以“可复用说明书+脚本资产”形态，降低门槛与提升可靠性"
+      "传统做法：",
+      "• Finance Agent ←→ Coding Agent ←→ Research Agent",
+      "• 每个 Agent 需要自己的 prompt 和工具",
+      "问题：",
+      "• 这种模式不可扩展、很脆弱",
+      "• 最关键的是：知识无法跨任务共享",
+      "• 每次都在重复造轮子"
     ]
   },
+
+  // ============================================
+  // Slide 5: 新洞察
+  // ============================================
   {
-    id: "structure",
+    id: "new-insight",
     type: "content",
-    title: "Skill 的结构与渐进式披露",
-    extra: "目录结构：my-skill/ 下的 SKILL.md（必需）与 scripts、references、assets（可选）。渐进式披露：启动仅加载 name+description。",
+    title: "新洞察：代码是通往数字世界的通用接口",
+    extra: "核心脚手架可以薄到只有 Bash 和文件系统。通用能力有了，但专业知识怎么办？",
     points: [
-      "标准结构：SKILL.md (元数据+指令) + scripts/ + references/",
-      "渐进式披露 (Progressive Disclosure)：",
-      "1. Discovery：启动时仅加载 name & description (极轻量)",
-      "2. Activation：匹配任务后加载完整 SKILL.md 上下文",
-      "3. Execution：按需读取 assets 或执行 scripts",
-      "优势：既保证 Agent 响应速度，又保留无限扩展能力"
+      "发现：",
+      "• 与其构建领域特定的工具",
+      "• 不如让一个通用 Agent 通过简单的运行时完成几乎所有数字任务",
+      "通用 Agent 能做什么：",
+      "• API 调用、数据分析、文件操作",
+      "• 搜索、图表生成、数据库查询",
+      "• 几乎所有数字化任务",
+      "但是：通用能力有了，专业知识怎么办？"
     ]
   },
+
+  // ============================================
+  // Slide 6: 假如有这样一个东西
+  // ============================================
   {
-    id: "how-divider",
-    type: "section-divider",
-    title: "如何在 Agent 中集成/激活 Skills",
-    points: [
-      "Filesystem-based vs Tool-based"
-    ]
+    id: "what-if",
+    type: "quote",
+    title: "假如...",
+    quote: "假如有这样一个东西：把你的经验、规范、流程写下来，AI 需要时自动加载，写一次整个团队都能用，还能不断积累、持续进化...",
+    extra: "是不是就解决了刚才所有问题？"
   },
+
+  // ============================================
+  // Slide 7: 引出 Skills
+  // ============================================
   {
-    id: "workflow",
+    id: "introducing-skills",
     type: "content",
-    title: "典型工作流：Discovery → Activation → Execution",
-    extra: "先给全景，再演示一条主线。Discovery：启动时只读前置元数据。Activation：任务匹配后读取正文。Execution：执行与产出。",
+    title: "解决方案：把专业知识打包成可组合的 Skills",
+    extra: "说白了，就是文件夹。这种简单是刻意的。我们希望任何人——人类或 Agent——都能创建和使用。",
     points: [
-      "Discovery 阶段：",
-      "• Agent 扫描技能目录，解析 YAML Frontmatter",
-      "• 仅注入 name 和 description 到 System Prompt",
-      "Activation 阶段：",
-      "• 意图识别命中技能描述",
-      "• 动态读取 SKILL.md 全文并注入 Context",
-      "Execution 阶段：",
-      "• 模型遵循 Markdown 指令步骤",
-      "• 调用 sandbox 工具执行脚本或读取引用文件"
-    ]
+      "Skills 是什么：",
+      "• 组织好的文件集合",
+      "• 为 Agent 打包可组合的程序性知识",
+      "Skill 里可以有什么：",
+      "• 指令（SKILL.md）",
+      "• 可执行脚本",
+      "• 代码库、模板、二进制文件和其他资源"
+    ],
+    quote: "The Simple Truth: In other words, they're folders. This simplicity is deliberate.",
+    quoteCn: "简单的真相：说白了，就是文件夹。这种简单是刻意的。"
   },
+
+  // ============================================
+  // Slide 8: Skill 长什么样
+  // ============================================
   {
-    id: "authoring-tips",
-    type: "content",
-    title: "写好 SKILL.md 的要点",
-    extra: "自文档化、可扩展、可移植。YAML frontmatter 必填 name, description。",
-    points: [
-      "YAML Frontmatter (元数据)：",
-      "• name: 简短标识符 (如 pdf-processing)",
-      "• description: 关键！决定何时被唤起 (如 'When user asks to...')",
-      "正文编写建议：",
-      "• 清晰的步骤说明 (Step-by-step instructions)",
-      "• 提供 Input/Output 示例 (Few-shot prompting)",
-      "• 明确边界情况与错误处理",
-      "• 细节拆分至 references/ 目录，保持主文档简洁"
-    ]
+    id: "skill-structure",
+    type: "code-example",
+    title: "一个最简单的 Skill",
+    code: `my-skill/
+└── SKILL.md
+
+---
+name: sql-standards
+description: 团队 SQL 编写规范，写查询时使用
+---
+
+# SQL 编写规范
+
+## 命名规则
+• 表名：小写 + 下划线，如 user_orders
+• 字段名：小写 + 下划线，如 created_at
+
+## 查询规范
+• 禁止 SELECT *
+• 必须指定字段`,
+    codeLanguage: "markdown",
+    extra: "会写 Markdown，就会写 Skill。"
   },
+
+  // ============================================
+  // Slide 9: 原理 - 为有限上下文设计
+  // ============================================
   {
-    id: "structure-practice",
+    id: "context-design",
     type: "content",
-    title: "规范要点与目录实践",
-    extra: "目录结构范例与命名约束。文件引用一层原则。",
+    title: "为有限上下文窗口设计的效率机制",
+    extra: "就像图书馆：你不会一进门就读完所有书，而是先看书名和简介，找到需要的再打开细读。",
     points: [
-      "命名规范：小写字母、数字、连字符 (max 64 chars)",
-      "目录结构最佳实践：",
-      "• my-skill/SKILL.md (入口)",
-      "• my-skill/scripts/ (Python/Bash 脚本)",
-      "• my-skill/references/ (详细文档/SOP)",
-      "引用原则：",
-      "• 使用相对路径 (./scripts/run.py)",
-      "• 避免深层嵌套，保持扁平化",
-      "• '自包含' 设计，减少外部依赖"
+      "机制 1：渐进式披露",
+      "• 类比：图书馆的书名+摘要 vs 完整的书",
+      "• 一开始只显示 Skill 的元数据（name + description）",
+      "• 让 Agent 能感知数百个 Skills",
+      "• 完整内容只在 Agent 决定使用时才加载",
+      "机制 2：脚本作为可修改工具",
+      "• 与死板的 API 不同，脚本是自文档化、可读的",
+      "• Agent 可以按需修改脚本，解决「代码卡住」的问题"
     ]
   },
+
+  // ============================================
+  // Slide 10: 怎么用
+  // ============================================
+  {
+    id: "how-to-use",
+    type: "content",
+    title: "三步开始使用",
+    points: [
+      "1. 创建文件夹，写好 SKILL.md",
+      "2. 放到指定目录（如 .claude/skills/）",
+      "3. 没有第三步了"
+    ],
+    extra: "Claude 会自动发现、自动判断、自动使用。你不用告诉它「请使用 xxx skill」。"
+  },
+
+  // ============================================
+  // Slide 11: Demo
+  // ============================================
+  {
+    id: "demo",
+    type: "demo",
+    title: "DEMO",
+    subtitle: "现场演示"
+  },
+
+  // ============================================
+  // Slide 12: 从静态工具到持续学习
+  // ============================================
+  {
+    id: "continuous-learning",
+    type: "timeline",
+    title: "从静态工具到持续学习"
+  },
+
+  // ============================================
+  // Slide 13: 组织级知识库
+  // ============================================
+  {
+    id: "org-knowledge",
+    type: "content",
+    title: "为你的组织构建一个集体进化的知识库",
+    extra: "新人入职，Claude 已经懂你们团队。",
+    points: [
+      "愿景：",
+      "• 一个人（或一个 Agent）创建的 Skill",
+      "• 能立即升级组织内所有其他 Agent 的能力",
+      "• 这创造了复利效应",
+      "价值：",
+      "• 组织知识被捕获、共享、自动进化",
+      "• 新人入职，Claude 已经懂你们团队"
+    ],
+    quote: "When someone joins your team and starts using Claude... it already knows what your team cares about.",
+    quoteCn: "新人加入团队开始使用 Claude 时...它已经知道你们团队关心什么。"
+  },
+
+  // ============================================
+  // Slide 14: 生态已在形成
+  // ============================================
   {
     id: "ecosystem",
     type: "content",
-    title: "生态兼容与采用现状",
-    extra: "主流 AI 开发工具与产品支持。开放标准。",
+    title: "生态已在蓬勃发展",
     points: [
-      "开放标准：由 Anthropic 发起，社区共建",
-      "广泛支持：主流 Agent 框架与 IDE 已原生支持",
-      "Skills Library：",
-      "• 官方参考库 (skills-ref)",
-      "• 社区贡献的通用技能包",
-      "价值：一次编写，跨平台/跨工具复用"
+      "Foundational Skills（基础能力）",
+      "• 创建专业文档",
+      "• Cadence 的科研 Skills（EHR 数据分析）",
+      "• 生物信息学库",
+      "Third-Party Skills（第三方集成）",
+      "• Browserbase 的 Stagehand 浏览器自动化",
+      "• Notion 的深度研究",
+      "Enterprise Skills（企业内部）",
+      "• 内部代码规范、公司内部软件导航",
+      "• 财富 100 强公司的团队特定工作流"
     ]
   },
+
+  // ============================================
+  // Slide 15: 这是趋势 - 金字塔
+  // ============================================
   {
-    id: "security",
-    type: "content",
-    title: "安全与治理",
-    extra: "安全考虑：沙箱、允许列表、用户确认。组织落地。",
-    points: [
-      "执行环境：建议在沙箱 (Sandbox) 或容器中运行",
-      "权限控制：",
-      "• Allowed Tools 白名单机制",
-      "• 敏感操作 (API Call, File Write) 需用户确认",
-      "审计与版本：",
-      "• 技能作为代码 (IaC) 管理，Git 版本控制",
-      "• 记录所有 Skill 调用的日志与产出"
+    id: "pyramid",
+    type: "pyramid",
+    title: "我们见过这种模式，这是 AI 的应用层",
+    pyramidLevels: [
+      {
+        title: "Skills = Applications",
+        description: "数百万开发者在这里编码领域专业知识，为世界解决具体问题",
+        icon: "📱"
+      },
+      {
+        title: "Agent Runtimes = Operating Systems",
+        description: "编排资源，提供核心能力（内存、执行），让处理器变得有用",
+        icon: "⚙️"
+      },
+      {
+        title: "Models = Processors",
+        description: "需要巨额投资，蕴含巨大潜力，但单独存在时用处有限",
+        icon: "🧠"
+      }
     ]
   },
+
+  // ============================================
+  // Slide 16: 数据支撑
+  // ============================================
   {
-    id: "next-steps",
-    type: "content",
-    title: "落地路径与资源索引",
-    extra: "行动项：阅读规范、提炼首批技能。资源入口。",
+    id: "stats",
+    type: "stats",
+    title: "Skills 正在成为行业标准",
+    stats: [
+      { value: "20K+", label: "GitHub Stars", description: "社区创建数万个 Skills" },
+      { value: "6+", label: "主流平台", description: "VS Code、Copilot、Cursor、OpenAI..." },
+      { value: "9+", label: "官方合作伙伴", description: "Atlassian、Figma、Notion、Stripe..." }
+    ],
     points: [
-      "行动建议：",
-      "1. 阅读官方 Spec 文档",
-      "2. 梳理团队内部高频 SOP，转化为 SKILL.md",
-      "3. 在 Pilot 项目中尝试集成 Skills",
-      "资源索引：",
-      "• 官网：agentskills.io",
-      "• GitHub: agentskills/agentskills",
-      "• 示例库：anthropics/skills"
+      "• 非技术人员（财务、法务、招聘）也在写 Skill",
+      "• Anthropic 已开放为开放标准（agentskills.io）",
+      "• OpenAI 也悄悄采用了结构相同的架构"
+    ],
+    extra: "这不是玩具，是方向。"
+  },
+
+  // ============================================
+  // Slide 17: 行动号召
+  // ============================================
+  {
+    id: "cta",
+    type: "cta",
+    title: "现在就开始",
+    points: [
+      "开发者：",
+      "• 今天就写一个最简单的 Skill",
+      "• 从你最常重复说的那句话开始",
+      "非技术人员：",
+      "• 把你的工作流程写成文档",
+      "• 找开发同事帮你包成 Skill",
+      "管理者：",
+      "• 挑一个小团队 pilot 两周",
+      "• 观察效果，再决定推广"
     ]
   },
+
+  // ============================================
+  // Slide 18: 考核指标
+  // ============================================
+  {
+    id: "metrics",
+    type: "content",
+    title: "怎么衡量效果？",
+    extra: "不完美，但先跑起来。未来工具会更成熟（Testing & Evaluation 是官方 Roadmap）。",
+    points: [
+      "理想指标：",
+      "• 效率提升？采纳率？返工率？",
+      "• 现实：这些很难自动化统计",
+      "我们能做的：",
+      "• 统计 Skill 数量（团队沉淀了多少知识）",
+      "• 统计 Skill 使用次数（哪些被高频使用）",
+      "• 收集主观反馈（打分、问卷）",
+      "• 观察留存（有没有人删掉不用）"
+    ]
+  },
+
+  // ============================================
+  // Slide 19: 资源链接
+  // ============================================
+  {
+    id: "resources",
+    type: "resources",
+    title: "了解更多",
+    resources: [
+      { title: "官方文档", url: "https://agentskills.io", description: "Agent Skills 开放标准" },
+      { title: "示例 Skills", url: "https://github.com/anthropics/skills", description: "官方示例库" },
+      { title: "推荐文章", url: "https://www.anthropic.com/engineering/claude-skills", description: "Anthropic 工程博客" },
+      { title: "Simon Willison", url: "https://simonwillison.net/2025/Dec/19/agent-skills/", description: "Claude Skills are awesome" }
+    ],
+    extra: "Skill Creator Skill：Claude 内置，直接让它帮你写 Skill"
+  },
+
+  // ============================================
+  // Slide 20: 结尾金句
+  // ============================================
+  {
+    id: "final-quote",
+    type: "quote",
+    title: "Stop Rebuilding Agents.",
+    subtitle: "Start Composing Expertise.",
+    quote: "我们正在收敛到一个通用的 Agent 架构。Skills 提供了缺失的一层：可组合、可共享的专业知识。这个范式解锁了持续学习，让每个人都能教 Agent 新能力——只需要往文件夹里放东西。",
+    extra: "If you're excited about this, come work with us and start building some skills today."
+  },
+
+  // ============================================
+  // Slide 21: 感谢
+  // ============================================
   {
     id: "closing",
     type: "closing",
-    title: "谢谢",
+    title: "感谢",
     points: [
-      "Agent Skills",
-      "让 Agent 更可靠、更专业"
+      "Q&A"
     ],
     image: closingBg
   }
