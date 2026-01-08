@@ -96,57 +96,82 @@ const SectionDividerSlide = ({ slide }: { slide: SlideData }) => (
   </div>
 );
 
-const ContentSlide = ({ slide }: { slide: SlideData }) => (
-  <div className="w-full h-full flex flex-col p-8 md:p-12 relative overflow-hidden">
-    {/* Header */}
-    <div className="flex items-center justify-between mb-6 shrink-0">
-      <motion.h2
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl md:text-3xl font-bold text-white/90 border-b-2 border-neon-blue/50 pb-3 inline-block pr-8"
-      >
-        {slide.title}
-      </motion.h2>
-      <div className="text-neon-cyan/50 font-orbitron text-sm">AGENT SKILLS</div>
-    </div>
+const ContentSlide = ({ slide }: { slide: SlideData }) => {
+  // Check if a point is a sub-item (starts with • or is indented)
+  const isSubItem = (point: string) => point.startsWith('•') || point.startsWith('- ');
 
-    {/* Content Area */}
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 min-h-0">
-      {/* Main Points */}
-      <div className="md:col-span-8 space-y-3 overflow-y-auto pr-2">
-        {slide.points?.map((point, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 + 0.1 }}
-            className="glass-panel p-4 flex items-start gap-3 hover:border-neon-blue/30 transition-colors"
-          >
-            <div className="mt-1.5 w-2 h-2 rounded-full bg-neon-purple shrink-0" />
-            <p className="text-base md:text-lg text-gray-200 leading-relaxed">
-              {point}
-            </p>
-          </motion.div>
-        ))}
+  return (
+    <div className="w-full h-full flex flex-col p-8 md:p-12 relative overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 shrink-0">
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-2xl md:text-3xl font-bold text-white/90 border-b-2 border-neon-blue/50 pb-3 inline-block pr-8"
+        >
+          {slide.title}
+        </motion.h2>
+        <div className="text-neon-cyan/50 font-orbitron text-sm">AGENT SKILLS</div>
       </div>
 
-      {/* Extra/Notes Side Panel */}
-      {slide.extra && (
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-          className="md:col-span-4 bg-white/5 rounded-xl p-6 border border-white/5 h-fit backdrop-blur-sm"
-        >
-          <h3 className="text-neon-cyan text-sm font-bold uppercase tracking-widest mb-4">Key Insights</h3>
-          <p className="text-gray-400 text-sm leading-relaxed">
-            {slide.extra}
-          </p>
-        </motion.div>
-      )}
+      {/* Content Area */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 min-h-0">
+        {/* Main Points */}
+        <div className="md:col-span-8 space-y-2 overflow-y-auto pr-2">
+          {slide.points?.map((point, i) => {
+            const isSub = isSubItem(point);
+            const displayText = isSub ? point.replace(/^[•\-]\s*/, '') : point;
+
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 + 0.1 }}
+                className={cn(
+                  "flex items-start gap-3 transition-colors",
+                  isSub
+                    ? "ml-6 pl-4 py-2 border-l-2 border-neon-purple/30"
+                    : "glass-panel p-4 hover:border-neon-blue/30"
+                )}
+              >
+                {!isSub && (
+                  <div className="mt-1.5 w-2 h-2 rounded-full bg-neon-purple shrink-0" />
+                )}
+                {isSub && (
+                  <div className="mt-2 w-1.5 h-1.5 rounded-full bg-neon-cyan/60 shrink-0" />
+                )}
+                <p className={cn(
+                  "leading-relaxed",
+                  isSub
+                    ? "text-sm md:text-base text-gray-300"
+                    : "text-base md:text-lg text-gray-200"
+                )}>
+                  {displayText}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Extra/Notes Side Panel */}
+        {slide.extra && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="md:col-span-4 bg-white/5 rounded-xl p-6 border border-white/5 h-fit backdrop-blur-sm"
+          >
+            <h3 className="text-neon-cyan text-sm font-bold uppercase tracking-widest mb-4">Key Insights</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              {slide.extra}
+            </p>
+          </motion.div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ClosingSlide = ({ slide }: { slide: SlideData }) => (
   <div className="relative w-full h-full flex flex-col items-center justify-center p-12">
