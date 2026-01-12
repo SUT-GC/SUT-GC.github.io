@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频硬件入门 - 声音的数字之旅</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: #fff; line-height: 1.8; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .navbar a { color: #a0aec0; text-decoration: none; } .navbar a:hover { color: #4a9eff; }
+        .nav-title { font-weight: 600; color: #fff !important; }
+        .nav-links { display: flex; gap: 2rem; }
+        .main-content { max-width: 900px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.8rem; margin-bottom: 1rem; background: linear-gradient(120deg, #f97316, #eab308); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header .subtitle { font-size: 1.2rem; color: #a0aec0; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.8rem; margin-bottom: 1.5rem; }
+        .card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+        .card h3 { font-size: 1.3rem; margin-bottom: 1rem; color: #f97316; }
+        .card p { color: #c0c8d0; margin-bottom: 1rem; }
+        .highlight { background: rgba(249, 115, 22, 0.3); padding: 0.2rem 0.5rem; border-radius: 5px; font-weight: 600; }
+        .analogy-box { background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 179, 8, 0.1)); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 15px 15px 0; margin: 1.5rem 0; }
+        .analogy-box .analogy-title { font-weight: 600; color: #f97316; margin-bottom: 0.5rem; }
+
+        /* 信号流程图 */
+        .signal-flow { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+        .flow-container { display: flex; align-items: center; justify-content: space-between; min-width: 700px; gap: 0.5rem; }
+        .flow-item { text-align: center; flex: 1; }
+        .flow-icon { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 0.5rem; }
+        .flow-label { font-size: 0.85rem; font-weight: 600; }
+        .flow-desc { font-size: 0.75rem; color: #a0aec0; }
+        .flow-arrow { color: #f97316; font-size: 1.5rem; }
+
+        /* 硬件卡片 */
+        .hardware-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .hardware-card { background: rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .hardware-header { padding: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+        .hardware-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .hardware-name { font-size: 1.2rem; font-weight: 700; }
+        .hardware-subtitle { font-size: 0.8rem; color: #a0aec0; }
+        .hardware-body { padding: 0 1.5rem 1.5rem; }
+        .hardware-desc { font-size: 0.9rem; color: #c0c8d0; margin-bottom: 1rem; }
+        .hardware-specs { font-size: 0.85rem; color: #a0aec0; }
+        .spec-item { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .spec-value { color: #4a9eff; }
+
+        .hardware-card.mic .hardware-header { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.3)); }
+        .hardware-card.mic .hardware-icon { background: linear-gradient(135deg, #ec4899, #a855f7); }
+        .hardware-card.adc .hardware-header { background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(56, 249, 215, 0.3)); }
+        .hardware-card.adc .hardware-icon { background: linear-gradient(135deg, #4a9eff, #38f9d7); }
+        .hardware-card.dac .hardware-header { background: linear-gradient(135deg, rgba(67, 233, 123, 0.3), rgba(34, 197, 94, 0.3)); }
+        .hardware-card.dac .hardware-icon { background: linear-gradient(135deg, #43e97b, #22c55e); }
+        .hardware-card.amp .hardware-header { background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(234, 179, 8, 0.3)); }
+        .hardware-card.amp .hardware-icon { background: linear-gradient(135deg, #f97316, #eab308); }
+        .hardware-card.speaker .hardware-header { background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3)); }
+        .hardware-card.speaker .hardware-icon { background: linear-gradient(135deg, #6366f1, #a855f7); }
+
+        /* 麦克风类型对比 */
+        .mic-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0; }
+        .mic-type { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 1.5rem; text-align: center; }
+        .mic-type .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .mic-type .name { font-weight: 600; margin-bottom: 0.5rem; }
+        .mic-type .desc { font-size: 0.85rem; color: #a0aec0; }
+        .mic-type .use { font-size: 0.8rem; color: #4a9eff; margin-top: 0.5rem; }
+
+        /* ADC/DAC转换演示 */
+        .conversion-demo { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; }
+        .conversion-row { display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+        .conversion-box { padding: 1rem 1.5rem; border-radius: 15px; text-align: center; min-width: 120px; }
+        .conversion-arrow { font-size: 1.5rem; color: #f97316; }
+        .analog { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.3)); border: 2px solid #ec4899; }
+        .digital { background: linear-gradient(135deg, rgba(67, 233, 123, 0.3), rgba(56, 249, 215, 0.3)); border: 2px solid #43e97b; }
+        .chip { background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(99, 102, 241, 0.3)); border: 2px solid #4a9eff; }
+
+        /* 常见模块 */
+        .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .module-item { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 1.5rem; }
+        .module-item h4 { color: #f97316; margin-bottom: 0.5rem; font-size: 1rem; }
+        .module-item .type { font-size: 0.8rem; color: #4a9eff; margin-bottom: 0.5rem; }
+        .module-item .desc { font-size: 0.85rem; color: #a0aec0; }
+        .module-item .price { font-size: 0.8rem; color: #43e97b; margin-top: 0.5rem; }
+
+        .summary-box { background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1)); border: 1px solid rgba(67, 233, 123, 0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; }
+        .summary-box h3 { color: #43e97b; margin-bottom: 1rem; }
+        .summary-list { list-style: none; }
+        .summary-list li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; color: #c0c8d0; }
+        .summary-list li::before { content: '✓'; position: absolute; left: 0; color: #43e97b; }
+
+        .tip-box { background: rgba(249, 115, 22, 0.1); border-left: 4px solid #f97316; padding: 1rem 1.5rem; border-radius: 0 10px 10px 0; margin: 1rem 0; }
+        .tip-box .tip-title { color: #f97316; font-weight: 600; }
+
+        .next-page { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .next-page a { padding: 1rem 2rem; background: rgba(255,255,255,0.05); border-radius: 15px; color: #fff; text-decoration: none; }
+        .next-page a:hover { background: rgba(74, 158, 255, 0.2); }
+
+        @media (max-width: 768px) { .page-header h1 { font-size: 2rem; } .nav-links { display: none; } .mic-types { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-title">🎵 声音的数字之旅</a>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="05-voip.html">VoIP</a>
+            <a href="06-transmission.html">传输协议</a>
+            <a href="07-hardware.html" style="color: #4a9eff;">硬件入门</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>🔧 音频硬件入门</h1>
+            <p class="subtitle">麦克风、DAC、功放...声音旅途中的每个"站点"</p>
+        </header>
+
+        <!-- 完整链路 -->
+        <section class="section">
+            <h2 class="section-title">🛤️ 声音的完整旅程</h2>
+            <div class="card">
+                <h3>从嘴巴到耳朵，声音经过了哪些硬件？</h3>
+                <p>每一个环节都有专门的硬件来处理，缺一不可：</p>
+            </div>
+
+            <div class="signal-flow">
+                <div class="flow-container">
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🗣️</div>
+                        <div class="flow-label">声波</div>
+                        <div class="flow-desc">空气振动</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #ec4899, #a855f7);">🎤</div>
+                        <div class="flow-label">麦克风</div>
+                        <div class="flow-desc">声波→电信号</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #4a9eff, #38f9d7);">⚡</div>
+                        <div class="flow-label">ADC</div>
+                        <div class="flow-desc">模拟→数字</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #a855f7, #6366f1);">💻</div>
+                        <div class="flow-label">处理器</div>
+                        <div class="flow-desc">编码/解码</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #43e97b, #22c55e);">🔊</div>
+                        <div class="flow-label">DAC</div>
+                        <div class="flow-desc">数字→模拟</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #f97316, #eab308);">📢</div>
+                        <div class="flow-label">功放</div>
+                        <div class="flow-desc">放大信号</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="flow-icon" style="background: linear-gradient(135deg, #6366f1, #a855f7);">🔈</div>
+                        <div class="flow-label">扬声器</div>
+                        <div class="flow-desc">电信号→声波</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心硬件介绍 -->
+        <section class="section">
+            <h2 class="section-title">🎛️ 核心硬件详解</h2>
+
+            <div class="hardware-cards">
+                <div class="hardware-card mic">
+                    <div class="hardware-header">
+                        <div class="hardware-icon">🎤</div>
+                        <div>
+                            <div class="hardware-name">麦克风</div>
+                            <div class="hardware-subtitle">Microphone</div>
+                        </div>
+                    </div>
+                    <div class="hardware-body">
+                        <p class="hardware-desc">把声波（空气振动）转换成电信号。不同类型适合不同场景。</p>
+                        <div class="hardware-specs">
+                            <div class="spec-item"><span>灵敏度</span><span class="spec-value">-38dB~-26dB</span></div>
+                            <div class="spec-item"><span>频率响应</span><span class="spec-value">20Hz-20kHz</span></div>
+                            <div class="spec-item"><span>信噪比</span><span class="spec-value">>60dB</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hardware-card adc">
+                    <div class="hardware-header">
+                        <div class="hardware-icon">⚡</div>
+                        <div>
+                            <div class="hardware-name">ADC</div>
+                            <div class="hardware-subtitle">模数转换器</div>
+                        </div>
+                    </div>
+                    <div class="hardware-body">
+                        <p class="hardware-desc">把连续的模拟电信号"切片"成数字信号（PCM）。采样率和位深由它决定。</p>
+                        <div class="hardware-specs">
+                            <div class="spec-item"><span>采样率</span><span class="spec-value">8-192kHz</span></div>
+                            <div class="spec-item"><span>位深</span><span class="spec-value">16-32bit</span></div>
+                            <div class="spec-item"><span>接口</span><span class="spec-value">I2S/PDM</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hardware-card dac">
+                    <div class="hardware-header">
+                        <div class="hardware-icon">🔊</div>
+                        <div>
+                            <div class="hardware-name">DAC</div>
+                            <div class="hardware-subtitle">数模转换器</div>
+                        </div>
+                    </div>
+                    <div class="hardware-body">
+                        <p class="hardware-desc">ADC的逆过程，把数字信号还原成模拟电信号。发烧友追求的"解码器"就是它。</p>
+                        <div class="hardware-specs">
+                            <div class="spec-item"><span>动态范围</span><span class="spec-value">>100dB</span></div>
+                            <div class="spec-item"><span>失真</span><span class="spec-value"><0.01%</span></div>
+                            <div class="spec-item"><span>接口</span><span class="spec-value">I2S</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hardware-card amp">
+                    <div class="hardware-header">
+                        <div class="hardware-icon">📢</div>
+                        <div>
+                            <div class="hardware-name">功放</div>
+                            <div class="hardware-subtitle">Amplifier</div>
+                        </div>
+                    </div>
+                    <div class="hardware-body">
+                        <p class="hardware-desc">DAC输出的信号太弱，推不动扬声器。功放把信号放大几十到几百倍。</p>
+                        <div class="hardware-specs">
+                            <div class="spec-item"><span>功率</span><span class="spec-value">1W-100W</span></div>
+                            <div class="spec-item"><span>类型</span><span class="spec-value">D类效率高</span></div>
+                            <div class="spec-item"><span>效率</span><span class="spec-value">>90%</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hardware-card speaker">
+                    <div class="hardware-header">
+                        <div class="hardware-icon">🔈</div>
+                        <div>
+                            <div class="hardware-name">扬声器</div>
+                            <div class="hardware-subtitle">Speaker</div>
+                        </div>
+                    </div>
+                    <div class="hardware-body">
+                        <p class="hardware-desc">电信号驱动振膜振动，推动空气产生声波。麦克风的逆过程。</p>
+                        <div class="hardware-specs">
+                            <div class="spec-item"><span>阻抗</span><span class="spec-value">4Ω/8Ω</span></div>
+                            <div class="spec-item"><span>灵敏度</span><span class="spec-value">80-90dB</span></div>
+                            <div class="spec-item"><span>频响</span><span class="spec-value">20Hz-20kHz</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 麦克风类型 -->
+        <section class="section">
+            <h2 class="section-title">🎙️ 麦克风的三种类型</h2>
+
+            <div class="mic-types">
+                <div class="mic-type">
+                    <div class="icon">🎤</div>
+                    <div class="name">动圈麦克风</div>
+                    <div class="desc">线圈在磁场中振动产生电流。皮实耐用，不怕摔。</div>
+                    <div class="use">演唱会、KTV</div>
+                </div>
+                <div class="mic-type">
+                    <div class="icon">🎙️</div>
+                    <div class="name">电容麦克风</div>
+                    <div class="desc">振膜振动改变电容值。灵敏度高，细节丰富。</div>
+                    <div class="use">录音棚、直播</div>
+                </div>
+                <div class="mic-type">
+                    <div class="icon">📱</div>
+                    <div class="name">MEMS麦克风</div>
+                    <div class="desc">微机电系统，超小体积。手机、耳机里都是这种。</div>
+                    <div class="use">手机、智能设备</div>
+                </div>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 MEMS麦克风为什么这么火？</div>
+                <p>比米粒还小、自带数字输出（省ADC）、便宜、省电。完美适合手机和IoT设备！</p>
+                <p>你手机里可能有2-4个MEMS麦克风，用于降噪和定向录音。</p>
+            </div>
+        </section>
+
+        <!-- ADC/DAC转换 -->
+        <section class="section">
+            <h2 class="section-title">🔄 ADC与DAC：模拟↔数字的桥梁</h2>
+
+            <div class="conversion-demo">
+                <h4 style="color: #f97316; margin-bottom: 1rem; text-align: center;">录音过程（ADC）</h4>
+                <div class="conversion-row">
+                    <div class="conversion-box analog">🌊 模拟波形<br><small>连续信号</small></div>
+                    <div class="conversion-arrow">→</div>
+                    <div class="conversion-box chip">⚡ ADC<br><small>采样量化</small></div>
+                    <div class="conversion-arrow">→</div>
+                    <div class="conversion-box digital">101010<br><small>数字PCM</small></div>
+                </div>
+
+                <h4 style="color: #43e97b; margin: 2rem 0 1rem; text-align: center;">播放过程（DAC）</h4>
+                <div class="conversion-row">
+                    <div class="conversion-box digital">101010<br><small>数字PCM</small></div>
+                    <div class="conversion-arrow">→</div>
+                    <div class="conversion-box chip">🔊 DAC<br><small>数模转换</small></div>
+                    <div class="conversion-arrow">→</div>
+                    <div class="conversion-box analog">🌊 模拟波形<br><small>连续信号</small></div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-title">💡 I2S是什么？</div>
+                <p style="color:#c0c8d0;margin-top:0.3rem;">I2S是芯片之间传输数字音频的标准接口，只需要3根线（时钟、左右声道选择、数据）。几乎所有音频芯片都支持。</p>
+            </div>
+        </section>
+
+        <!-- 常见模块 -->
+        <section class="section">
+            <h2 class="section-title">🛒 常见音频模块（DIY参考）</h2>
+
+            <div class="module-grid">
+                <div class="module-item">
+                    <h4>INMP441</h4>
+                    <div class="type">I2S数字麦克风</div>
+                    <div class="desc">高信噪比MEMS麦，直接输出数字信号，ESP32最常用</div>
+                    <div class="price">💰 约¥8-15</div>
+                </div>
+                <div class="module-item">
+                    <h4>MAX98357A</h4>
+                    <div class="type">I2S功放模块</div>
+                    <div class="desc">DAC+功放二合一，3W输出，直接接喇叭</div>
+                    <div class="price">💰 约¥10-20</div>
+                </div>
+                <div class="module-item">
+                    <h4>PCM5102A</h4>
+                    <div class="type">Hi-Fi DAC模块</div>
+                    <div class="desc">高品质解码器，112dB动态范围，发烧级</div>
+                    <div class="price">💰 约¥15-30</div>
+                </div>
+                <div class="module-item">
+                    <h4>PAM8403</h4>
+                    <div class="type">D类功放模块</div>
+                    <div class="desc">3W×2立体声，效率90%，体积超小</div>
+                    <div class="price">💰 约¥2-5</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔌 最简单的音频系统搭建</h3>
+                <p>用ESP32做一个能说话的智能设备，只需要：</p>
+                <p style="text-align: center; font-size: 1.1rem; margin: 1rem 0;">
+                    <span style="color: #ec4899;">INMP441</span> 
+                    <span style="color: #a0aec0;">→ ESP32 →</span> 
+                    <span style="color: #43e97b;">MAX98357A</span> 
+                    <span style="color: #a0aec0;">→ 小喇叭</span>
+                </p>
+                <p style="color: #a0aec0; font-size: 0.9rem;">总成本不到50块钱，就能做出一个能录音、播放、甚至做语音识别的设备！</p>
+            </div>
+        </section>
+
+        <!-- 总结 -->
+        <section class="section">
+            <div class="summary-box">
+                <h3>✅ 本章小结</h3>
+                <ul class="summary-list">
+                    <li><strong>麦克风</strong>：声波→电信号（MEMS最常用）</li>
+                    <li><strong>ADC</strong>：模拟→数字（采样+量化=PCM）</li>
+                    <li><strong>DAC</strong>：数字→模拟（解码器）</li>
+                    <li><strong>功放</strong>：放大信号推动扬声器</li>
+                    <li><strong>扬声器</strong>：电信号→声波</li>
+                    <li><strong>I2S</strong>：音频芯片间的标准接口</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="next-page">
+            <a href="06-transmission.html">← 音频传输协议</a>
+            <a href="index.html">返回首页 🏠</a>
+        </div>
+    </main>
+</body>
+</html>

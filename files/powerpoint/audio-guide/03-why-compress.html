@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>为什么要压缩音频？ - 声音的数字之旅</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            line-height: 1.8;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .navbar a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #4a9eff;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            color: #fff !important;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(120deg, #43e97b, #38f9d7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.2rem;
+            color: #a0aec0;
+        }
+
+        /* 章节样式 */
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #fff;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #43e97b;
+        }
+
+        .card p {
+            color: #c0c8d0;
+            margin-bottom: 1rem;
+        }
+
+        /* 痛点展示 */
+        .pain-point {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .pain-point h3 {
+            color: #ef4444;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 体积对比可视化 */
+        .size-comparison {
+            margin: 2rem 0;
+        }
+
+        .size-bar-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .size-bar-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .size-bar-label .format {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .size-bar-label .size {
+            color: #a0aec0;
+        }
+
+        .size-bar {
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .size-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: width 1s ease;
+        }
+
+        /* 类比盒子 */
+        .analogy-box {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(168, 85, 247, 0.1));
+            border-left: 4px solid #4a9eff;
+            padding: 1.5rem;
+            border-radius: 0 15px 15px 0;
+            margin: 1.5rem 0;
+        }
+
+        .analogy-box .analogy-title {
+            font-weight: 600;
+            color: #4a9eff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .analogy-box p {
+            color: #c0c8d0;
+            margin: 0.5rem 0;
+        }
+
+        /* 对比卡片 */
+        .compare-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .compare-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .compare-card.lossy {
+            border-color: rgba(249, 115, 22, 0.5);
+        }
+
+        .compare-card.lossless {
+            border-color: rgba(67, 233, 123, 0.5);
+        }
+
+        .compare-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .compare-card.lossy h3 {
+            color: #f97316;
+        }
+
+        .compare-card.lossless h3 {
+            color: #43e97b;
+        }
+
+        .compare-card ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .compare-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #c0c8d0;
+        }
+
+        .compare-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #a0aec0;
+        }
+
+        /* Demo 区域 */
+        .demo-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .demo-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #4a9eff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 动画展示：压缩过程 */
+        .compression-demo {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .data-block {
+            text-align: center;
+        }
+
+        .data-visual {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-visual.original {
+            background: linear-gradient(135deg, #4a9eff, #a855f7);
+        }
+
+        .data-visual.compressed {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            width: 60px;
+            height: 60px;
+            font-size: 1.2rem;
+        }
+
+        .data-label {
+            font-size: 0.9rem;
+            color: #a0aec0;
+        }
+
+        .data-size {
+            font-weight: 600;
+            color: #fff;
+            margin-top: 0.3rem;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #4a9eff;
+            animation: arrowPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(10px); opacity: 0.5; }
+        }
+
+        /* 心理声学可视化 */
+        .psychoacoustic-demo {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .frequency-spectrum {
+            position: relative;
+            height: 200px;
+            margin: 1rem 0;
+        }
+
+        .freq-bar {
+            position: absolute;
+            bottom: 30px;
+            width: 8px;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+
+        .freq-label {
+            position: absolute;
+            bottom: 0;
+            font-size: 0.7rem;
+            color: #a0aec0;
+            transform: translateX(-50%);
+        }
+
+        .hearing-range {
+            position: absolute;
+            top: 0;
+            height: calc(100% - 30px);
+            background: rgba(67, 233, 123, 0.1);
+            border: 1px dashed rgba(67, 233, 123, 0.5);
+            border-radius: 10px;
+        }
+
+        .hearing-label {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #43e97b;
+            white-space: nowrap;
+        }
+
+        /* 掩蔽效应演示 */
+        .masking-demo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .sound-wave {
+            text-align: center;
+        }
+
+        .wave-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .wave-bars {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            height: 60px;
+            align-items: flex-end;
+        }
+
+        .wave-bar {
+            width: 8px;
+            background: linear-gradient(to top, #4a9eff, #a855f7);
+            border-radius: 4px;
+            animation: waveAnim 0.5s ease-in-out infinite alternate;
+        }
+
+        .wave-bar:nth-child(1) { height: 30px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 50px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 40px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 60px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 35px; animation-delay: 0.4s; }
+
+        .wave-bar.quiet {
+            background: linear-gradient(to top, rgba(74, 158, 255, 0.3), rgba(168, 85, 247, 0.3));
+        }
+
+        .wave-bar.masked {
+            background: linear-gradient(to top, rgba(239, 68, 68, 0.3), rgba(249, 115, 22, 0.3));
+        }
+
+        @keyframes waveAnim {
+            from { transform: scaleY(0.8); }
+            to { transform: scaleY(1); }
+        }
+
+        .plus-sign, .equals-sign {
+            font-size: 2rem;
+            color: #a0aec0;
+        }
+
+        /* 压缩算法卡片 */
+        .algorithm-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .algorithm-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .algorithm-card h4 {
+            color: #4a9eff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .algorithm-card p {
+            color: #a0aec0;
+            font-size: 0.95rem;
+        }
+
+        /* 衣柜类比动画 */
+        .closet-demo {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .closet {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .closet-box {
+            width: 150px;
+            height: 180px;
+            margin: 0 auto 1rem;
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            padding: 10px;
+            gap: 5px;
+        }
+
+        .closet-box.messy {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.2));
+            border: 2px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .closet-box.lossy {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 179, 8, 0.2));
+            border: 2px solid rgba(249, 115, 22, 0.5);
+            width: 100px;
+            height: 120px;
+        }
+
+        .closet-box.lossless {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.2), rgba(56, 249, 215, 0.2));
+            border: 2px solid rgba(67, 233, 123, 0.5);
+            width: 100px;
+            height: 120px;
+        }
+
+        .cloth {
+            width: 25px;
+            height: 25px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .closet-label {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .closet-desc {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        /* 知识点总结 */
+        .summary-box {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1));
+            border: 1px solid rgba(67, 233, 123, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .summary-box h3 {
+            color: #43e97b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #c0c8d0;
+        }
+
+        .summary-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #43e97b;
+            font-weight: bold;
+        }
+
+        /* 提示框 */
+        .tip-box {
+            background: rgba(249, 115, 22, 0.1);
+            border-left: 4px solid #f97316;
+            padding: 1rem 1.5rem;
+            border-radius: 0 10px 10px 0;
+            margin: 1rem 0;
+        }
+
+        .tip-box .tip-title {
+            color: #f97316;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .tip-box p {
+            color: #c0c8d0;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* 高亮 */
+        .highlight {
+            background: linear-gradient(120deg, rgba(74, 158, 255, 0.3), rgba(168, 85, 247, 0.3));
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        /* 下一页导航 */
+        .next-page {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .next-page a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .next-page a:hover {
+            background: rgba(74, 158, 255, 0.2);
+            border-color: rgba(74, 158, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        .next-page a.prev:hover {
+            transform: translateX(-5px);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .compare-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .compression-demo {
+                flex-direction: column;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* 交互式压缩比展示 */
+        .compression-ratio-demo {
+            margin: 2rem 0;
+        }
+
+        .ratio-slider-container {
+            margin: 1.5rem 0;
+        }
+
+        .ratio-visual {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-end;
+            justify-content: center;
+            margin: 2rem 0;
+            min-height: 200px;
+        }
+
+        .ratio-block {
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .ratio-bar {
+            width: 80px;
+            border-radius: 10px 10px 0 0;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 0.5rem;
+            transition: height 0.5s ease;
+        }
+
+        .ratio-bar.original {
+            background: linear-gradient(to top, #4a9eff, #a855f7);
+            height: 180px;
+        }
+
+        .ratio-bar.compressed {
+            background: linear-gradient(to top, #43e97b, #38f9d7);
+        }
+
+        .ratio-label {
+            font-size: 0.9rem;
+            color: #a0aec0;
+        }
+
+        .ratio-size {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* 格式选择按钮 */
+        .format-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .format-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: #fff;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .format-btn:hover {
+            border-color: #4a9eff;
+        }
+
+        .format-btn.active {
+            background: linear-gradient(135deg, #4a9eff, #a855f7);
+            border-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-title">🎵 声音的数字之旅</a>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="02-digital-basics.html">数字化基础</a>
+            <a href="03-why-compress.html" style="color: #4a9eff;">为什么压缩</a>
+            <a href="04-audio-formats.html">格式对比</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- 页面标题 -->
+        <header class="page-header">
+            <h1>📉 为什么要压缩音频？</h1>
+            <p class="subtitle">一首歌50MB？太大了！来看看压缩是如何"瘦身不减质"的</p>
+        </header>
+
+        <!-- 痛点引入 -->
+        <section class="section">
+            <div class="pain-point">
+                <h3>😱 一个让人头疼的问题</h3>
+                <p>还记得上一章算的吗？<strong>CD音质</strong>的原始数据：</p>
+                <div style="font-size: 1.5rem; margin: 1rem 0; color: #fff;">
+                    1分钟 = <span style="color: #ef4444; font-weight: 700;">10.3 MB</span>
+                </div>
+                <p>这意味着什么？</p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: #c0c8d0;">
+                    <li>一首5分钟的歌 = <strong>51.5 MB</strong></li>
+                    <li>一张60分钟的专辑 = <strong>618 MB</strong></li>
+                    <li>手机16GB存储 = 只能存 <strong>26张专辑</strong></li>
+                    <li>网速10Mbps播放 = 完全不够用，要<strong>卡成PPT</strong></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>💡 解决方案：压缩！</h3>
+                <p>就像把大象塞进冰箱，压缩技术能把音频文件缩小到原来的 <span class="highlight">1/10 甚至 1/20</span>，让存储和传输变得轻松。</p>
+                <p>但问题来了：怎么压缩才能让你听不出区别？</p>
+            </div>
+        </section>
+
+        <!-- 压缩前后对比 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">📊</span> 压缩前后体积对比</h2>
+            
+            <div class="demo-container">
+                <div class="demo-title">🎮 点击不同格式，看看压缩效果</div>
+                <p style="color: #a0aec0; margin-bottom: 1rem;">以一首 <strong>3分钟</strong> 的歌曲为例，看看不同格式的体积差异：</p>
+                
+                <div class="format-buttons">
+                    <button class="format-btn active" data-format="wav">WAV (原始)</button>
+                    <button class="format-btn" data-format="flac">FLAC (~700k)</button>
+                    <button class="format-btn" data-format="mp3-320">MP3 320k</button>
+                    <button class="format-btn" data-format="mp3-128">MP3 128k</button>
+                    <button class="format-btn" data-format="opus">Opus 64k</button>
+                </div>
+                
+                <div class="ratio-visual">
+                    <div class="ratio-block">
+                        <div class="ratio-bar original"></div>
+                        <div class="ratio-label">原始WAV</div>
+                        <div class="ratio-size">30.9 MB</div>
+                    </div>
+                    <div class="ratio-block">
+                        <div class="ratio-bar compressed" id="compressedBar"></div>
+                        <div class="ratio-label" id="compressedLabel">WAV</div>
+                        <div class="ratio-size" id="compressedSize">30.9 MB</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                    <span style="color: #a0aec0;">压缩比：</span>
+                    <span style="font-size: 1.5rem; font-weight: 700; color: #43e97b;" id="compressionRatio">1:1 (无压缩)</span>
+                </div>
+            </div>
+
+            <!-- 体积对比柱状图 -->
+            <div class="card">
+                <h3>📈 一图看清所有格式</h3>
+                <div class="size-comparison">
+                    <div class="size-bar-container">
+                        <div class="size-bar-label">
+                            <span class="format">📀 WAV (原始PCM)</span>
+                            <span class="size">30.9 MB (100%)</span>
+                        </div>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 100%; background: linear-gradient(90deg, #4a9eff, #a855f7);">100%</div>
+                        </div>
+                    </div>
+                    <div class="size-bar-container">
+                        <div class="size-bar-label">
+                            <span class="format">🎵 FLAC (无损压缩)</span>
+                            <span class="size">15.5 MB (50%)</span>
+                        </div>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 50%; background: linear-gradient(90deg, #43e97b, #38f9d7);">50%</div>
+                        </div>
+                    </div>
+                    <div class="size-bar-container">
+                        <div class="size-bar-label">
+                            <span class="format">🎧 MP3 320kbps (高质量)</span>
+                            <span class="size">7.2 MB (23%)</span>
+                        </div>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 23%; background: linear-gradient(90deg, #f97316, #eab308);">23%</div>
+                        </div>
+                    </div>
+                    <div class="size-bar-container">
+                        <div class="size-bar-label">
+                            <span class="format">📱 MP3 128kbps (标准)</span>
+                            <span class="size">2.9 MB (9%)</span>
+                        </div>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 9%; background: linear-gradient(90deg, #f97316, #eab308);">9%</div>
+                        </div>
+                    </div>
+                    <div class="size-bar-container">
+                        <div class="size-bar-label">
+                            <span class="format">🚀 Opus 64kbps (超高效)</span>
+                            <span class="size">1.4 MB (5%)</span>
+                        </div>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 5%; background: linear-gradient(90deg, #ec4899, #a855f7);">5%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 有损 vs 无损 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">⚖️</span> 两种压缩方式：有损 vs 无损</h2>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 通俗类比：整理衣柜</div>
+                <p>想象你的衣柜塞满了衣服，需要"压缩"腾出空间：</p>
+                <p>• <strong>有损压缩</strong> = 扔掉你不穿的衣服 —— 空间省了很多，但扔掉的衣服回不来了</p>
+                <p>• <strong>无损压缩</strong> = 用真空压缩袋 —— 衣服还在，只是挤掉了空气，想穿随时能拿出来</p>
+            </div>
+
+            <div class="compare-cards">
+                <div class="compare-card lossy">
+                    <h3>🗑️ 有损压缩</h3>
+                    <p>删掉一些"不重要"的数据，<strong>无法还原</strong>。</p>
+                    <ul>
+                        <li>代表格式：MP3、AAC、Opus</li>
+                        <li>压缩比高：可达 1:10 ~ 1:20</li>
+                        <li>适合：在线音乐、流媒体、手机存储</li>
+                        <li>缺点：反复编辑会质量下降</li>
+                    </ul>
+                </div>
+                <div class="compare-card lossless">
+                    <h3>📦 无损压缩</h3>
+                    <p>只是换种方式存储，<strong>可以100%还原</strong>。</p>
+                    <ul>
+                        <li>代表格式：FLAC、ALAC、APE</li>
+                        <li>压缩比中等：约 1:2</li>
+                        <li>适合：音乐收藏、专业编辑、发烧友</li>
+                        <li>缺点：文件仍然比较大</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 衣柜类比动画 -->
+            <div class="demo-container">
+                <div class="demo-title">👕 看图理解：衣柜压缩法</div>
+                <div class="closet-demo">
+                    <div class="closet">
+                        <div class="closet-box messy" id="messyCloset"></div>
+                        <div class="closet-label">原始衣柜</div>
+                        <div class="closet-desc">塞满了各种衣服<br>100% 空间占用</div>
+                    </div>
+                    <div style="font-size: 2rem; color: #a0aec0; align-self: center;">→</div>
+                    <div class="closet">
+                        <div class="closet-box lossy" id="lossyCloset"></div>
+                        <div class="closet-label" style="color: #f97316;">有损压缩</div>
+                        <div class="closet-desc">扔掉不穿的衣服<br>只剩 30% 但够用</div>
+                    </div>
+                    <div style="font-size: 2rem; color: #a0aec0; align-self: center;">或</div>
+                    <div class="closet">
+                        <div class="closet-box lossless" id="losslessCloset"></div>
+                        <div class="closet-label" style="color: #43e97b;">无损压缩</div>
+                        <div class="closet-desc">真空袋压缩<br>50% 但全都在</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 压缩算法原理 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">🧠</span> 有损压缩的秘密：人耳的"漏洞"</h2>
+
+            <div class="card">
+                <h3>🎯 心理声学：利用人耳的缺陷</h3>
+                <p>有损压缩之所以能把文件缩小那么多，还让你听不出区别，是因为它利用了人耳的<span class="highlight">生理限制</span>：</p>
+            </div>
+
+            <!-- 听觉范围 -->
+            <div class="demo-container">
+                <div class="demo-title">👂 秘密1：人耳听不到的频率</div>
+                <p style="color: #a0aec0; margin-bottom: 1rem;">人耳只能听到 <strong>20Hz ~ 20000Hz</strong> 之间的声音，超出这个范围的都是"摆设"——删掉也没人发现！</p>
+                
+                <div class="psychoacoustic-demo">
+                    <div class="frequency-spectrum" id="freqSpectrum">
+                        <!-- 人耳听觉范围标注 -->
+                        <div class="hearing-range" style="left: 10%; width: 70%;">
+                            <div class="hearing-label">👂 人耳能听到的范围</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #a0aec0; font-size: 0.8rem; padding: 0 5%;">
+                        <span>10Hz (次声波)</span>
+                        <span>20Hz</span>
+                        <span>1kHz</span>
+                        <span>20kHz</span>
+                        <span>40kHz (超声波)</span>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <div class="tip-title">💡 举个例子</div>
+                    <p>CD音质能录到22kHz的声音，但你20岁以后大概就只能听到16kHz了。所以高于16kHz的数据，对很多人来说删了也听不出来！</p>
+                </div>
+            </div>
+
+            <!-- 掩蔽效应 -->
+            <div class="demo-container">
+                <div class="demo-title">🔇 秘密2：掩蔽效应</div>
+                <p style="color: #a0aec0; margin-bottom: 1rem;">当一个<strong>大声</strong>的声音和一个<strong>小声</strong>的声音同时出现时，你的耳朵只会注意到大声的，小声的就被"盖住"了。</p>
+                
+                <div class="masking-demo">
+                    <div class="sound-wave">
+                        <div class="wave-icon">🥁</div>
+                        <div class="wave-bars">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: #fff;">大声的鼓点</div>
+                    </div>
+                    <div class="plus-sign">+</div>
+                    <div class="sound-wave">
+                        <div class="wave-icon">🎵</div>
+                        <div class="wave-bars">
+                            <div class="wave-bar quiet" style="height: 10px !important;"></div>
+                            <div class="wave-bar quiet" style="height: 15px !important;"></div>
+                            <div class="wave-bar quiet" style="height: 12px !important;"></div>
+                            <div class="wave-bar quiet" style="height: 8px !important;"></div>
+                            <div class="wave-bar quiet" style="height: 11px !important;"></div>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: #a0aec0;">小声的细节</div>
+                    </div>
+                    <div class="equals-sign">=</div>
+                    <div class="sound-wave">
+                        <div class="wave-icon">👂</div>
+                        <div class="wave-bars">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: #43e97b;">你只听到鼓点</div>
+                    </div>
+                </div>
+                
+                <p style="text-align: center; color: #a0aec0; margin-top: 1rem;">
+                    既然你听不到那些被"盖住"的声音，那这部分数据<span style="color: #f97316;">删掉也无所谓</span>！
+                </p>
+            </div>
+
+            <!-- 压缩算法卡片 -->
+            <div class="card">
+                <h3>🔧 不同格式的压缩策略</h3>
+                <div class="algorithm-cards">
+                    <div class="algorithm-card">
+                        <h4>🎵 MP3 / AAC</h4>
+                        <p>使用 <strong>MDCT变换</strong> 把声音分成很多小块，然后根据心理声学模型，给每块分配不同的"精度"。重要的部分保留细节，不重要的部分粗略处理。</p>
+                    </div>
+                    <div class="algorithm-card">
+                        <h4>🚀 Opus</h4>
+                        <p>混合两种算法：<strong>SILK</strong>（针对人声优化）+ <strong>CELT</strong>（针对音乐优化），根据内容自动切换，所以语音和音乐都能压得很小。</p>
+                    </div>
+                    <div class="algorithm-card">
+                        <h4>📦 FLAC</h4>
+                        <p>不删任何数据！使用 <strong>预测编码</strong>：发现声音的规律（比如相邻采样点很接近），只记录"差异"，像ZIP压缩文件一样。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 什么时候用什么 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">🎯</span> 该用哪种压缩？</h2>
+
+            <div class="card">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid rgba(255,255,255,0.2);">
+                            <th style="padding: 1rem; text-align: left; color: #4a9eff;">场景</th>
+                            <th style="padding: 1rem; text-align: left; color: #4a9eff;">推荐格式</th>
+                            <th style="padding: 1rem; text-align: left; color: #4a9eff;">原因</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <td style="padding: 1rem;">🎧 日常听歌</td>
+                            <td style="padding: 1rem; color: #f97316;">MP3 / AAC 256kbps+</td>
+                            <td style="padding: 1rem; color: #a0aec0;">体积小，音质够用，兼容性最好</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <td style="padding: 1rem;">📞 语音通话</td>
+                            <td style="padding: 1rem; color: #ec4899;">Opus 32-64kbps</td>
+                            <td style="padding: 1rem; color: #a0aec0;">超低延迟，人声清晰，省流量</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <td style="padding: 1rem;">📺 在线视频</td>
+                            <td style="padding: 1rem; color: #f97316;">AAC 128-256kbps</td>
+                            <td style="padding: 1rem; color: #a0aec0;">行业标准，效率高</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <td style="padding: 1rem;">💿 收藏音乐</td>
+                            <td style="padding: 1rem; color: #43e97b;">FLAC</td>
+                            <td style="padding: 1rem; color: #a0aec0;">无损，可以随时转成其他格式</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;">🎬 专业制作</td>
+                            <td style="padding: 1rem; color: #4a9eff;">WAV / AIFF</td>
+                            <td style="padding: 1rem; color: #a0aec0;">无压缩，避免反复编码损失</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-title">⚠️ 重要提醒</div>
+                <p>有损压缩是<strong>不可逆</strong>的！把MP3转成FLAC不会提高音质，只会白白增大文件。就像把JPG转成RAW，模糊的照片不会变清晰。</p>
+            </div>
+        </section>
+
+        <!-- 总结 -->
+        <section class="section">
+            <div class="summary-box">
+                <h3>✅ 本章小结</h3>
+                <ul class="summary-list">
+                    <li><strong>为什么要压缩</strong>：原始音频太大（1分钟CD=10MB），不方便存储和传输</li>
+                    <li><strong>有损压缩</strong>（MP3/AAC/Opus）：删除人耳听不到的部分，可压缩到原来的5%-20%</li>
+                    <li><strong>无损压缩</strong>（FLAC/ALAC）：找规律压缩，可100%还原，约50%体积</li>
+                    <li><strong>心理声学</strong>：利用人耳只能听20Hz-20kHz、以及掩蔽效应等特性</li>
+                    <li><strong>选择建议</strong>：日常听歌用MP3/AAC，语音通话用Opus，收藏用FLAC</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 下一页导航 -->
+        <div class="next-page">
+            <a href="02-digital-basics.html" class="prev">
+                ← 上一章：数字化基础
+            </a>
+            <a href="04-audio-formats.html">
+                下一章：主流音频格式大PK →
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // 格式切换交互
+        const formatData = {
+            'wav': { size: 30.9, label: 'WAV (原始)', ratio: '1:1 (无压缩)', height: 180 },
+            'flac': { size: 15.5, label: 'FLAC (~700kbps)', ratio: '1:2 (50%)', height: 90 },
+            'mp3-320': { size: 7.2, label: 'MP3 320kbps', ratio: '1:4.3 (23%)', height: 42 },
+            'mp3-128': { size: 2.9, label: 'MP3 128kbps', ratio: '1:10.7 (9%)', height: 17 },
+            'opus': { size: 1.4, label: 'Opus 64kbps', ratio: '1:22 (4.5%)', height: 8 }
+        };
+
+        const formatBtns = document.querySelectorAll('.format-btn');
+        const compressedBar = document.getElementById('compressedBar');
+        const compressedLabel = document.getElementById('compressedLabel');
+        const compressedSize = document.getElementById('compressedSize');
+        const compressionRatio = document.getElementById('compressionRatio');
+
+        formatBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                formatBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const format = btn.dataset.format;
+                const data = formatData[format];
+                
+                compressedBar.style.height = data.height + 'px';
+                compressedLabel.textContent = data.label;
+                compressedSize.textContent = data.size + ' MB';
+                compressionRatio.textContent = data.ratio;
+            });
+        });
+
+        // 频率图谱
+        const freqSpectrum = document.getElementById('freqSpectrum');
+        const frequencies = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000, 30000, 40000];
+        const heights = [30, 60, 80, 100, 120, 140, 150, 145, 130, 100, 70, 40, 20, 10];
+
+        frequencies.forEach((freq, i) => {
+            const bar = document.createElement('div');
+            bar.className = 'freq-bar';
+            bar.style.left = (5 + (i / frequencies.length) * 90) + '%';
+            bar.style.height = heights[i] + 'px';
+            
+            // 听觉范围内的用蓝色，范围外的用灰色
+            if (freq >= 20 && freq <= 20000) {
+                bar.style.background = 'linear-gradient(to top, #4a9eff, #a855f7)';
+            } else {
+                bar.style.background = 'rgba(255,255,255,0.2)';
+            }
+            
+            freqSpectrum.appendChild(bar);
+        });
+
+        // 衣柜动画
+        const clothEmojis = ['👕', '👖', '👗', '🧥', '👔', '🩳', '👘', '🥋', '🩱', '👙', '🧤', '🧣'];
+        const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#4a9eff', '#a855f7', '#ec4899', '#06b6d4'];
+
+        function fillCloset(containerId, count, showAll = true) {
+            const container = document.getElementById(containerId);
+            const items = showAll ? clothEmojis : clothEmojis.slice(0, 5);
+            
+            for (let i = 0; i < count; i++) {
+                const cloth = document.createElement('div');
+                cloth.className = 'cloth';
+                cloth.textContent = items[i % items.length];
+                cloth.style.background = colors[i % colors.length] + '30';
+                container.appendChild(cloth);
+            }
+        }
+
+        fillCloset('messyCloset', 12);
+        fillCloset('lossyCloset', 4);
+        fillCloset('losslessCloset', 6);
+
+        // 初始化默认状态
+        document.querySelector('.format-btn.active').click();
+    </script>
+</body>
+</html>

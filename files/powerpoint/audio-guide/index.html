@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>声音的数字之旅 - 从声波到耳朵</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 头部区域 */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a9eff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(120deg, #4a9eff, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #a0aec0;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.8;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        .scroll-hint svg {
+            width: 40px;
+            height: 40px;
+            fill: #4a9eff;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* 声波动画区域 */
+        .wave-container {
+            width: 100%;
+            max-width: 800px;
+            height: 150px;
+            margin: 2rem auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .wave svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wave-path {
+            fill: none;
+            stroke: url(#waveGradient);
+            stroke-width: 3;
+            stroke-linecap: round;
+            animation: waveMove 2s linear infinite;
+        }
+
+        @keyframes waveMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 流程图区域 */
+        .journey-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #a0aec0;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 流程步骤 */
+        .journey-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+
+        .journey-step {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .journey-step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-content {
+            flex: 1;
+            max-width: 500px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-content p {
+            color: #a0aec0;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .step-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 连接线 */
+        .connector {
+            width: 4px;
+            height: 60px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .connector::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, #4a9eff, transparent);
+            animation: flowDown 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flowDown {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .connector-arrow {
+            text-align: center;
+            color: #4a9eff;
+            font-size: 1.5rem;
+            margin: -10px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 颜色主题 */
+        .step-1 .step-number { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .step-1 .step-tag { background: rgba(240, 147, 251, 0.2); color: #f093fb; }
+        
+        .step-2 .step-number { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .step-2 .step-tag { background: rgba(79, 172, 254, 0.2); color: #4facfe; }
+        
+        .step-3 .step-number { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .step-3 .step-tag { background: rgba(67, 233, 123, 0.2); color: #43e97b; }
+        
+        .step-4 .step-number { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .step-4 .step-tag { background: rgba(250, 112, 154, 0.2); color: #fa709a; }
+        
+        .step-5 .step-number { background: linear-gradient(135deg, #a855f7, #6366f1); }
+        .step-5 .step-tag { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        
+        .step-6 .step-number { background: linear-gradient(135deg, #f97316, #eab308); }
+        .step-6 .step-tag { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+
+        /* 章节导航卡片 */
+        .chapters-section {
+            padding: 4rem 2rem;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .chapter-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        .chapter-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .chapter-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-card p {
+            color: #a0aec0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .chapter-card .chapter-num {
+            font-size: 0.8rem;
+            color: #4a9eff;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* 动画演示区域 */
+        .demo-section {
+            padding: 4rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .demo-container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .demo-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* 流程动画 */
+        .flow-animation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 2rem 0;
+        }
+
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .flow-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            position: relative;
+        }
+
+        .flow-icon.active {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 158, 255, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px 10px rgba(74, 158, 255, 0); }
+        }
+
+        .flow-label {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .flow-arrow {
+            color: #4a9eff;
+            font-size: 1.5rem;
+            animation: arrowMove 1s ease-in-out infinite;
+        }
+
+        @keyframes arrowMove {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(5px); opacity: 0.5; }
+        }
+
+        /* 数据流动画 */
+        .data-packet {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #4a9eff;
+            border-radius: 50%;
+            animation: dataFlow 3s linear infinite;
+        }
+
+        /* 底部 */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .start-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #4a9eff, #a855f7);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(74, 158, 255, 0.4);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .journey-step {
+                flex-direction: column !important;
+                text-align: center;
+            }
+            
+            .step-content {
+                max-width: 100%;
+            }
+            
+            .flow-animation {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* 提示徽章 */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #000;
+        }
+
+        .badge-important {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部英雄区 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🎵 声音的数字之旅</h1>
+            <p>从你说话的那一刻，到对方听见的瞬间，<br>声音经历了怎样奇妙的变身？<br>让我们一起揭开数字音频的神秘面纱。</p>
+            
+            <!-- 声波动画 -->
+            <div class="wave-container">
+                <div class="wave">
+                    <svg viewBox="0 0 1200 150" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#4a9eff;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#a855f7;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <path class="wave-path" d="M0,75 Q50,25 100,75 T200,75 T300,75 T400,75 T500,75 T600,75 T700,75 T800,75 T900,75 T1000,75 T1100,75 T1200,75 T1300,75 T1400,75 T1500,75 T1600,75 T1700,75 T1800,75 T1900,75 T2000,75 T2100,75 T2200,75 T2300,75 T2400,75"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <a href="#journey" class="start-btn">
+                开始探索 →
+            </a>
+        </div>
+        
+        <div class="scroll-hint" onclick="document.getElementById('journey').scrollIntoView({behavior: 'smooth'})">
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
+    </section>
+
+    <!-- 声音的旅程 -->
+    <section class="journey-section" id="journey">
+        <h2 class="section-title">🚀 声音的完整旅程</h2>
+        <p class="section-subtitle">当你对着手机说"喂"的时候，你的声音会经历以下6个神奇的阶段，最终到达对方的耳朵</p>
+        
+        <div class="journey-flow">
+            <!-- 步骤1：声波产生 -->
+            <div class="journey-step step-1">
+                <div class="step-number">🗣️</div>
+                <div class="step-content" onclick="location.href='02-digital-basics.html'">
+                    <h3>声波产生</h3>
+                    <p>你的声带振动，推动空气分子来回运动，形成<strong>声波</strong>——一种肉眼看不见的压力波。就像往平静的湖面扔石子，水波一圈圈扩散出去。</p>
+                    <div>
+                        <span class="step-tag">模拟信号</span>
+                        <span class="step-tag">连续波形</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="connector"></div>
+            <div class="connector-arrow">▼</div>
+            
+            <!-- 步骤2：采集与数字化 -->
+            <div class="journey-step step-2">
+                <div class="step-number">🎤</div>
+                <div class="step-content" onclick="location.href='02-digital-basics.html'">
+                    <h3>采集与数字化 <span class="badge badge-important">核心</span></h3>
+                    <p>麦克风把声波转换成电信号，然后<strong>ADC芯片</strong>（模数转换器）每秒"拍"几万张"快照"，把连续的波形变成一串数字。这就像把流畅的视频变成一帧帧图片。</p>
+                    <div>
+                        <span class="step-tag">采样率</span>
+                        <span class="step-tag">位深</span>
+                        <span class="step-tag">PCM</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="connector"></div>
+            <div class="connector-arrow">▼</div>
+            
+            <!-- 步骤3：编码压缩 -->
+            <div class="journey-step step-3">
+                <div class="step-number">📦</div>
+                <div class="step-content" onclick="location.href='03-why-compress.html'">
+                    <h3>编码压缩 <span class="badge badge-important">核心</span></h3>
+                    <p>原始数字音频太大了！1分钟CD音质≈10MB。编码器会"聪明地"删掉人耳听不到的部分，或者用数学方法找规律压缩，让文件缩小到原来的<strong>1/10甚至1/20</strong>。</p>
+                    <div>
+                        <span class="step-tag">MP3</span>
+                        <span class="step-tag">AAC</span>
+                        <span class="step-tag">Opus</span>
+                        <span class="step-tag">FLAC</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="connector"></div>
+            <div class="connector-arrow">▼</div>
+            
+            <!-- 步骤4：传输 -->
+            <div class="journey-step step-4">
+                <div class="step-number">📡</div>
+                <div class="step-content" onclick="location.href='06-transmission.html'">
+                    <h3>网络传输</h3>
+                    <p>压缩后的音频数据被切成小包裹，通过WiFi、4G/5G网络"快递"出去。不同场景用不同的"快递方式"：打电话要快、听音乐要稳、看直播要平衡。</p>
+                    <div>
+                        <span class="step-tag">RTP</span>
+                        <span class="step-tag">WebRTC</span>
+                        <span class="step-tag">HLS</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="connector"></div>
+            <div class="connector-arrow">▼</div>
+            
+            <!-- 步骤5：解码还原 -->
+            <div class="journey-step step-5">
+                <div class="step-number">🔓</div>
+                <div class="step-content" onclick="location.href='04-audio-formats.html'">
+                    <h3>解码还原</h3>
+                    <p>对方设备收到数据包后，解码器做"逆向工程"，把压缩的数据还原成原始的数字音频（PCM）。这个过程要快，否则通话就会卡顿。</p>
+                    <div>
+                        <span class="step-tag">解码器</span>
+                        <span class="step-tag">实时处理</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="connector"></div>
+            <div class="connector-arrow">▼</div>
+            
+            <!-- 步骤6：播放 -->
+            <div class="journey-step step-6">
+                <div class="step-number">🔊</div>
+                <div class="step-content" onclick="location.href='07-hardware.html'">
+                    <h3>播放出声</h3>
+                    <p><strong>DAC芯片</strong>（数模转换器）把数字信号变回电信号，再通过功放放大，推动扬声器的振膜振动，重新产生声波——你的声音就这样到达对方耳朵啦！</p>
+                    <div>
+                        <span class="step-tag">DAC</span>
+                        <span class="step-tag">功放</span>
+                        <span class="step-tag">扬声器</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 简化流程动画 -->
+    <section class="demo-section">
+        <div class="demo-container">
+            <h3 class="demo-title">⚡ 一图看懂：声音传输全流程</h3>
+            <div class="flow-animation">
+                <div class="flow-node">
+                    <div class="flow-icon active" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🗣️</div>
+                    <span class="flow-label">说话</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="flow-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">🎤</div>
+                    <span class="flow-label">麦克风采集</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="flow-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">📦</div>
+                    <span class="flow-label">压缩编码</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="flow-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">📡</div>
+                    <span class="flow-label">网络传输</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="flow-icon" style="background: linear-gradient(135deg, #a855f7, #6366f1);">🔓</div>
+                    <span class="flow-label">解码还原</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="flow-icon" style="background: linear-gradient(135deg, #f97316, #eab308);">👂</div>
+                    <span class="flow-label">听到声音</span>
+                </div>
+            </div>
+            <p style="text-align: center; color: #a0aec0; margin-top: 1.5rem; font-size: 0.95rem;">
+                💡 整个过程只需要 <strong style="color: #4a9eff;">几十毫秒</strong>，比你眨眼还快！
+            </p>
+        </div>
+    </section>
+
+    <!-- 章节导航 -->
+    <section class="chapters-section">
+        <h2 class="section-title">📚 深入学习各个章节</h2>
+        <p class="section-subtitle">点击感兴趣的章节，开始你的音频知识之旅</p>
+        
+        <div class="chapters-grid">
+            <a href="02-digital-basics.html" class="chapter-card">
+                <div class="chapter-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">🎚️</div>
+                <div class="chapter-num">第一章</div>
+                <h3>声音的数字化基础</h3>
+                <p>采样率、位深、声道是什么？用最通俗的方式理解这些"黑话"，还有互动Demo让你亲眼看到采样的过程。</p>
+            </a>
+            
+            <a href="03-why-compress.html" class="chapter-card">
+                <div class="chapter-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">📉</div>
+                <div class="chapter-num">第二章</div>
+                <h3>为什么要压缩音频？</h3>
+                <p>1分钟音乐10MB，一张专辑500MB？太大了！来看看压缩是如何做到"瘦身不减质"的。</p>
+            </a>
+            
+            <a href="04-audio-formats.html" class="chapter-card">
+                <div class="chapter-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🆚</div>
+                <div class="chapter-num">第三章</div>
+                <h3>主流音频格式大PK</h3>
+                <p>MP3、AAC、Opus、FLAC...这么多格式到底有啥区别？哪个最好？压缩比是多少？一次讲清楚。</p>
+            </a>
+            
+            <a href="05-voip.html" class="chapter-card">
+                <div class="chapter-icon" style="background: linear-gradient(135deg, #a855f7, #6366f1);">📞</div>
+                <div class="chapter-num">第四章</div>
+                <h3>VoIP与实时语音</h3>
+                <p>微信语音、Zoom会议是怎么做到实时通话的？为什么打电话的声音和听音乐不一样？</p>
+            </a>
+            
+            <a href="06-transmission.html" class="chapter-card">
+                <div class="chapter-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">🌐</div>
+                <div class="chapter-num">第五章</div>
+                <h3>音频传输协议</h3>
+                <p>RTP、WebRTC、HLS、RTMP...这些协议就像不同的"快递方式"，各有各的特长。</p>
+            </a>
+            
+            <a href="07-hardware.html" class="chapter-card">
+                <div class="chapter-icon" style="background: linear-gradient(135deg, #f97316, #eab308);">🔧</div>
+                <div class="chapter-num">第六章</div>
+                <h3>音频硬件入门</h3>
+                <p>麦克风、DAC、功放、扬声器...了解声音旅途中的每一个"站点"。</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <p>📖 这是一份面向零基础读者的音频科普指南</p>
+        <p style="margin-top: 0.5rem; color: #4a9eff;">点击上方任意章节，开始学习吧！</p>
+    </footer>
+
+    <script>
+        // 流程图动画：依次高亮每个节点
+        const flowIcons = document.querySelectorAll('.flow-icon');
+        let currentActive = 0;
+
+        setInterval(() => {
+            flowIcons.forEach(icon => icon.classList.remove('active'));
+            flowIcons[currentActive].classList.add('active');
+            currentActive = (currentActive + 1) % flowIcons.length;
+        }, 800);
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // 步骤卡片进入动画
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.journey-step').forEach(step => {
+            step.style.opacity = '0';
+            step.style.transform = 'translateY(30px)';
+            step.style.transition = 'all 0.6s ease';
+            observer.observe(step);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频传输协议 - 声音的数字之旅</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: #fff; line-height: 1.8; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .navbar a { color: #a0aec0; text-decoration: none; } .navbar a:hover { color: #4a9eff; }
+        .nav-title { font-weight: 600; color: #fff !important; }
+        .nav-links { display: flex; gap: 2rem; }
+        .main-content { max-width: 900px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.8rem; margin-bottom: 1rem; background: linear-gradient(120deg, #fa709a, #fee140); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header .subtitle { font-size: 1.2rem; color: #a0aec0; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.8rem; margin-bottom: 1.5rem; }
+        .card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+        .card h3 { font-size: 1.3rem; margin-bottom: 1rem; color: #fa709a; }
+        .card p { color: #c0c8d0; margin-bottom: 1rem; }
+        .highlight { background: rgba(250, 112, 154, 0.3); padding: 0.2rem 0.5rem; border-radius: 5px; font-weight: 600; }
+        .analogy-box { background: linear-gradient(135deg, rgba(250, 112, 154, 0.1), rgba(254, 225, 64, 0.1)); border-left: 4px solid #fa709a; padding: 1.5rem; border-radius: 0 15px 15px 0; margin: 1.5rem 0; }
+        .analogy-box .analogy-title { font-weight: 600; color: #fa709a; margin-bottom: 0.5rem; }
+
+        /* 快递类比卡片 */
+        .delivery-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+        .delivery-card { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 1.5rem; text-align: center; }
+        .delivery-card .icon { font-size: 3rem; margin-bottom: 1rem; }
+        .delivery-card h4 { margin-bottom: 0.5rem; }
+        .delivery-card.tcp h4 { color: #43e97b; }
+        .delivery-card.udp h4 { color: #f97316; }
+        .delivery-card .feature { font-size: 0.9rem; color: #a0aec0; margin: 0.3rem 0; }
+        .delivery-card .pros { color: #43e97b; font-size: 0.85rem; margin-top: 1rem; }
+        .delivery-card .cons { color: #ef4444; font-size: 0.85rem; }
+
+        /* 协议卡片 */
+        .protocol-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .protocol-card { background: rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .protocol-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .protocol-header { padding: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+        .protocol-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .protocol-name { font-size: 1.3rem; font-weight: 700; }
+        .protocol-subtitle { font-size: 0.85rem; color: #a0aec0; }
+        .protocol-body { padding: 0 1.5rem 1.5rem; }
+        .protocol-desc { font-size: 0.9rem; color: #c0c8d0; margin-bottom: 1rem; }
+        .protocol-stats { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .protocol-stat { flex: 1; text-align: center; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .protocol-stat .value { font-weight: 700; font-size: 1.1rem; }
+        .protocol-stat .label { font-size: 0.7rem; color: #a0aec0; }
+        .protocol-uses { font-size: 0.85rem; }
+        .protocol-uses .title { color: #a0aec0; margin-bottom: 0.3rem; }
+        .use-tag { display: inline-block; padding: 0.2rem 0.6rem; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 0.2rem; font-size: 0.8rem; }
+
+        .protocol-card.rtp .protocol-header { background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(99, 102, 241, 0.3)); }
+        .protocol-card.rtp .protocol-icon { background: linear-gradient(135deg, #4a9eff, #6366f1); }
+        .protocol-card.rtp .protocol-stat .value { color: #4a9eff; }
+
+        .protocol-card.webrtc .protocol-header { background: linear-gradient(135deg, rgba(67, 233, 123, 0.3), rgba(56, 249, 215, 0.3)); }
+        .protocol-card.webrtc .protocol-icon { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .protocol-card.webrtc .protocol-stat .value { color: #43e97b; }
+
+        .protocol-card.rtmp .protocol-header { background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(234, 179, 8, 0.3)); }
+        .protocol-card.rtmp .protocol-icon { background: linear-gradient(135deg, #f97316, #eab308); }
+        .protocol-card.rtmp .protocol-stat .value { color: #f97316; }
+
+        .protocol-card.hls .protocol-header { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.3)); }
+        .protocol-card.hls .protocol-icon { background: linear-gradient(135deg, #ec4899, #a855f7); }
+        .protocol-card.hls .protocol-stat .value { color: #ec4899; }
+
+        .protocol-card.websocket .protocol-header { background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.3)); }
+        .protocol-card.websocket .protocol-icon { background: linear-gradient(135deg, #a855f7, #6366f1); }
+        .protocol-card.websocket .protocol-stat .value { color: #a855f7; }
+
+        /* 场景选择 */
+        .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .scenario-item { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 1.5rem; text-align: center; }
+        .scenario-item .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .scenario-item .name { font-weight: 600; margin-bottom: 0.5rem; }
+        .scenario-item .protocol { color: #4a9eff; font-size: 0.9rem; }
+        .scenario-item .reason { font-size: 0.8rem; color: #a0aec0; margin-top: 0.5rem; }
+
+        /* 流程图 */
+        .flow-diagram { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-width: 500px; margin: 1rem 0; }
+        .flow-box { padding: 0.8rem 1.2rem; border-radius: 10px; font-size: 0.85rem; text-align: center; }
+        .flow-arrow { color: #4a9eff; font-size: 1.2rem; }
+
+        .summary-box { background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1)); border: 1px solid rgba(67, 233, 123, 0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; }
+        .summary-box h3 { color: #43e97b; margin-bottom: 1rem; }
+        .summary-list { list-style: none; }
+        .summary-list li { padding: 0.4rem 0 0.4rem 1.5rem; position: relative; color: #c0c8d0; }
+        .summary-list li::before { content: '✓'; position: absolute; left: 0; color: #43e97b; }
+
+        .tip-box { background: rgba(249, 115, 22, 0.1); border-left: 4px solid #f97316; padding: 1rem 1.5rem; border-radius: 0 10px 10px 0; margin: 1rem 0; }
+        .tip-box .tip-title { color: #f97316; font-weight: 600; }
+
+        .next-page { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .next-page a { padding: 1rem 2rem; background: rgba(255,255,255,0.05); border-radius: 15px; color: #fff; text-decoration: none; }
+        .next-page a:hover { background: rgba(74, 158, 255, 0.2); }
+
+        @media (max-width: 768px) { .page-header h1 { font-size: 2rem; } .nav-links { display: none; } .delivery-cards { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-title">🎵 声音的数字之旅</a>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="04-audio-formats.html">格式对比</a>
+            <a href="05-voip.html">VoIP</a>
+            <a href="06-transmission.html" style="color: #4a9eff;">传输协议</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>🌐 音频传输协议</h1>
+            <p class="subtitle">RTP、WebRTC、HLS...就像不同的快递方式</p>
+        </header>
+
+        <!-- 快递类比 -->
+        <section class="section">
+            <h2 class="section-title">📦 先理解：两种"快递方式"</h2>
+            <div class="card">
+                <h3>网络传输的基础：TCP vs UDP</h3>
+                <p>所有网络传输都建立在这两种方式之上，就像所有快递都分为"签收"和"不签收"：</p>
+            </div>
+
+            <div class="delivery-cards">
+                <div class="delivery-card tcp">
+                    <div class="icon">📬</div>
+                    <h4>TCP = 顺丰签收</h4>
+                    <div class="feature">✅ 保证送达</div>
+                    <div class="feature">✅ 保证顺序</div>
+                    <div class="feature">✅ 丢了会重发</div>
+                    <div class="pros">👍 可靠，不丢件</div>
+                    <div class="cons">👎 慢，要等确认</div>
+                </div>
+                <div class="delivery-card udp">
+                    <div class="icon">📮</div>
+                    <h4>UDP = 扔信箱</h4>
+                    <div class="feature">❌ 不保证送达</div>
+                    <div class="feature">❌ 不保证顺序</div>
+                    <div class="feature">❌ 丢了就丢了</div>
+                    <div class="pros">👍 快，不等待</div>
+                    <div class="cons">👎 可能丢包</div>
+                </div>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 实时语音为什么用UDP？</div>
+                <p>打电话时，如果一个字没听清，你会说"啥？再说一遍"，而不是等快递员把丢的那个字补发过来。</p>
+                <p><strong>实时性比完整性更重要</strong>——所以语音/视频通话都用UDP！</p>
+            </div>
+        </section>
+
+        <!-- 主要协议 -->
+        <section class="section">
+            <h2 class="section-title">🔧 主流音频传输协议</h2>
+
+            <div class="protocol-cards">
+                <!-- RTP -->
+                <div class="protocol-card rtp">
+                    <div class="protocol-header">
+                        <div class="protocol-icon">📡</div>
+                        <div>
+                            <div class="protocol-name">RTP</div>
+                            <div class="protocol-subtitle">实时传输协议</div>
+                        </div>
+                    </div>
+                    <div class="protocol-body">
+                        <p class="protocol-desc">VoIP的基础协议，在UDP上加了时间戳和序号，让接收方知道顺序。</p>
+                        <div class="protocol-stats">
+                            <div class="protocol-stat"><div class="value">&lt;50ms</div><div class="label">延迟</div></div>
+                            <div class="protocol-stat"><div class="value">UDP</div><div class="label">基于</div></div>
+                        </div>
+                        <div class="protocol-uses">
+                            <div class="title">用于：</div>
+                            <span class="use-tag">📞 VoIP电话</span>
+                            <span class="use-tag">📹 视频会议</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WebRTC -->
+                <div class="protocol-card webrtc">
+                    <div class="protocol-header">
+                        <div class="protocol-icon">🌐</div>
+                        <div>
+                            <div class="protocol-name">WebRTC</div>
+                            <div class="protocol-subtitle">网页实时通信</div>
+                        </div>
+                    </div>
+                    <div class="protocol-body">
+                        <p class="protocol-desc">浏览器内置！不用装插件就能视频通话，自动处理NAT穿透、加密、回声消除。</p>
+                        <div class="protocol-stats">
+                            <div class="protocol-stat"><div class="value">&lt;500ms</div><div class="label">延迟</div></div>
+                            <div class="protocol-stat"><div class="value">P2P</div><div class="label">连接</div></div>
+                        </div>
+                        <div class="protocol-uses">
+                            <div class="title">用于：</div>
+                            <span class="use-tag">💬 微信网页版</span>
+                            <span class="use-tag">🎮 Discord</span>
+                            <span class="use-tag">📹 Google Meet</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RTMP -->
+                <div class="protocol-card rtmp">
+                    <div class="protocol-header">
+                        <div class="protocol-icon">📺</div>
+                        <div>
+                            <div class="protocol-name">RTMP</div>
+                            <div class="protocol-subtitle">直播推流协议</div>
+                        </div>
+                    </div>
+                    <div class="protocol-body">
+                        <p class="protocol-desc">Adobe开发的直播协议，主播推流到服务器用这个。基于TCP，稳定可靠。</p>
+                        <div class="protocol-stats">
+                            <div class="protocol-stat"><div class="value">1-3s</div><div class="label">延迟</div></div>
+                            <div class="protocol-stat"><div class="value">TCP</div><div class="label">基于</div></div>
+                        </div>
+                        <div class="protocol-uses">
+                            <div class="title">用于：</div>
+                            <span class="use-tag">🎬 OBS推流</span>
+                            <span class="use-tag">📺 B站直播</span>
+                            <span class="use-tag">🎮 斗鱼/虎牙</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HLS -->
+                <div class="protocol-card hls">
+                    <div class="protocol-header">
+                        <div class="protocol-icon">🍎</div>
+                        <div>
+                            <div class="protocol-name">HLS</div>
+                            <div class="protocol-subtitle">HTTP直播流</div>
+                        </div>
+                    </div>
+                    <div class="protocol-body">
+                        <p class="protocol-desc">苹果发明的，把视频切成小片用HTTP传输。兼容性最好，CDN友好。</p>
+                        <div class="protocol-stats">
+                            <div class="protocol-stat"><div class="value">10-30s</div><div class="label">延迟</div></div>
+                            <div class="protocol-stat"><div class="value">HTTP</div><div class="label">基于</div></div>
+                        </div>
+                        <div class="protocol-uses">
+                            <div class="title">用于：</div>
+                            <span class="use-tag">📱 手机视频</span>
+                            <span class="use-tag">🎵 网易云音乐</span>
+                            <span class="use-tag">📺 YouTube</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WebSocket -->
+                <div class="protocol-card websocket">
+                    <div class="protocol-header">
+                        <div class="protocol-icon">🔌</div>
+                        <div>
+                            <div class="protocol-name">WebSocket</div>
+                            <div class="protocol-subtitle">双向实时通道</div>
+                        </div>
+                    </div>
+                    <div class="protocol-body">
+                        <p class="protocol-desc">浏览器和服务器之间的"电话线"。虽然基于TCP很可靠，但一旦丢包会**卡顿等待**，不适合极高要求的实时通话。</p>
+                        <div class="protocol-stats">
+                            <div class="protocol-stat"><div class="value">较低</div><div class="label">延迟</div></div>
+                            <div class="protocol-stat"><div class="value">TCP</div><div class="label">基于</div></div>
+                        </div>
+                        <div class="protocol-uses">
+                            <div class="title">用于：</div>
+                            <span class="use-tag">🤖 智能音箱</span>
+                            <span class="use-tag">💬 文字聊天</span>
+                            <span class="use-tag">🎮 游戏信令</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analogy-box" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(99, 102, 241, 0.1)); border-left-color: #a855f7;">
+                <div class="analogy-title" style="color: #a855f7;">💡 深度思考：为什么不用 WebSocket 打电话？</div>
+                <p>WebSocket 看起来又快又稳，但它基于 <strong>TCP</strong>，有一个致命弱点：<strong>队头阻塞</strong>。</p>
+                <p>• <strong>想象一下</strong>：你在看直播，WebSocket 就像是一个严格的列队。如果中间第 5 个包丢了，TCP 会暂停所有后续包（6, 7, 8...）的播放，直到第 5 个包重传成功。这会导致画面/声音<strong>突然卡死</strong>，然后快速快进。</p>
+                <p>• <strong>相比之下</strong>：WebRTC (UDP) 就像“本来就是糊弄”。第 5 个包丢了？没关系，直接扔掉，继续播第 6 个。虽然瞬间有点瑕疵，但<strong>绝不卡顿</strong>，保证了流畅性。</p>
+            </div>
+        </section>
+
+        <!-- 延迟对比 -->
+        <section class="section">
+            <h2 class="section-title">⏱️ 延迟对比一览</h2>
+            <div class="card">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <th style="padding:1rem;text-align:left;color:#fa709a;">协议</th>
+                        <th style="padding:1rem;text-align:center;color:#fa709a;">延迟</th>
+                        <th style="padding:1rem;text-align:center;color:#fa709a;">可靠性</th>
+                        <th style="padding:1rem;text-align:left;color:#fa709a;">适合场景</th>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <td style="padding:1rem;">📡 RTP</td>
+                        <td style="padding:1rem;text-align:center;color:#43e97b;">&lt;50ms</td>
+                        <td style="padding:1rem;text-align:center;color:#f97316;">可能丢包</td>
+                        <td style="padding:1rem;color:#a0aec0;">实时通话</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <td style="padding:1rem;">🌐 WebRTC</td>
+                        <td style="padding:1rem;text-align:center;color:#43e97b;">&lt;500ms</td>
+                        <td style="padding:1rem;text-align:center;color:#eab308;">自动补偿</td>
+                        <td style="padding:1rem;color:#a0aec0;">浏览器通话</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <td style="padding:1rem;">📺 RTMP</td>
+                        <td style="padding:1rem;text-align:center;color:#eab308;">1-3s</td>
+                        <td style="padding:1rem;text-align:center;color:#43e97b;">可靠</td>
+                        <td style="padding:1rem;color:#a0aec0;">直播推流</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <td style="padding:1rem;">🍎 HLS</td>
+                        <td style="padding:1rem;text-align:center;color:#ef4444;">10-30s</td>
+                        <td style="padding:1rem;text-align:center;color:#43e97b;">非常可靠</td>
+                        <td style="padding:1rem;color:#a0aec0;">点播/大规模直播</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:1rem;">🔌 WebSocket</td>
+                        <td style="padding:1rem;text-align:center;color:#eab308;">较低 (有抖动)</td>
+                        <td style="padding:1rem;text-align:center;color:#43e97b;">可靠 (会卡顿)</td>
+                        <td style="padding:1rem;color:#a0aec0;">信令/文字/IoT</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- 什么场景用什么 -->
+        <section class="section">
+            <h2 class="section-title">🎯 什么场景用什么协议？</h2>
+            <div class="scenario-grid">
+                <div class="scenario-item">
+                    <div class="icon">📞</div>
+                    <div class="name">语音通话</div>
+                    <div class="protocol">WebRTC / RTP</div>
+                    <div class="reason">延迟要低</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="icon">📹</div>
+                    <div class="name">视频会议</div>
+                    <div class="protocol">WebRTC</div>
+                    <div class="reason">P2P省带宽</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="icon">🎬</div>
+                    <div class="name">直播推流</div>
+                    <div class="protocol">RTMP</div>
+                    <div class="reason">稳定可靠</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="icon">📺</div>
+                    <div class="name">直播观看</div>
+                    <div class="protocol">HLS / DASH</div>
+                    <div class="reason">兼容性好</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="icon">🎵</div>
+                    <div class="name">音乐播放</div>
+                    <div class="protocol">HLS / HTTP</div>
+                    <div class="reason">质量优先</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="icon">🤖</div>
+                    <div class="name">智能设备</div>
+                    <div class="protocol">WebSocket</div>
+                    <div class="reason">灵活可控</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 直播的完整流程 -->
+        <section class="section">
+            <h2 class="section-title">🎬 直播的完整链路</h2>
+            <div class="flow-diagram">
+                <div class="flow-row">
+                    <div class="flow-box" style="background:rgba(249,115,22,0.3);">🎤 主播</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background:rgba(249,115,22,0.2);">OBS推流</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background:rgba(74,158,255,0.3);border:2px solid #4a9eff;">RTMP</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background:rgba(168,85,247,0.3);">🖥️ 服务器</div>
+                </div>
+                <div style="text-align:center;color:#a0aec0;margin:1rem 0;">↓ 转码分发</div>
+                <div class="flow-row">
+                    <div class="flow-box" style="background:rgba(168,85,247,0.3);">🖥️ CDN</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background:rgba(236,72,153,0.3);border:2px solid #ec4899;">HLS</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background:rgba(67,233,123,0.2);">📱 观众A</div>
+                    <div class="flow-box" style="background:rgba(67,233,123,0.2);">💻 观众B</div>
+                    <div class="flow-box" style="background:rgba(67,233,123,0.2);">📺 观众C</div>
+                </div>
+            </div>
+            <div class="tip-box">
+                <div class="tip-title">💡 为什么推流用RTMP，观看用HLS？</div>
+                <p style="color:#c0c8d0;margin-top:0.3rem;">RTMP延迟低，适合主播实时上传；HLS兼容性好，任何设备都能看，还能利用CDN缓存。</p>
+            </div>
+        </section>
+
+        <!-- 总结 -->
+        <section class="section">
+            <div class="summary-box">
+                <h3>✅ 本章小结</h3>
+                <ul class="summary-list">
+                    <li><strong>TCP vs UDP</strong>：TCP可靠但慢，UDP快但可能丢包</li>
+                    <li><strong>RTP</strong>：VoIP基础，给UDP加时间戳</li>
+                    <li><strong>WebRTC</strong>：浏览器内置，P2P实时通信</li>
+                    <li><strong>RTMP</strong>：直播推流，TCP可靠</li>
+                    <li><strong>HLS</strong>：直播观看/点播，兼容性最好</li>
+                    <li><strong>WebSocket</strong>：双向通道，IoT常用</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="next-page">
+            <a href="05-voip.html">← VoIP与实时语音</a>
+            <a href="07-hardware.html">音频硬件入门 →</a>
+        </div>
+    </main>
+</body>
+</html>

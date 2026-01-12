@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主流音频格式大PK - 声音的数字之旅</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            line-height: 1.8;
+        }
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .navbar a { color: #a0aec0; text-decoration: none; }
+        .navbar a:hover { color: #4a9eff; }
+        .nav-title { font-weight: 600; color: #fff !important; }
+        .nav-links { display: flex; gap: 2rem; }
+        .main-content { max-width: 1000px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 {
+            font-size: 2.8rem; margin-bottom: 1rem;
+            background: linear-gradient(120deg, #f093fb, #f5576c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-header .subtitle { font-size: 1.2rem; color: #a0aec0; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.8rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        /* 格式卡片 */
+        .format-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .format-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .format-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .format-header { padding: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+        .format-icon {
+            width: 60px; height: 60px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+        }
+        .format-title h3 { font-size: 1.5rem; margin-bottom: 0.2rem; }
+        .format-title .year { font-size: 0.85rem; color: #a0aec0; }
+        .format-body { padding: 0 1.5rem 1.5rem; }
+        .format-desc { color: #c0c8d0; margin-bottom: 1rem; font-size: 0.95rem; }
+        .format-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .format-tag { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; background: rgba(255,255,255,0.1); color: #a0aec0; }
+        .format-tag.pro { background: rgba(67, 233, 123, 0.2); color: #43e97b; }
+        .format-tag.con { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .format-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .format-stat { text-align: center; }
+        .format-stat .value { font-size: 1.2rem; font-weight: 700; }
+        .format-stat .label { font-size: 0.75rem; color: #a0aec0; }
+        .format-uses { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .format-uses .title { font-size: 0.8rem; color: #a0aec0; margin-bottom: 0.5rem; }
+        .use-icons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .use-icon { padding: 0.3rem 0.6rem; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 0.85rem; }
+
+        /* 颜色主题 */
+        .format-card.mp3 .format-header { background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(234, 179, 8, 0.3)); }
+        .format-card.mp3 .format-icon { background: linear-gradient(135deg, #f97316, #eab308); }
+        .format-card.mp3 .format-stat .value { color: #f97316; }
+        .format-card.aac .format-header { background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3)); }
+        .format-card.aac .format-icon { background: linear-gradient(135deg, #a855f7, #ec4899); }
+        .format-card.aac .format-stat .value { color: #a855f7; }
+        .format-card.opus .format-header { background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(56, 249, 215, 0.3)); }
+        .format-card.opus .format-icon { background: linear-gradient(135deg, #4a9eff, #38f9d7); }
+        .format-card.opus .format-stat .value { color: #4a9eff; }
+        .format-card.flac .format-header { background: linear-gradient(135deg, rgba(67, 233, 123, 0.3), rgba(34, 197, 94, 0.3)); }
+        .format-card.flac .format-icon { background: linear-gradient(135deg, #43e97b, #22c55e); }
+        .format-card.flac .format-stat .value { color: #43e97b; }
+        .format-card.wav .format-header { background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(148, 163, 184, 0.3)); }
+        .format-card.wav .format-icon { background: linear-gradient(135deg, #64748b, #94a3b8); }
+        .format-card.wav .format-stat .value { color: #94a3b8; }
+        .format-card.alac .format-header { background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3)); }
+        .format-card.alac .format-icon { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+        .format-card.alac .format-stat .value { color: #fbbf24; }
+
+        /* 对比表格 */
+        .table-container { overflow-x: auto; margin: 2rem 0; border-radius: 15px; background: rgba(0,0,0,0.3); }
+        .comparison-table { width: 100%; min-width: 700px; border-collapse: collapse; }
+        .comparison-table th, .comparison-table td { padding: 1rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .comparison-table th { background: rgba(74, 158, 255, 0.2); color: #4a9eff; }
+        .comparison-table th:first-child, .comparison-table td:first-child { text-align: left; padding-left: 1.5rem; }
+        .comparison-table tr:hover { background: rgba(255,255,255,0.03); }
+        .rating { display: inline-flex; gap: 2px; }
+        .rating-star { color: #fbbf24; }
+        .rating-star.empty { color: rgba(255,255,255,0.2); }
+
+        /* Opus介绍 */
+        .opus-spotlight {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(56, 249, 215, 0.1));
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            border-radius: 20px; padding: 2rem; margin: 2rem 0;
+        }
+        .opus-spotlight h3 { color: #4a9eff; font-size: 1.5rem; margin-bottom: 1rem; }
+        .opus-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .opus-feature { text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 15px; }
+        .opus-feature .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .opus-feature .title { font-weight: 600; margin-bottom: 0.3rem; }
+        .opus-feature .desc { font-size: 0.85rem; color: #a0aec0; }
+        
+        /* 架构图 */
+        .arch-diagram { display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 15px; }
+        .arch-box { padding: 1rem 1.5rem; border-radius: 10px; text-align: center; min-width: 120px; }
+        .arch-box.input { background: rgba(249, 115, 22, 0.2); border: 2px solid rgba(249, 115, 22, 0.5); }
+        .arch-box.silk { background: rgba(236, 72, 153, 0.2); border: 2px solid rgba(236, 72, 153, 0.5); }
+        .arch-box.celt { background: rgba(67, 233, 123, 0.2); border: 2px solid rgba(67, 233, 123, 0.5); }
+        .arch-box.output { background: rgba(74, 158, 255, 0.2); border: 2px solid rgba(74, 158, 255, 0.5); }
+        .arch-arrow { font-size: 1.5rem; color: #a0aec0; }
+
+        /* 时间线 */
+        .timeline { position: relative; padding: 2rem 0; }
+        .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, #4a9eff, #a855f7, #ec4899); transform: translateX(-50%); border-radius: 2px; }
+        .timeline-item { display: flex; align-items: center; margin-bottom: 2rem; position: relative; }
+        .timeline-item:nth-child(odd) { flex-direction: row-reverse; }
+        .timeline-content { width: 45%; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); }
+        .timeline-dot { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #4a9eff, #a855f7); position: absolute; left: 50%; transform: translateX(-50%); z-index: 1; box-shadow: 0 0 20px rgba(74, 158, 255, 0.5); }
+        .timeline-year { font-size: 1.5rem; font-weight: 700; color: #4a9eff; }
+        .timeline-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .timeline-desc { font-size: 0.9rem; color: #a0aec0; }
+
+        /* 场景选择器 */
+        .scenario-selector { background: rgba(0,0,0,0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; }
+        .scenario-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .scenario-btn { padding: 0.8rem 1.5rem; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: #fff; border-radius: 25px; cursor: pointer; transition: all 0.3s; }
+        .scenario-btn:hover { border-color: #4a9eff; background: rgba(74, 158, 255, 0.1); }
+        .scenario-btn.active { background: linear-gradient(135deg, #4a9eff, #a855f7); border-color: transparent; }
+        .scenario-result { padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 15px; display: none; }
+        .scenario-result.active { display: block; }
+        .scenario-result h4 { color: #4a9eff; margin-bottom: 1rem; }
+        .recommendation { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(67, 233, 123, 0.1); border-radius: 10px; margin-bottom: 1rem; }
+        .recommendation .icon { font-size: 2rem; }
+        .recommendation .format-name { font-size: 1.3rem; font-weight: 700; color: #43e97b; }
+
+        /* 通用样式 */
+        .card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }
+        .card h3 { font-size: 1.3rem; margin-bottom: 1rem; color: #f093fb; }
+        .analogy-box { background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(168, 85, 247, 0.1)); border-left: 4px solid #4a9eff; padding: 1.5rem; border-radius: 0 15px 15px 0; margin: 1.5rem 0; }
+        .analogy-box .analogy-title { font-weight: 600; color: #4a9eff; margin-bottom: 0.5rem; }
+        .summary-box { background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1)); border: 1px solid rgba(67, 233, 123, 0.3); border-radius: 20px; padding: 2rem; margin: 2rem 0; }
+        .summary-box h3 { color: #43e97b; margin-bottom: 1rem; }
+        .summary-list { list-style: none; }
+        .summary-list li { padding: 0.5rem 0; padding-left: 1.5rem; position: relative; color: #c0c8d0; }
+        .summary-list li::before { content: '✓'; position: absolute; left: 0; color: #43e97b; }
+        .next-page { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .next-page a { display: flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background: rgba(255,255,255,0.05); border-radius: 15px; color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); }
+        .next-page a:hover { background: rgba(74, 158, 255, 0.2); border-color: rgba(74, 158, 255, 0.5); }
+        
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2rem; }
+            .nav-links { display: none; }
+            .timeline::before { left: 20px; }
+            .timeline-item, .timeline-item:nth-child(odd) { flex-direction: row; padding-left: 50px; }
+            .timeline-content { width: 100%; }
+            .timeline-dot { left: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-title">🎵 声音的数字之旅</a>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="02-digital-basics.html">数字化基础</a>
+            <a href="03-why-compress.html">为什么压缩</a>
+            <a href="04-audio-formats.html" style="color: #4a9eff;">格式对比</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>🆚 主流音频格式大PK</h1>
+            <p class="subtitle">MP3、AAC、Opus、FLAC...到底该用哪个？一次讲清楚</p>
+        </header>
+
+        <!-- 格式身份卡 -->
+        <section class="section">
+            <h2 class="section-title">🪪 格式"身份证"</h2>
+            <p style="color: #a0aec0; margin-bottom: 2rem;">每个格式都有自己的特点，先来认识一下它们：</p>
+
+            <div class="format-cards">
+                <!-- MP3 -->
+                <div class="format-card mp3">
+                    <div class="format-header">
+                        <div class="format-icon">🎵</div>
+                        <div class="format-title">
+                            <h3>MP3</h3>
+                            <div class="year">诞生于 1993 年 · 31岁</div>
+                        </div>
+                    </div>
+                    <div class="format-body">
+                        <p class="format-desc">音频界的"老大哥"，改变了整个音乐行业。虽然技术上已被超越，但兼容性无人能敌。</p>
+                        <div class="format-tags">
+                            <span class="format-tag pro">✓ 兼容性最强</span>
+                            <span class="format-tag pro">✓ 专利已过期</span>
+                            <span class="format-tag con">✗ 压缩效率一般</span>
+                        </div>
+                        <div class="format-stats">
+                            <div class="format-stat"><div class="value">128-320</div><div class="label">kbps 码率</div></div>
+                            <div class="format-stat"><div class="value">~1:10</div><div class="label">压缩比</div></div>
+                        </div>
+                        <div class="format-uses">
+                            <div class="title">常见于：</div>
+                            <div class="use-icons">
+                                <span class="use-icon">💿 MP3播放器</span>
+                                <span class="use-icon">🚗 车载音响</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AAC -->
+                <div class="format-card aac">
+                    <div class="format-header">
+                        <div class="format-icon">🎧</div>
+                        <div class="format-title">
+                            <h3>AAC</h3>
+                            <div class="year">诞生于 1997 年 · MP3继任者</div>
+                        </div>
+                    </div>
+                    <div class="format-body">
+                        <p class="format-desc">Apple和YouTube的御用格式，同样码率下音质比MP3更好。流媒体行业的主力。</p>
+                        <div class="format-tags">
+                            <span class="format-tag pro">✓ 音质优于MP3</span>
+                            <span class="format-tag pro">✓ 流媒体标准</span>
+                            <span class="format-tag con">✗ 需要授权费</span>
+                        </div>
+                        <div class="format-stats">
+                            <div class="format-stat"><div class="value">96-256</div><div class="label">kbps 码率</div></div>
+                            <div class="format-stat"><div class="value">~1:12</div><div class="label">压缩比</div></div>
+                        </div>
+                        <div class="format-uses">
+                            <div class="title">常见于：</div>
+                            <div class="use-icons">
+                                <span class="use-icon">🍎 Apple Music</span>
+                                <span class="use-icon">📺 YouTube</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opus -->
+                <div class="format-card opus">
+                    <div class="format-header">
+                        <div class="format-icon">🚀</div>
+                        <div class="format-title">
+                            <h3>Opus</h3>
+                            <div class="year">诞生于 2012 年 · 新一代王者</div>
+                        </div>
+                    </div>
+                    <div class="format-body">
+                        <p class="format-desc">技术最先进的全能选手！低码率秒杀一切，高码率媲美无损。语音和音乐通吃。</p>
+                        <div class="format-tags">
+                            <span class="format-tag pro">✓ 压缩效率最高</span>
+                            <span class="format-tag pro">✓ 完全免费开源</span>
+                            <span class="format-tag pro">✓ 超低延迟</span>
+                        </div>
+                        <div class="format-stats">
+                            <div class="format-stat"><div class="value">6-510</div><div class="label">kbps 范围</div></div>
+                            <div class="format-stat"><div class="value">~1:20</div><div class="label">压缩比</div></div>
+                        </div>
+                        <div class="format-uses">
+                            <div class="title">常见于：</div>
+                            <div class="use-icons">
+                                <span class="use-icon">💬 微信语音</span>
+                                <span class="use-icon">🎮 Discord</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FLAC -->
+                <div class="format-card flac">
+                    <div class="format-header">
+                        <div class="format-icon">💎</div>
+                        <div class="format-title">
+                            <h3>FLAC</h3>
+                            <div class="year">诞生于 2001 年 · 无损之王</div>
+                        </div>
+                    </div>
+                    <div class="format-body">
+                        <p class="format-desc">发烧友的最爱！能100%还原原始音质，同时还能压缩到一半体积。开源免费。</p>
+                        <div class="format-tags">
+                            <span class="format-tag pro">✓ 100%无损</span>
+                            <span class="format-tag pro">✓ 免费开源</span>
+                            <span class="format-tag con">✗ 体积较大</span>
+                        </div>
+                        <div class="format-stats">
+                            <div class="format-stat"><div class="value">~700</div><div class="label">kbps 平均</div></div>
+                            <div class="format-stat"><div class="value">~1:2</div><div class="label">压缩比</div></div>
+                        </div>
+                        <div class="format-uses">
+                            <div class="title">常见于：</div>
+                            <div class="use-icons">
+                                <span class="use-icon">🎼 音乐收藏</span>
+                                <span class="use-icon">🎛️ Hi-Fi设备</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WAV / AIFF -->
+                <div class="format-card wav">
+                    <div class="format-header">
+                        <div class="format-icon">📀</div>
+                        <div class="format-title">
+                            <h3>WAV / AIFF</h3>
+                            <div class="year">诞生于 1991 / 1988 年</div>
+                        </div>
+                    </div>
+                    <div class="format-body">
+                        <p class="format-desc">最简单粗暴的格式，就是给PCM数据套个文件头。<strong>WAV</strong>是微软标准，<strong>AIFF</strong>是苹果标准，两者本质一样，完全不压缩，体积巨大。</p>
+                        <div class="format-tags">
+                            <span class="format-tag pro">✓ 完全无损</span>
+                            <span class="format-tag pro">✓ 兼容性好</span>
+                            <span class="format-tag con">✗ 体积太大</span>
+                        </div>
+                        <div class="format-stats">
+                            <div class="format-stat"><div class="value">1411</div><div class="label">kbps (CD)</div></div>
+                            <div class="format-stat"><div class="value">1:1</div><div class="label">无压缩</div></div>
+                        </div>
+                        <div class="format-uses">
+                            <div class="title">常见于：</div>
+                            <div class="use-icons">
+                                <span class="use-icon">🎬 专业制作</span>
+                                <span class="use-icon">🎙️ 录音棚</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALAC -->
+                <div class="format-card alac">
+                    <div class="format-header">
+                        <div class="format-icon">🍎</div>
+                        <div class="format-title">
+                            <h3>ALAC</h3>
+                            <div class="year">诞生于 2004 年 · Apple无损</div>
+                        </div>
+                    </div>
+                    <div class="format-body">
+                        <p class="format-desc">Apple的无损格式，和FLAC功能一样，但更适合苹果生态。2011年已开源。</p>
+                        <div class="format-tags">
+                            <span class="format-tag pro">✓ 100%无损</span>
+                            <span class="format-tag pro">✓ 苹果原生支持</span>
+                            <span class="format-tag con">✗ 生态较封闭</span>
+                        </div>
+                        <div class="format-stats">
+                            <div class="format-stat"><div class="value">~700</div><div class="label">kbps 平均</div></div>
+                            <div class="format-stat"><div class="value">~1:2</div><div class="label">压缩比</div></div>
+                        </div>
+                        <div class="format-uses">
+                            <div class="title">常见于：</div>
+                            <div class="use-icons">
+                                <span class="use-icon">🍎 Apple Music</span>
+                                <span class="use-icon">📱 iPhone</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 综合对比表 -->
+        <section class="section">
+            <h2 class="section-title">📊 综合对比表</h2>
+            <div class="table-container">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>格式</th>
+                            <th>压缩类型</th>
+                            <th>压缩比</th>
+                            <th>音质</th>
+                            <th>延迟</th>
+                            <th>授权</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🎵 MP3</td>
+                            <td>有损</td>
+                            <td>1:10</td>
+                            <td><span class="rating"><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star empty">★</span><span class="rating-star empty">★</span></span></td>
+                            <td>高</td>
+                            <td style="color:#43e97b">免费</td>
+                        </tr>
+                        <tr>
+                            <td>🎧 AAC</td>
+                            <td>有损</td>
+                            <td>1:12</td>
+                            <td><span class="rating"><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star empty">★</span></span></td>
+                            <td>高</td>
+                            <td style="color:#f97316">需授权</td>
+                        </tr>
+                        <tr>
+                            <td>🚀 Opus</td>
+                            <td>有损</td>
+                            <td>1:20</td>
+                            <td><span class="rating"><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span></span></td>
+                            <td style="color:#43e97b">极低</td>
+                            <td style="color:#43e97b">免费</td>
+                        </tr>
+                        <tr>
+                            <td>💎 FLAC</td>
+                            <td>无损</td>
+                            <td>1:2</td>
+                            <td><span class="rating"><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span></span></td>
+                            <td>-</td>
+                            <td style="color:#43e97b">免费</td>
+                        </tr>
+                        <tr>
+                            <td>📀 WAV / AIFF</td>
+                            <td>无压缩</td>
+                            <td>1:1</td>
+                            <td><span class="rating"><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span><span class="rating-star">★</span></span></td>
+                            <td>-</td>
+                            <td style="color:#43e97b">免费</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Opus特别介绍 -->
+        <section class="section">
+            <h2 class="section-title">⭐ 重点：Opus - 新一代全能王</h2>
+            <div class="opus-spotlight">
+                <h3>🚀 为什么Opus是"最强"？</h3>
+                <p style="color: #c0c8d0;">Opus在几乎所有测试中都能击败同码率的其他格式：</p>
+                <div class="opus-features">
+                    <div class="opus-feature">
+                        <div class="icon">🎯</div>
+                        <div class="title">自适应切换</div>
+                        <div class="desc">自动识别语音/音乐，选择最优算法</div>
+                    </div>
+                    <div class="opus-feature">
+                        <div class="icon">⚡</div>
+                        <div class="title">超低延迟</div>
+                        <div class="desc">最低5ms延迟，实时通话无感知</div>
+                    </div>
+                    <div class="opus-feature">
+                        <div class="icon">📉</div>
+                        <div class="title">极致压缩</div>
+                        <div class="desc">32kbps语音清晰度超越64kbps MP3</div>
+                    </div>
+                    <div class="opus-feature">
+                        <div class="icon">🆓</div>
+                        <div class="title">完全免费</div>
+                        <div class="desc">无专利费，任何人都能用</div>
+                    </div>
+                </div>
+
+                <h4 style="color: #4a9eff; margin: 1.5rem 0 1rem;">🔧 Opus的"双引擎"架构</h4>
+                <div class="arch-diagram">
+                    <div class="arch-box input"><div style="font-size:1.5rem">🎤</div><div>输入音频</div></div>
+                    <div class="arch-arrow">→</div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem">
+                        <div class="arch-box silk"><strong>SILK</strong><div style="font-size:0.8rem;color:#ec4899">语音优化 · 6-32kbps</div></div>
+                        <div class="arch-box celt"><strong>CELT</strong><div style="font-size:0.8rem;color:#43e97b">音乐优化 · 32kbps+</div></div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box output"><strong>智能混合</strong><div style="font-size:0.8rem">最优输出</div></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+                    <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 15px; padding: 1.5rem;">
+                        <h5 style="color: #ec4899; margin-bottom: 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🗣️</span> SILK (语音引擎)
+                        </h5>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-weight: 600; color: #fff; margin-bottom: 0.3rem;">💡 核心思想：模拟发声器官</div>
+                            <p style="color: #c0c8d0; font-size: 0.9rem; line-height: 1.6;">
+                                它假设声音是由人的<strong>声带振动</strong>经过<strong>声道</strong>发出的。它不记录波形本身，而是记录“怎么发声”的指令（如声带频率、喉咙形状参数）。接收端根据这些指令“重建”出人声。
+                            </p>
+                        </div>
+
+                        <div>
+                            <div style="font-weight: 600; color: #fff; margin-bottom: 0.3rem;">✨ 达到效果：</div>
+                            <ul style="list-style: none; color: #a0aec0; font-size: 0.9rem;">
+                                <li style="margin-bottom: 0.5rem;">• <strong>极致省流</strong>：因为只传参数，6kbps (2G网络) 就能清晰通话。</li>
+                                <li>• <strong>人声增强</strong>：自动滤除背景杂音，只保留人声特征。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(67, 233, 123, 0.1); border: 1px solid rgba(67, 233, 123, 0.3); border-radius: 15px; padding: 1.5rem;">
+                        <h5 style="color: #43e97b; margin-bottom: 1rem; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🎵</span> CELT (音乐引擎)
+                        </h5>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-weight: 600; color: #fff; margin-bottom: 0.3rem;">💡 核心思想：极速频域拼图</div>
+                            <p style="color: #c0c8d0; font-size: 0.9rem; line-height: 1.6;">
+                                类似 MP3，但它把声音切得<strong>非常碎</strong>（2.5ms一帧）。它不追求MP3那样的极致压缩率，而是追求在<strong>极短时间</strong>内，把最关键的能量分布传过去，让人耳听不出延迟。
+                            </p>
+                        </div>
+
+                        <div>
+                            <div style="font-weight: 600; color: #fff; margin-bottom: 0.3rem;">✨ 达到效果：</div>
+                            <ul style="list-style: none; color: #a0aec0; font-size: 0.9rem;">
+                                <li style="margin-bottom: 0.5rem;">• <strong>无感延迟</strong>：比眨眼还快，实现真正的“实时”合奏或对战。</li>
+                                <li>• <strong>全频细节</strong>：不仅人声，背景音乐、掌声都能完美还原。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analogy-box">
+                    <div class="analogy-title">💡 通俗理解</div>
+                    <p>• <strong>SILK</strong> = 口语翻译专家，擅长日常对话，简洁高效</p>
+                    <p>• <strong>CELT</strong> = 文学翻译专家，擅长优美文章，注重细节</p>
+                    <p>• <strong>Opus</strong> = 智能调度员，根据内容自动分配最合适的专家</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 历史时间线 -->
+        <section class="section">
+            <h2 class="section-title">📜 音频格式发展史</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1991</div>
+                        <div class="timeline-title">📀 WAV 诞生</div>
+                        <div class="timeline-desc">微软和IBM联合推出，成为Windows默认音频格式</div>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1993</div>
+                        <div class="timeline-title">🎵 MP3 革命</div>
+                        <div class="timeline-desc">德国Fraunhofer研究所发布，直接改变了音乐产业</div>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1997</div>
+                        <div class="timeline-title">🎧 AAC 登场</div>
+                        <div class="timeline-desc">作为MP3继任者推出，后被Apple选中</div>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2001</div>
+                        <div class="timeline-title">💎 FLAC 开源</div>
+                        <div class="timeline-desc">第一个免费开源的无损格式诞生</div>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2012</div>
+                        <div class="timeline-title">🚀 Opus 统一</div>
+                        <div class="timeline-desc">融合SILK和CELT，成为WebRTC指定编码器</div>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 场景选择器 -->
+        <section class="section">
+            <h2 class="section-title">🎯 我该用什么格式？</h2>
+            <div class="scenario-selector">
+                <div class="scenario-buttons">
+                    <button class="scenario-btn active" data-scenario="listen">🎧 日常听歌</button>
+                    <button class="scenario-btn" data-scenario="call">📞 语音通话</button>
+                    <button class="scenario-btn" data-scenario="stream">📺 直播视频</button>
+                    <button class="scenario-btn" data-scenario="collect">💿 收藏音乐</button>
+                    <button class="scenario-btn" data-scenario="produce">🎬 专业制作</button>
+                </div>
+                
+                <div class="scenario-result active" id="result-listen">
+                    <h4>🎧 日常听歌推荐</h4>
+                    <div class="recommendation">
+                        <div class="icon">🎵</div>
+                        <div><div class="format-name">MP3 / AAC 256kbps+</div><div style="color:#a0aec0">或流媒体平台默认格式</div></div>
+                    </div>
+                    <p style="color:#c0c8d0">256kbps以上的MP3/AAC，普通耳机已经听不出和无损的区别。兼容性最好，所有设备都能播放。</p>
+                </div>
+                <div class="scenario-result" id="result-call">
+                    <h4>📞 语音通话推荐</h4>
+                    <div class="recommendation">
+                        <div class="icon">🚀</div>
+                        <div><div class="format-name">Opus 32-64kbps</div><div style="color:#a0aec0">主流通话软件已默认使用</div></div>
+                    </div>
+                    <p style="color:#c0c8d0">Opus专门为实时通话设计，延迟极低，32kbps语音就非常清晰。微信、Zoom、Discord都在用它。</p>
+                </div>
+                <div class="scenario-result" id="result-stream">
+                    <h4>📺 直播视频推荐</h4>
+                    <div class="recommendation">
+                        <div class="icon">🎧</div>
+                        <div><div class="format-name">AAC 128-256kbps</div><div style="color:#a0aec0">行业标准配置</div></div>
+                    </div>
+                    <p style="color:#c0c8d0">AAC是视频流媒体的行业标准，YouTube、抖音、B站都用它。128kbps足够保证音质。</p>
+                </div>
+                <div class="scenario-result" id="result-collect">
+                    <h4>💿 收藏音乐推荐</h4>
+                    <div class="recommendation">
+                        <div class="icon">💎</div>
+                        <div><div class="format-name">FLAC</div><div style="color:#a0aec0">跨平台无损首选</div></div>
+                    </div>
+                    <p style="color:#c0c8d0">FLAC是最通用的无损格式，免费开源。作为收藏，可以随时转成任何其他格式。苹果用户也可选ALAC。</p>
+                </div>
+                <div class="scenario-result" id="result-produce">
+                    <h4>🎬 专业制作推荐</h4>
+                    <div class="recommendation">
+                        <div class="icon">📀</div>
+                        <div><div class="format-name">WAV / AIFF</div><div style="color:#a0aec0">24bit/48kHz 或更高</div></div>
+                    </div>
+                    <p style="color:#c0c8d0">制作过程中会多次编辑、混音，每次有损压缩都会累积损失。全程使用WAV，最后输出时再转格式。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 总结 -->
+        <section class="section">
+            <div class="summary-box">
+                <h3>✅ 本章小结</h3>
+                <ul class="summary-list">
+                    <li><strong>MP3</strong>：兼容性之王，专利已免费，适合通用下载</li>
+                    <li><strong>AAC</strong>：流媒体标准，音质优于MP3，Apple/YouTube在用</li>
+                    <li><strong>Opus</strong>：技术最强，免费开源，低延迟，实时通话首选</li>
+                    <li><strong>FLAC</strong>：无损之王，100%还原，音乐收藏首选</li>
+                    <li><strong>WAV</strong>：无压缩原始格式，专业制作使用</li>
+                    <li><strong>选择建议</strong>：日常用MP3/AAC，通话靠Opus，收藏选FLAC</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="next-page">
+            <a href="03-why-compress.html">← 上一章：为什么压缩</a>
+            <a href="05-voip.html">下一章：VoIP与实时语音 →</a>
+        </div>
+    </main>
+
+    <script>
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.scenario-result').forEach(r => r.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('result-' + btn.dataset.scenario).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>声音的数字化基础 - 声音的数字之旅</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            line-height: 1.8;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .navbar a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #4a9eff;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            color: #fff !important;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(120deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header .subtitle {
+            font-size: 1.2rem;
+            color: #a0aec0;
+        }
+
+        /* 章节样式 */
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #fff;
+        }
+
+        .section-title .icon {
+            font-size: 1.5rem;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #4a9eff;
+        }
+
+        .card p {
+            color: #c0c8d0;
+            margin-bottom: 1rem;
+        }
+
+        /* 类比盒子 */
+        .analogy-box {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(168, 85, 247, 0.1));
+            border-left: 4px solid #4a9eff;
+            padding: 1.5rem;
+            border-radius: 0 15px 15px 0;
+            margin: 1.5rem 0;
+        }
+
+        .analogy-box .analogy-title {
+            font-weight: 600;
+            color: #4a9eff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .analogy-box p {
+            color: #c0c8d0;
+            margin: 0;
+        }
+
+        /* 关键概念高亮 */
+        .highlight {
+            background: linear-gradient(120deg, rgba(74, 158, 255, 0.3), rgba(168, 85, 247, 0.3));
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        /* Demo 区域 */
+        .demo-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .demo-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #4a9eff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Canvas 样式 */
+        .canvas-container {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        canvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+        }
+
+        /* 滑块控制 */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-label span {
+            color: #a0aec0;
+        }
+
+        .control-value {
+            background: rgba(74, 158, 255, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #4a9eff;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a9eff, #a855f7);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.4);
+        }
+
+        /* 对比表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .comparison-table th {
+            background: rgba(74, 158, 255, 0.2);
+            color: #4a9eff;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .comparison-table td:first-child {
+            font-weight: 600;
+        }
+
+        .quality-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+
+        .quality-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* 图示容器 */
+        .illustration {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .illustration img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        /* 波形对比 */
+        .wave-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .wave-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .wave-box canvas {
+            height: 100px;
+        }
+
+        .wave-box .label {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #a0aec0;
+        }
+
+        /* 知识点总结 */
+        .summary-box {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1));
+            border: 1px solid rgba(67, 233, 123, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .summary-box h3 {
+            color: #43e97b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #c0c8d0;
+        }
+
+        .summary-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #43e97b;
+            font-weight: bold;
+        }
+
+        /* 计算公式样式 */
+        .calc-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .calc-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .calc-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        .calc-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4a9eff;
+            margin-bottom: 0.5rem;
+        }
+
+        .calc-label {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .calc-operator {
+            font-size: 2rem;
+            color: #a0aec0;
+            font-weight: bold;
+            padding: 0 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .calc-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .calc-item {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.5rem;
+            }
+
+            .calc-value {
+                font-size: 1.4rem;
+                margin-bottom: 0;
+                order: 2;
+            }
+
+            .calc-label {
+                order: 1;
+            }
+
+            .calc-operator {
+                transform: rotate(90deg); /* 竖排时让乘号旋转，变成连接符的感觉 */
+                margin: 0.5rem 0;
+            }
+        }
+
+        /* 数值展示 */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #4a9eff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            margin-top: 0.3rem;
+        }
+
+        /* 位深可视化 */
+        .bit-depth-visual {
+            display: flex;
+            justify-content: space-around;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .bit-depth-box {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .bit-depth-grid {
+            display: grid;
+            gap: 2px;
+            margin: 1rem auto;
+            width: fit-content;
+        }
+
+        .bit-depth-grid.bit-4 {
+            grid-template-columns: repeat(4, 20px);
+            grid-template-rows: repeat(4, 20px);
+        }
+
+        .bit-depth-grid.bit-8 {
+            grid-template-columns: repeat(8, 12px);
+            grid-template-rows: repeat(8, 12px);
+        }
+
+        .bit-depth-grid.bit-16 {
+            grid-template-columns: repeat(16, 6px);
+            grid-template-rows: repeat(16, 6px);
+        }
+
+        .bit-cell {
+            border-radius: 2px;
+        }
+
+        .bit-depth-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4a9eff;
+            margin-bottom: 0.5rem;
+        }
+
+        .bit-depth-desc {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        /* 下一页导航 */
+        .next-page {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .next-page a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .next-page a:hover {
+            background: rgba(74, 158, 255, 0.2);
+            border-color: rgba(74, 158, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        .next-page a.prev:hover {
+            transform: translateX(-5px);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .wave-comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .bit-depth-visual {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* 动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* 声道可视化 */
+        .channel-demo {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .channel-item {
+            text-align: center;
+        }
+
+        .channel-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .channel-waves {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+            height: 40px; /* 固定高度防止抖动 */
+            align-items: flex-end; /* 底部对齐，让波形向上跳动 */
+        }
+
+        .channel-wave {
+            width: 30px;
+            height: 40px;
+            background: linear-gradient(to top, #4a9eff, transparent);
+            border-radius: 5px;
+            animation: waveAnim 0.5s ease-in-out infinite alternate;
+        }
+
+        .channel-wave:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .channel-wave:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes waveAnim {
+            from { height: 20px; }
+            to { height: 40px; }
+        }
+
+        /* 提示框 */
+        .tip-box {
+            background: rgba(249, 115, 22, 0.1);
+            border-left: 4px solid #f97316;
+            padding: 1rem 1.5rem;
+            border-radius: 0 10px 10px 0;
+            margin: 1rem 0;
+        }
+
+        .tip-box .tip-title {
+            color: #f97316;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .tip-box p {
+            color: #c0c8d0;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-title">🎵 声音的数字之旅</a>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="02-digital-basics.html" style="color: #4a9eff;">数字化基础</a>
+            <a href="03-why-compress.html">为什么压缩</a>
+            <a href="04-audio-formats.html">格式对比</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- 页面标题 -->
+        <header class="page-header">
+            <h1>🎚️ 声音的数字化基础</h1>
+            <p class="subtitle">理解采样率、位深、声道这些"黑话"，其实很简单</p>
+        </header>
+
+        <!-- 开篇引入 -->
+        <section class="section">
+            <div class="card">
+                <h3>🤔 一个问题开始</h3>
+                <p>你有没有想过：声音是连续的波动，而电脑只认识0和1，它们是怎么"交流"的？</p>
+                <p>答案是：<span class="highlight">采样</span>——就像用相机快速连拍，把连续的声波"切"成一张张"照片"。</p>
+            </div>
+        </section>
+
+        <!-- 采样率 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">📸</span> 采样率：每秒拍多少张"照片"</h2>
+            
+            <div class="card">
+                <h3>什么是采样率？</h3>
+                <p><span class="highlight">采样率（Sample Rate）</span> 表示每秒钟对声音"拍照"多少次，单位是 <strong>Hz（赫兹）</strong> 或 <strong>kHz（千赫兹）</strong>。</p>
+                <p>比如 <strong>44100 Hz</strong> 就是每秒拍 44100 张"照片"，也写作 <strong>44.1 kHz</strong>。</p>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 通俗类比：拍烟花</div>
+                <p>想象你用手机拍烟花绽放的过程：</p>
+                <p>• <strong>慢速连拍（1秒10张）</strong>：只能看到几个模糊的光点，看不清烟花的形状</p>
+                <p>• <strong>快速连拍（1秒60张）</strong>：能看到烟花绽放的轨迹，但还是有点跳跃</p>
+                <p>• <strong>超高速连拍（1秒1000张）</strong>：每一个火花的运动都清清楚楚</p>
+                <p style="margin-top: 1rem; color: #4a9eff;">采样率就是这个道理——拍得越快，还原出来的声音越接近原声！</p>
+            </div>
+
+            <!-- 交互Demo -->
+            <div class="demo-container">
+                <div class="demo-title">🎮 动手试试：改变采样率看效果</div>
+                <p style="color: #a0aec0; margin-bottom: 1rem;">拖动下方滑块，观察采样点（蓝色圆点）的数量变化。采样点越多，越能准确描绘原始波形。</p>
+                
+                <div class="canvas-container">
+                    <canvas id="samplingCanvas"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>采样率</span>
+                            <span class="control-value" id="sampleRateValue">20 个采样点</span>
+                        </div>
+                        <input type="range" id="sampleRateSlider" min="5" max="100" value="20">
+                    </div>
+                </div>
+                
+                <div class="tip-box" style="margin-top: 1rem;">
+                    <div class="tip-title">👀 观察一下</div>
+                    <p>当采样点很少时（比如5个），连接起来的波形是不是和原始波形（灰色虚线）差很多？增加到50个以上，是不是就很接近了？</p>
+                </div>
+            </div>
+
+            <!-- 常见采样率对比 -->
+            <div class="card">
+                <h3>📊 常见采样率对比</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>采样率</th>
+                            <th>应用场景</th>
+                            <th>音质描述</th>
+                            <th>相对质量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>8 kHz</td>
+                            <td>电话、对讲机</td>
+                            <td>能听清说话，但闷闷的</td>
+                            <td>
+                                <div class="quality-bar">
+                                    <div class="quality-fill" style="width: 20%; background: linear-gradient(90deg, #ef4444, #f97316);"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>16 kHz</td>
+                            <td>语音识别、VoIP通话</td>
+                            <td>清晰的人声，适合语音</td>
+                            <td>
+                                <div class="quality-bar">
+                                    <div class="quality-fill" style="width: 40%; background: linear-gradient(90deg, #f97316, #eab308);"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>44.1 kHz</td>
+                            <td>CD音乐、MP3</td>
+                            <td>高保真音乐标准</td>
+                            <td>
+                                <div class="quality-bar">
+                                    <div class="quality-fill" style="width: 70%; background: linear-gradient(90deg, #eab308, #22c55e);"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>48 kHz</td>
+                            <td>视频配音、专业音频</td>
+                            <td>影视行业标准</td>
+                            <td>
+                                <div class="quality-bar">
+                                    <div class="quality-fill" style="width: 80%; background: linear-gradient(90deg, #22c55e, #4a9eff);"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>96 kHz</td>
+                            <td>高清音频、录音棚</td>
+                            <td>发烧友级别</td>
+                            <td>
+                                <div class="quality-bar">
+                                    <div class="quality-fill" style="width: 95%; background: linear-gradient(90deg, #4a9eff, #a855f7);"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-title">🎯 为什么CD是44.1kHz？</div>
+                <p>人耳能听到的最高频率大约是20kHz。根据"奈奎斯特采样定理"，采样率至少要是最高频率的2倍，才能完整还原声音。所以 20×2=40kHz，再留点余量，就成了44.1kHz。</p>
+            </div>
+        </section>
+
+        <!-- 位深 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">🎨</span> 位深：每张"照片"有多细腻</h2>
+            
+            <div class="card">
+                <h3>什么是位深？</h3>
+                <p><span class="highlight">位深（Bit Depth）</span> 决定了每个采样点能记录多少种不同的音量级别，单位是 <strong>bit（位）</strong>。</p>
+                <p>位深越高，能区分的音量层次越多，声音越细腻。</p>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 通俗类比：调色盘</div>
+                <p>想象你在画画：</p>
+                <p>• <strong>8色蜡笔</strong>：只能画出8种颜色，渐变效果很生硬</p>
+                <p>• <strong>256色彩铅</strong>：颜色丰富多了，渐变过渡更自然</p>
+                <p>• <strong>1600万色数位板</strong>：几乎和真实照片一样细腻</p>
+                <p style="margin-top: 1rem; color: #4a9eff;">位深就像调色盘的颜色数量——位数越多，能表达的音量层次越丰富！</p>
+            </div>
+
+            <!-- 位深可视化 -->
+            <div class="demo-container">
+                <div class="demo-title">🎨 位深可视化对比</div>
+                <p style="color: #a0aec0; margin-bottom: 1rem;">下面每个格子代表一个可表达的音量级别。格子越多，声音的"精度"越高。</p>
+                
+                <div class="bit-depth-visual">
+                    <div class="bit-depth-box">
+                        <div class="bit-depth-label">4-bit</div>
+                        <div class="bit-depth-grid bit-4" id="grid4bit"></div>
+                        <div class="bit-depth-desc">16个音量级别<br>早期游戏机</div>
+                    </div>
+                    <div class="bit-depth-box">
+                        <div class="bit-depth-label">8-bit</div>
+                        <div class="bit-depth-grid bit-8" id="grid8bit"></div>
+                        <div class="bit-depth-desc">256个音量级别<br>电话音质</div>
+                    </div>
+                    <div class="bit-depth-box">
+                        <div class="bit-depth-label">16-bit</div>
+                        <div class="bit-depth-grid bit-16" id="grid16bit"></div>
+                        <div class="bit-depth-desc">65,536个音量级别<br>CD音质</div>
+                    </div>
+                </div>
+                
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">2⁸</div>
+                        <div class="stat-label">8-bit = 256级</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">2¹⁶</div>
+                        <div class="stat-label">16-bit = 65,536级</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">2²⁴</div>
+                        <div class="stat-label">24-bit = 1600万级</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 位深影响什么？</h3>
+                <p><strong>动态范围</strong>——最大声和最小声之间的差距。</p>
+                <p>• 16-bit：动态范围约 96dB，足够日常音乐</p>
+                <p>• 24-bit：动态范围约 144dB，超过人耳极限（约120dB），专业录音使用</p>
+                <p style="margin-top: 1rem;">简单说：位深越高，既能录下蚊子飞的声音，也能录下飞机起飞的轰鸣，而且两者都不失真。</p>
+            </div>
+        </section>
+
+        <!-- 声道 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">🔊</span> 声道：有几个"喇叭"在响</h2>
+            
+            <div class="card">
+                <h3>什么是声道？</h3>
+                <p><span class="highlight">声道（Channel）</span> 就是独立的音频通道数量，决定了声音从几个方向传来。</p>
+            </div>
+
+            <div class="channel-demo">
+                <div class="channel-item">
+                    <div class="channel-icon">📱</div>
+                    <div><strong>单声道 (Mono)</strong></div>
+                    <div class="channel-waves">
+                        <div class="channel-wave"></div>
+                    </div>
+                    <div style="color: #a0aec0; font-size: 0.9rem; margin-top: 0.5rem;">1个声道<br>电话、对讲机</div>
+                </div>
+                <div class="channel-item">
+                    <div class="channel-icon">🎧</div>
+                    <div><strong>立体声 (Stereo)</strong></div>
+                    <div class="channel-waves">
+                        <div class="channel-wave" style="background: linear-gradient(to top, #f093fb, transparent);"></div>
+                        <div class="channel-wave" style="background: linear-gradient(to top, #4a9eff, transparent);"></div>
+                    </div>
+                    <div style="color: #a0aec0; font-size: 0.9rem; margin-top: 0.5rem;">2个声道（左+右）<br>耳机、音乐</div>
+                </div>
+                <div class="channel-item">
+                    <div class="channel-icon">🎬</div>
+                    <div><strong>5.1环绕声</strong></div>
+                    <div class="channel-waves">
+                        <div class="channel-wave" style="background: linear-gradient(to top, #43e97b, transparent); height: 30px;"></div>
+                        <div class="channel-wave" style="background: linear-gradient(to top, #f97316, transparent);"></div>
+                        <div class="channel-wave" style="background: linear-gradient(to top, #a855f7, transparent); height: 35px;"></div>
+                        <div class="channel-wave" style="background: linear-gradient(to top, #ec4899, transparent); height: 25px;"></div>
+                        <div class="channel-wave" style="background: linear-gradient(to top, #4a9eff, transparent);"></div>
+                    </div>
+                    <div style="color: #a0aec0; font-size: 0.9rem; margin-top: 0.5rem;">6个声道<br>电影院、家庭影院</div>
+                </div>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 为什么需要多声道？</div>
+                <p>闭上眼睛想象：有人从你左边走到右边，你能听出来对吧？</p>
+                <p>这就是"立体声"的意义——左右两个喇叭播放略微不同的声音，让你感受到声音的<strong>空间感</strong>和<strong>方位感</strong>。</p>
+                <p style="margin-top: 0.5rem;">5.1环绕声更进一步，前后左右都有喇叭，让你仿佛置身于声音之中。</p>
+            </div>
+        </section>
+
+        <!-- 比特率 -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">📊</span> 比特率：每秒传输多少数据</h2>
+            
+            <div class="card">
+                <h3>什么是比特率？</h3>
+                <p><span class="highlight">比特率（Bit Rate）</span> 表示每秒钟音频数据的大小，单位是 <strong>kbps（千比特每秒）</strong>。</p>
+                <p>计算公式：<strong>比特率 = 采样率 × 位深 × 声道数</strong></p>
+            </div>
+
+            <div class="demo-container">
+                <div class="demo-title">🧮 来算一算</div>
+                <p style="color: #a0aec0; margin-bottom: 1rem;">CD音质的原始数据有多大？</p>
+                
+                <div class="calc-container">
+                    <div class="calc-item">
+                        <div class="calc-value">44,100</div>
+                        <div class="calc-label">采样率 (Hz)</div>
+                    </div>
+                    <div class="calc-operator">×</div>
+                    <div class="calc-item">
+                        <div class="calc-value">16</div>
+                        <div class="calc-label">位深 (bit)</div>
+                    </div>
+                    <div class="calc-operator">×</div>
+                    <div class="calc-item">
+                        <div class="calc-value">2</div>
+                        <div class="calc-label">声道数</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: rgba(74, 158, 255, 0.1); border-radius: 15px;">
+                    <div style="font-size: 1.2rem; color: #a0aec0;">= 1,411,200 bps ≈</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #4a9eff; margin: 0.5rem 0;">1411 kbps</div>
+                    <div style="color: #a0aec0;">也就是说，1秒钟的CD音质音乐 ≈ <strong style="color: #fff;">176 KB</strong></div>
+                    <div style="color: #a0aec0; margin-top: 0.5rem;">1分钟 ≈ <strong style="color: #fff;">10.3 MB</strong>，一张CD专辑(60分钟) ≈ <strong style="color: #fff;">618 MB</strong></div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-title">💡 这就是为什么需要压缩！</div>
+                <p>原始音频太大了！一首5分钟的歌就要50多MB，手机根本存不了几首。所以才有了MP3、AAC这些压缩格式，能把体积压缩到原来的1/10。这个我们下一章详细讲。</p>
+            </div>
+        </section>
+
+        <!-- PCM -->
+        <section class="section">
+            <h2 class="section-title"><span class="icon">💾</span> PCM：数字音频的"原始底片"</h2>
+            
+            <div class="card">
+                <h3>什么是PCM？</h3>
+                <p><span class="highlight">PCM（Pulse Code Modulation，脉冲编码调制）</span> 就是把模拟声音变成数字信号的标准方法。</p>
+                <p>简单说，PCM数据就是一堆数字，每个数字代表某一瞬间声波的"高度"（振幅）。</p>
+            </div>
+
+            <div class="analogy-box">
+                <div class="analogy-title">💡 通俗类比：原始底片</div>
+                <p>如果把音频比作照片：</p>
+                <p>• <strong>PCM</strong> = 相机直出的RAW格式，完整保留所有细节，但文件巨大</p>
+                <p>• <strong>MP3/AAC</strong> = 压缩后的JPG格式，文件小了，但丢失了一些细节</p>
+                <p>• <strong>FLAC</strong> = 无损压缩的PNG格式，文件变小，但能100%还原</p>
+            </div>
+
+            <div class="card">
+                <h3>PCM的特点</h3>
+                <ul class="summary-list">
+                    <li>没有任何压缩，完整保留原始数据</li>
+                    <li>没有文件头信息，就是纯粹的数字序列</li>
+                    <li>DAC芯片可以直接读取并转换成声音</li>
+                    <li>体积很大，通常不直接用于存储和传输</li>
+                    <li>WAV文件里面包的就是PCM数据（加了个文件头）</li>
+                </ul>
+            </div>
+
+            <div class="illustration">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 3rem;">🎤</div>
+                        <div style="color: #a0aec0; font-size: 0.9rem;">声波（模拟）</div>
+                    </div>
+                    <div style="font-size: 2rem; color: #4a9eff;">→</div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 3rem;">⚡</div>
+                        <div style="color: #a0aec0; font-size: 0.9rem;">ADC采样</div>
+                    </div>
+                    <div style="font-size: 2rem; color: #4a9eff;">→</div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(74, 158, 255, 0.2); border-radius: 10px;">
+                        <div style="font-size: 3rem;">📊</div>
+                        <div style="color: #4a9eff; font-weight: 600;">PCM数据</div>
+                        <div style="font-family: monospace; font-size: 0.8rem; color: #a0aec0; margin-top: 0.3rem;">0, 12, 45, 78, 92, 85...</div>
+                    </div>
+                    <div style="font-size: 2rem; color: #4a9eff;">→</div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 3rem;">📦</div>
+                        <div style="color: #a0aec0; font-size: 0.9rem;">压缩编码<br>(MP3/AAC/Opus)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 总结 -->
+        <section class="section">
+            <div class="summary-box">
+                <h3>✅ 本章小结</h3>
+                <ul class="summary-list">
+                    <li><strong>采样率</strong>：每秒"拍"多少次，决定能捕捉的最高频率。CD标准是44.1kHz。</li>
+                    <li><strong>位深</strong>：每个采样点的精度，决定动态范围。CD标准是16-bit。</li>
+                    <li><strong>声道</strong>：几路独立的声音。单声道、立体声(2声道)、5.1环绕声(6声道)。</li>
+                    <li><strong>比特率</strong>：每秒的数据量 = 采样率 × 位深 × 声道。原始CD约1411kbps。</li>
+                    <li><strong>PCM</strong>：数字音频的原始格式，无压缩，体积大，是所有音频编码的基础。</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 下一页导航 -->
+        <div class="next-page">
+            <a href="index.html" class="prev">
+                ← 返回首页
+            </a>
+            <a href="03-why-compress.html">
+                下一章：为什么要压缩音频？ →
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // 采样率演示Canvas
+        const canvas = document.getElementById('samplingCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('sampleRateSlider');
+        const valueDisplay = document.getElementById('sampleRateValue');
+
+        // 设置Canvas实际尺寸
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            ctx.scale(2, 2);
+            drawWave(parseInt(slider.value));
+        }
+
+        // 绘制波形
+        function drawWave(samplePoints) {
+            const width = canvas.width / 2;
+            const height = canvas.height / 2;
+            const centerY = height / 2;
+            const amplitude = height * 0.35;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // 绘制原始波形（灰色虚线）
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            
+            for (let x = 0; x <= width; x++) {
+                const y = centerY + Math.sin((x / width) * 4 * Math.PI) * amplitude;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 计算采样点
+            const samples = [];
+            for (let i = 0; i < samplePoints; i++) {
+                const x = (i / (samplePoints - 1)) * width;
+                const y = centerY + Math.sin((x / width) * 4 * Math.PI) * amplitude;
+                samples.push({ x, y });
+            }
+
+            // 绘制采样点之间的连线（还原的波形）
+            ctx.beginPath();
+            ctx.strokeStyle = '#4a9eff';
+            ctx.lineWidth = 2;
+            samples.forEach((point, i) => {
+                if (i === 0) ctx.moveTo(point.x, point.y);
+                else ctx.lineTo(point.x, point.y);
+            });
+            ctx.stroke();
+
+            // 绘制采样点
+            samples.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#4a9eff';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // 绘制垂直参考线
+            ctx.strokeStyle = 'rgba(74, 158, 255, 0.3)';
+            ctx.lineWidth = 1;
+            samples.forEach(point => {
+                ctx.beginPath();
+                ctx.moveTo(point.x, centerY - amplitude - 10);
+                ctx.lineTo(point.x, centerY + amplitude + 10);
+                ctx.stroke();
+            });
+        }
+
+        // 滑块事件
+        slider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            valueDisplay.textContent = `${value} 个采样点`;
+            drawWave(value);
+        });
+
+        // 初始化
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 位深网格可视化
+        function createBitDepthGrid(containerId, bits, cellSize) {
+            const container = document.getElementById(containerId);
+            const totalCells = Math.pow(2, bits / 2); // 简化显示
+            
+            for (let i = 0; i < bits; i++) {
+                for (let j = 0; j < bits; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'bit-cell';
+                    // 渐变色
+                    const hue = ((i * bits + j) / (bits * bits)) * 200 + 180;
+                    const lightness = 30 + ((i * bits + j) / (bits * bits)) * 40;
+                    cell.style.background = `hsl(${hue}, 70%, ${lightness}%)`;
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        createBitDepthGrid('grid4bit', 4);
+        createBitDepthGrid('grid8bit', 8);
+        createBitDepthGrid('grid16bit', 16);
+    </script>
+</body>
+</html>
