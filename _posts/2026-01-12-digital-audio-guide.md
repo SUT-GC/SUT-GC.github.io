@@ -17,9 +17,13 @@ tags: ["音频", "数字信号", "编解码", "科普"]
 
 这篇文章就来聊聊这个话题。我会尽量用大白话把数字音频这件事讲清楚，不需要你有任何技术背景，只要你对「声音是怎么变成数据的」这个问题有点好奇就行。
 
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/NI6RbYb83ocbB7xSkgAlVKb5gnv.png)
+
 ## 一、声音的完整旅程：六个神奇的阶段
 
 先来看看全貌。当你对着手机说话，声音要经过这么六个阶段才能到达对方的耳朵：
+
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/ELeFbjdjxoSDfuxlZuXlo6r0g85.png)
 
 **第一步：声波产生**
 
@@ -244,6 +248,8 @@ tags: ["音频", "数字信号", "编解码", "科普"]
 ## 四、音频格式大 PK
 
 市面上的音频格式有一大堆：MP3、AAC、Opus、FLAC、WAV……到底有什么区别？该用哪个？
+
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/HzRIblsXcoTewdx9hVJlWLeTg9f.png)
 
 ### 4.1 格式速览
 
@@ -493,6 +499,8 @@ HLS 是 Apple 发明的，思路很聪明：把视频切成一小段一小段（
 
 关键是要理解：**直播分成两个阶段**，用的协议完全不同。
 
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/I7xLbndgHo2xWux0ezwlpbdpgzd.png)
+
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         直播的完整链路                                │
@@ -572,6 +580,8 @@ WebSocket 基于 TCP，而 TCP 有个致命问题叫「队头阻塞」：
 
 每个环节都有专门的硬件来负责：
 
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/Fj24byx6cogKkxxptkBlUy7Zgbh.png)
+
 **麦克风：声波 → 电信号**
 
 麦克风的工作原理是把空气的振动转换成电信号的振动。不同类型的麦克风原理不太一样：
@@ -581,6 +591,10 @@ WebSocket 基于 TCP，而 TCP 有个致命问题叫「队头阻塞」：
 * **MEMS 麦克风**：微机电系统，把整个麦克风做到比米粒还小。你手机里的麦克风就是这种。
 
 MEMS 麦克风现在特别火，因为它体积小、功耗低、成本低，而且很多型号直接输出数字信号（省掉了外部 ADC）。你手机里可能有 2-4 个 MEMS 麦克风，用来做降噪和定向录音。
+
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/ZxtpbWc26opOEwx9wxalFQRYgwd.png)
+
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/WRmvbbfINojL8fxg27glSu8NgKb.png)
 
 **ADC：模拟 → 数字**
 
@@ -617,6 +631,8 @@ DAC 输出的电信号很微弱，直接接扬声器根本推不动。功放（�
 * 时钟线：告诉大家什么时候发数据
 * 字选择线：区分左声道和右声道
 * 数据线：实际传输的音频数据
+
+![](https://int32-blog.oss-cn-beijing.aliyuncs.com/feishu_images/K8C4blHmboYf3Hx3MVvlqChUgTe.png)
 
 几乎所有的音频芯片都支持 I2S，它就像芯片世界的「普通话」，让不同厂家的芯片能无障碍地交流。
 
@@ -656,4 +672,4 @@ DAC 输出的电信号很微弱，直接接扬声器根本推不动。功放（�
 
 ---
 
-> 本文内容整理自[数字音频科普指南](/files/powerpoint/audio-guide/)，里面有很多交互式的演示和动画，欢迎查看。
+本文配套的网页讲解可点击跳转到：[数字音频科普指南](https://sut-gc.github.io/files/powerpoint/audio-guide/index.html)
