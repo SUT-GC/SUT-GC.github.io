@@ -836,6 +836,87 @@ const TimelineSlide = ({ slide }: { slide: SlideData }) => {
 };
 
 // ============================================
+// Slide Type: Video - 视频嵌入
+// ============================================
+const VideoSlide = ({ slide }: { slide: SlideData }) => {
+  // 从 YouTube URL 提取视频 ID 并构建 embed URL
+  const getEmbedUrl = (url: string) => {
+    // 如果已经是 embed URL，直接返回
+    if (url.includes('/embed/')) {
+      return url;
+    }
+    // 从标准 YouTube URL 提取 video ID
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+    if (match) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    return url;
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col p-8 md:p-12 relative overflow-hidden">
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-neon-blue/5" />
+      <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-red-500/10 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-neon-blue/10 rounded-full blur-[100px]" />
+
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-6"
+      >
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+          {slide.title}
+        </h2>
+        {slide.subtitle && (
+          <p className="text-xl text-neon-cyan">{slide.subtitle}</p>
+        )}
+      </motion.div>
+
+      {/* Video Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex-1 flex items-center justify-center"
+        onClick={(e) => e.stopPropagation()} // 阻止点击传播，避免切换幻灯片
+      >
+        <div className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(255,0,0,0.2)]">
+          {/* YouTube 红色边框装饰 */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-red-500 to-red-600 rounded-2xl blur-sm opacity-50" />
+
+          {/* iframe 容器 */}
+          <div className="relative w-full h-full bg-black rounded-xl overflow-hidden">
+            {slide.videoUrl && (
+              <iframe
+                src={getEmbedUrl(slide.videoUrl)}
+                title={slide.title}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Extra hint */}
+      {slide.extra && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-center text-gray-400 mt-4"
+        >
+          {slide.extra}
+        </motion.p>
+      )}
+    </div>
+  );
+};
+
+// ============================================
 // Slide Type: Closing - 结尾
 // ============================================
 const ClosingSlide = ({ slide }: { slide: SlideData }) => (
@@ -850,15 +931,35 @@ const ClosingSlide = ({ slide }: { slide: SlideData }) => (
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className="relative z-10 text-center glass-panel px-20 py-16 rounded-3xl border-neon-blue/20"
+      className="relative z-10 text-center glass-panel px-12 md:px-20 py-12 md:py-16 rounded-3xl border-neon-blue/20"
     >
-      <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 neon-text-blue">
+      <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 neon-text-blue">
         {slide.title}
       </h2>
+      {/* 共勉语 */}
+      {slide.extra && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8 py-4 border-t border-b border-white/10"
+        >
+          <p className="text-xl md:text-2xl text-gray-300 italic font-light">
+            "{slide.extra}"
+          </p>
+        </motion.div>
+      )}
+      {/* Q&A */}
       {slide.points?.map((point, i) => (
-        <p key={i} className="text-2xl text-neon-cyan/80 mt-4 font-light">
+        <motion.p
+          key={i}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="text-3xl md:text-4xl text-neon-cyan font-medium tracking-wider"
+        >
           {point}
-        </p>
+        </motion.p>
       ))}
     </motion.div>
   </div>
@@ -913,6 +1014,8 @@ export default function SlideDeck() {
         return <DemoSlide slide={slide} />;
       case 'timeline':
         return <TimelineSlide slide={slide} />;
+      case 'video':
+        return <VideoSlide slide={slide} />;
       case 'closing':
         return <ClosingSlide slide={slide} />;
       default:

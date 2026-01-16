@@ -15,7 +15,8 @@ export type SlideType =
   | 'cta'             // 行动号召
   | 'demo'            // Demo 页
   | 'code-example'    // 代码示例
-  | 'timeline';       // 时间线成长图
+  | 'timeline'        // 时间线成长图
+  | 'video';          // 视频嵌入
 
 export interface SlideData {
   id: string;
@@ -45,6 +46,8 @@ export interface SlideData {
   // 用于 code-example 类型
   code?: string;
   codeLanguage?: string;
+  // 用于 video 类型
+  videoUrl?: string;
 }
 
 export const slides: SlideData[] = [
@@ -63,7 +66,19 @@ export const slides: SlideData[] = [
   },
 
   // ============================================
-  // Slide 2: Agent 的悖论
+  // Slide 2: Anthropic 官方介绍视频
+  // ============================================
+  {
+    id: "intro-video",
+    type: "video",
+    title: "Anthropic 官方介绍",
+    subtitle: "What are Agent Skills?",
+    videoUrl: "https://www.youtube.com/embed/CEvIs9y1uog",
+    extra: "点击播放按钮观看视频"
+  },
+
+  // ============================================
+  // Slide 3: Agent 的悖论
   // ============================================
   {
     id: "paradox",
@@ -428,6 +443,7 @@ description: 团队 SQL 编写规范，写查询时使用
     id: "closing",
     type: "closing",
     title: "感谢",
+    extra: "愿我们都能在变化中，沉淀下不变的价值。",
     points: [
       "Q&A"
     ],
