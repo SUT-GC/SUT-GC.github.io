@@ -931,15 +931,35 @@ const ClosingSlide = ({ slide }: { slide: SlideData }) => (
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className="relative z-10 text-center glass-panel px-20 py-16 rounded-3xl border-neon-blue/20"
+      className="relative z-10 text-center glass-panel px-12 md:px-20 py-12 md:py-16 rounded-3xl border-neon-blue/20"
     >
-      <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 neon-text-blue">
+      <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 neon-text-blue">
         {slide.title}
       </h2>
+      {/* 共勉语 */}
+      {slide.extra && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8 py-4 border-t border-b border-white/10"
+        >
+          <p className="text-xl md:text-2xl text-gray-300 italic font-light">
+            "{slide.extra}"
+          </p>
+        </motion.div>
+      )}
+      {/* Q&A */}
       {slide.points?.map((point, i) => (
-        <p key={i} className="text-2xl text-neon-cyan/80 mt-4 font-light">
+        <motion.p
+          key={i}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="text-3xl md:text-4xl text-neon-cyan font-medium tracking-wider"
+        >
           {point}
-        </p>
+        </motion.p>
       ))}
     </motion.div>
   </div>

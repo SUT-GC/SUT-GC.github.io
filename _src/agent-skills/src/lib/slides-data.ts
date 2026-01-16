@@ -443,6 +443,7 @@ description: 团队 SQL 编写规范，写查询时使用
     id: "closing",
     type: "closing",
     title: "感谢",
+    extra: "愿我们都能在变化中，沉淀下不变的价值。",
     points: [
       "Q&A"
     ],
