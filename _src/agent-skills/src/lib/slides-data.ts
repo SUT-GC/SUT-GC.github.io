@@ -302,7 +302,18 @@ description: 团队 SQL 编写规范，写查询时使用
   },
 
   // ============================================
-  // Slide 14: 生态已在形成
+  // Slide 14: 产品演示 - Skill 仓库
+  // ============================================
+  {
+    id: "skill-repo-demo",
+    type: "demo",
+    title: "DEMO",
+    subtitle: "Skill 仓库产品演示",
+    extra: "团队级 Skill 管理平台：集中存储、版本管理、一键同步"
+  },
+
+  // ============================================
+  // Slide 15: 生态已在形成
   // ============================================
   {
     id: "ecosystem",
@@ -416,10 +427,12 @@ description: 团队 SQL 编写规范，写查询时使用
     type: "resources",
     title: "了解更多",
     resources: [
-      { title: "官方文档", url: "https://agentskills.io", description: "Agent Skills 开放标准" },
-      { title: "示例 Skills", url: "https://github.com/anthropics/skills", description: "官方示例库" },
-      { title: "推荐文章", url: "https://www.anthropic.com/engineering/claude-skills", description: "Anthropic 工程博客" },
-      { title: "Simon Willison", url: "https://simonwillison.net/2025/Dec/19/agent-skills/", description: "Claude Skills are awesome" }
+      { title: "开放标准", url: "https://agentskills.io/home", description: "Anthropic 主导的 Agent Skills 开放标准" },
+      { title: "官方视频", url: "https://youtu.be/CEvIs9y1uog", description: "Anthropic 官方 Skills 宣讲视频" },
+      { title: "官方 Skills 库", url: "https://github.com/anthropics/skills", description: "Anthropic 官方 Skills 示例仓库" },
+      { title: "官方文档", url: "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview", description: "Anthropic 官方 Skills 介绍文档" },
+      { title: "最佳实践", url: "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices", description: "Anthropic 官方 Skills 最佳实践" },
+      { title: "Skills 市场", url: "https://skillsmp.com/", description: "全球最大的 Skills 市场" }
     ],
     extra: "Skill Creator Skill：Claude 内置，直接让它帮你写 Skill"
   },
