@@ -1,0 +1,391 @@
+  <!-- 01 Overview -->
+  <section class="section active" id="overview">
+    <div class="section-header">
+      <div class="section-number">01 — OVERVIEW</div>
+      <h2 class="section-title">全链路总览</h2>
+      <p class="section-desc">一篇帖子从发布到被另一个用户刷到，经历了"内容入库 → 理解打标 → 画像构建 → 多路召回 → 排序打散 → 队列推送"的完整链路。整体分为<strong>异步处理</strong>和<strong>在线服务</strong>两大部分。</p>
+    </div>
+
+    <!-- ===== 系统架构全景图 ===== -->
+    <div class="flow-container">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-cyan)"></div> 系统架构全景</div>
+      <div style="display: grid; gap: 16px; padding: 0.5rem 0;">
+        <!-- 上层：用户侧 -->
+        <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+          <div style="background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.25); border-radius: 10px; padding: 12px 24px; text-align: center;">
+            <div style="color: var(--accent-cyan); font-weight: 700; font-size: 0.9rem;">Client (iOS/Android)</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">埋点上报 · 推荐拉取</div>
+          </div>
+        </div>
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">↕ HTTP / WebSocket</div>
+        <!-- 中层：服务层 -->
+        <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+          <div style="background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.25); border-radius: 10px; padding: 12px 20px; text-align: center;">
+            <div style="color: var(--accent-green); font-weight: 700; font-size: 0.85rem;">Go API / BFF</div>
+            <div style="color: var(--text-muted); font-size: 0.72rem;">发帖 · 行为上报 · 推荐接口</div>
+          </div>
+          <div style="background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.25); border-radius: 10px; padding: 12px 20px; text-align: center;">
+            <div style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem;">Python NLP</div>
+            <div style="color: var(--text-muted); font-size: 0.72rem;">分词 · 打标签 · 分类</div>
+          </div>
+          <div style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); border-radius: 10px; padding: 12px 20px; text-align: center;">
+            <div style="color: var(--accent-purple); font-weight: 700; font-size: 0.85rem;">推荐引擎</div>
+            <div style="color: var(--text-muted); font-size: 0.72rem;">召回 · 排序 · 打散 · 去重</div>
+          </div>
+        </div>
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem;">↕ 读写各类存储</div>
+        <!-- 下层：存储层 -->
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+          <div style="background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 8px 14px; text-align: center;">
+            <div style="color: var(--accent-green); font-weight: 600; font-size: 0.78rem;">MySQL</div>
+            <div style="color: var(--text-muted); font-size: 0.68rem;">真相源</div>
+          </div>
+          <div style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; padding: 8px 14px; text-align: center;">
+            <div style="color: var(--accent-purple); font-weight: 600; font-size: 0.78rem;">Elasticsearch</div>
+            <div style="color: var(--text-muted); font-size: 0.68rem;">召回索引</div>
+          </div>
+          <div style="background: rgba(255,170,0,0.06); border: 1px solid rgba(255,170,0,0.15); border-radius: 8px; padding: 8px 14px; text-align: center;">
+            <div style="color: var(--accent-orange); font-weight: 600; font-size: 0.78rem;">Redis</div>
+            <div style="color: var(--text-muted); font-size: 0.68rem;">画像 / 队列 / 去重</div>
+          </div>
+          <div style="background: rgba(0,200,255,0.06); border: 1px solid rgba(0,200,255,0.15); border-radius: 8px; padding: 8px 14px; text-align: center;">
+            <div style="color: var(--accent-cyan); font-weight: 600; font-size: 0.78rem;">ClickHouse</div>
+            <div style="color: var(--text-muted); font-size: 0.68rem;">行为分析</div>
+          </div>
+          <div style="background: rgba(255,100,130,0.06); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 8px 14px; text-align: center;">
+            <div style="color: var(--accent-pink); font-weight: 600; font-size: 0.78rem;">Kafka</div>
+            <div style="color: var(--text-muted); font-size: 0.68rem;">异步消息</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 两条数据路径 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">两条核心路径</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+        推荐系统的数据流不是单向的——它分为<strong>写入路径</strong>（内容入库 + 行为采集，异步、离线）和<strong>读取路径</strong>（用户刷推荐，在线、实时）。理解这两条路径是理解整个系统的关键。
+      </p>
+      <div style="display: grid; gap: 16px;">
+        <!-- 写入路径 -->
+        <div style="background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.12); border-radius: 10px; padding: 14px 18px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(0,255,136,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--accent-green);">W</div>
+            <span style="color: var(--accent-green); font-weight: 700; font-size: 0.9rem;">写入路径（异步 · 不阻塞用户）</span>
+          </div>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+            <span class="tech-badge" style="font-size: 0.72rem;">发帖/行为</span> →
+            <span class="tech-badge green" style="font-size: 0.72rem;">Go API</span> →
+            <span class="tech-badge pink" style="font-size: 0.72rem;">Kafka</span> →
+            <span class="tech-badge" style="font-size: 0.72rem;">NLP/统计</span> →
+            <span class="tech-badge green" style="font-size: 0.72rem;">MySQL</span>
+            <span class="tech-badge purple" style="font-size: 0.72rem;">ES</span>
+            <span class="tech-badge orange" style="font-size: 0.72rem;">Redis</span>
+            <span class="tech-badge cyan" style="font-size: 0.72rem;">ClickHouse</span>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 8px;">
+            用户发帖 → MySQL 存原始数据 → Kafka 通知下游 → NLP 打标签 → ES 建索引 → 质量分计算<br>
+            用户行为 → Kafka → ClickHouse 存日志 → 定时更新画像写入 Redis
+          </div>
+        </div>
+        <!-- 读取路径 -->
+        <div style="background: rgba(168,85,247,0.04); border: 1px solid rgba(168,85,247,0.12); border-radius: 10px; padding: 14px 18px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(168,85,247,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--accent-purple);">R</div>
+            <span style="color: var(--accent-purple); font-weight: 700; font-size: 0.9rem;">读取路径（在线 · P99 &lt; 200ms）</span>
+          </div>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+            <span class="tech-badge" style="font-size: 0.72rem;">用户刷新</span> →
+            <span class="tech-badge green" style="font-size: 0.72rem;">BFF</span> →
+            <span class="tech-badge orange" style="font-size: 0.72rem;">Redis Queue</span> →
+            <span style="color: var(--text-muted); font-size: 0.72rem;">不够？</span> →
+            <span class="tech-badge orange" style="font-size: 0.72rem;">Redis Profile</span>
+            <span class="tech-badge purple" style="font-size: 0.72rem;">ES Query</span> →
+            <span style="color: var(--text-muted); font-size: 0.72rem;">排序打散</span> →
+            <span class="tech-badge orange" style="font-size: 0.72rem;">回写队列</span>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 8px;">
+            用户下拉 → BFF 从 Redis 队列 LPOP 20 条 → 返回客户端<br>
+            队列不够？→ 读 Redis 画像 + ES 多路召回 → 排序 → 打散 → Bloom 去重 → RPUSH 回队列
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 完整 Pipeline（保留并增强） ===== -->
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-dot">01</div>
+        <div class="pipeline-content">
+          <h3>用户发帖</h3>
+          <p>Go 接口接收帖子内容，写入 MySQL，同时往 Kafka 发送一条消息通知下游异步处理。接口立即返回发布成功，不阻塞用户。</p>
+          <span class="tech-badge">Go API</span>
+          <span class="tech-badge green">MySQL</span>
+          <span class="tech-badge purple">Kafka</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-dot">02</div>
+        <div class="pipeline-content">
+          <h3>内容理解 & 标签计算</h3>
+          <p>Python 标签服务从 Kafka 消费新帖子消息，对文本做分词、关键词提取、主题分类，给帖子打上标签。结果写回 MySQL 并同步到 ES 倒排索引。</p>
+          <span class="tech-badge pink">Python NLP</span>
+          <span class="tech-badge cyan">Elasticsearch</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-dot">03</div>
+        <div class="pipeline-content">
+          <h3>质量分计算</h3>
+          <p>发布时根据内容特征算初始分，上线后根据互动数据（点赞率、完读率、负向信号）定时更新。两个阶段的分数按曝光量动态加权合并。</p>
+          <span class="tech-badge orange">定时任务</span>
+          <span class="tech-badge">ClickHouse</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-dot">04</div>
+        <div class="pipeline-content">
+          <h3>行为采集 & 用户画像</h3>
+          <p>客户端埋点上报用户行为，经 Kafka 落入 ClickHouse。定时任务读取行为数据，关联帖子标签，加权汇总出每个用户的兴趣向量，写入 Redis。</p>
+          <span class="tech-badge">ClickHouse</span>
+          <span class="tech-badge orange">Redis</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-dot">05</div>
+        <div class="pipeline-content">
+          <h3>多路召回 → 排序 → 打散</h3>
+          <p>用户请求推荐时，并发执行多路召回（兴趣匹配、热门、关注流、随机探索），合并去重后排序打分，再做结果打散保证多样性。</p>
+          <span class="tech-badge">Go 并发</span>
+          <span class="tech-badge cyan">ES Boost</span>
+          <span class="tech-badge orange">Redis</span>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-dot">06</div>
+        <div class="pipeline-content">
+          <h3>待推队列 & 无限刷</h3>
+          <p>排序打散后的结果写入 Redis 待推队列，前端每次取 20 条。队列快用完时异步预加载下一批，实现无限滚动的无缝体验。</p>
+          <span class="tech-badge orange">Redis List</span>
+          <span class="tech-badge green">Bloom Filter</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 技术栈一览 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">技术栈一览</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+        <div style="background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-green); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">Go</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">BFF 接口、推荐引擎、召回排序。高并发低延迟，goroutine 天然适合并发多路召回。</div>
+        </div>
+        <div style="background: rgba(244,114,182,0.05); border: 1px solid rgba(244,114,182,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">Python</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">NLP 标签服务、离线画像计算。丰富的 NLP 生态（jieba/HuggingFace），适合算法迭代。</div>
+        </div>
+        <div style="background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-green); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">MySQL</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">帖子、用户、标签的<strong>真相源</strong>。所有其他存储从它同步。ACID 保证数据不丢。</div>
+        </div>
+        <div style="background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-purple); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">Elasticsearch</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">召回引擎。倒排索引 + BM25 + Boost，毫秒级多条件组合检索。</div>
+        </div>
+        <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-orange); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">Redis</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">推荐系统的"瑞士军刀"——画像 Hash、队列 List、去重 Bloom、热门池 ZSet、缓存。</div>
+        </div>
+        <div style="background: rgba(0,200,255,0.05); border: 1px solid rgba(0,200,255,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-cyan); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">ClickHouse</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">行为日志分析。列式存储，亿级数据聚合查询秒出。画像计算、指标分析的后盾。</div>
+        </div>
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px;">Kafka</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">异步消息中枢。削峰填谷、系统解耦、数据可重放。所有事件通过它流转。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 核心设计原则 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">核心设计原则</div>
+      <div style="display: grid; gap: 14px;">
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #000; flex-shrink: 0;">1</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 2px;">离线计算 + 在线读取</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              所有"重"计算（打标签、画像、质量分）都在离线/异步完成，在线服务只读预计算好的结果。
+              用户请求推荐时，<strong>不做任何耗时计算</strong>——只从 Redis 读画像、ES 读索引、Redis 写队列。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #000; flex-shrink: 0;">2</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 2px;">异步解耦</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              发帖不等打标签完成就返回；行为上报不等入库就返回。所有耗时操作通过 Kafka 解耦，
+              上游只管发消息，下游按自己的节奏消费。<strong>任何单个组件挂了不会拖垮全链路</strong>。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #000; flex-shrink: 0;">3</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 2px;">多存储协同</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              没有"一个数据库搞定一切"——MySQL 保证一致性、ES 做快速检索、Redis 做极速读写、
+              ClickHouse 做聚合分析、Kafka 做异步传输。<strong>每种存储只做它最擅长的事</strong>。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #000; flex-shrink: 0;">4</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 2px;">多级降级保底</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              个性化推荐失败时不返回空白——逐级降级到热门、精选、历史重推。
+              任何存储故障都有兜底方案：ES 挂了用缓存存量，Redis 挂了降级为无个性化热门流。
+              <strong>用户体验永远不归零</strong>。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #000; flex-shrink: 0;">5</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 2px;">数据驱动迭代</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              每一次改动都通过 A/B 测试验证。北极星指标 → 效果/体验/生态指标 → 系统诊断指标，
+              层层拆解。<strong>指标异常时要能定位到具体模块</strong>，而不是"不知道哪里出了问题"。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 一次推荐请求的生命周期 ===== -->
+    <div class="flow-container">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-purple)"></div> 一次推荐请求的生命周期</div>
+      <div style="display: grid; gap: 12px; margin-top: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge" style="min-width: 56px; justify-content: center;">0ms</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">用户下拉 → 客户端发送 <code>GET /api/recommend?count=20</code></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge cyan" style="min-width: 56px; justify-content: center;">5ms</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">BFF 从 Redis 队列 <code>LPOP 20</code> 条 → 检查剩余量</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge green" style="min-width: 56px; justify-content: center;">10ms</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">队列够 → 直接返回 20 条给客户端（<strong>快路径</strong>，&lt;20ms 完成）</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge orange" style="min-width: 56px; justify-content: center;">10ms</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">同时检查水位线 → 低于阈值 → <strong>异步触发补充</strong>（不阻塞本次响应）</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge purple" style="min-width: 56px; justify-content: center;">50ms</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">（异步）读 Redis 画像 → 并发 4 路 ES 召回 → 合并 ~500 条候选</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge pink" style="min-width: 56px; justify-content: center;">120ms</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">（异步）排序打分 → 打散 → Bloom 去重 → 取 Top 200 → RPUSH 入队列</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge" style="min-width: 56px; justify-content: center; background: rgba(0,255,136,0.15); color: var(--accent-green);">Done</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">下次用户再刷 → 队列已备好 200 条 → 又是 &lt;20ms 秒回</span>
+        </div>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 0.75rem;">
+        关键点：用户感知的延迟只有"快路径"的 10~20ms（Redis LPOP）。召回+排序的 100~200ms 是异步完成的，用户无感知。
+      </p>
+    </div>
+
+    <!-- ===== 规模参考 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">规模参考 — 这套架构能扛多大？</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <div style="background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="color: var(--accent-green); font-weight: 700; font-size: 1.4rem; font-family: 'JetBrains Mono', monospace;">1~100 万</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">DAU 覆盖范围</div>
+          <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">单机 → 小集群即可</div>
+        </div>
+        <div style="background: rgba(0,200,255,0.05); border: 1px solid rgba(0,200,255,0.15); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="color: var(--accent-cyan); font-weight: 700; font-size: 1.4rem; font-family: 'JetBrains Mono', monospace;">&lt; 200ms</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">推荐接口 P99 延迟</div>
+          <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">队列命中时 &lt; 20ms</div>
+        </div>
+        <div style="background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="color: var(--accent-purple); font-weight: 700; font-size: 1.4rem; font-family: 'JetBrains Mono', monospace;">5 亿+</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">日行为事件量</div>
+          <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">ClickHouse 轻松扛</div>
+        </div>
+        <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.15); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="color: var(--accent-orange); font-weight: 700; font-size: 1.4rem; font-family: 'JetBrains Mono', monospace;">~45 GB</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">Redis 内存（百万 DAU）</div>
+          <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">画像+队列+去重+缓存</div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 1rem;">
+        <strong>渐进式演进：</strong>这套架构的核心优势是<strong>可以从小做起</strong>——
+        起步时 MySQL + Redis + 简单规则就能跑；有了数据后加 ES 做召回；用户量上来加 ClickHouse 做分析、Kafka 做解耦。
+        不需要一步到位，每个组件都是"什么时候痛了什么时候加"。
+      </div>
+    </div>
+
+    <!-- ===== 本 PPT 目录导航 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">后续章节导航</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+        接下来的每一章深入讲解一个模块。你可以按顺序学习完整链路，也可以跳到你最关心的部分。
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+        <div style="background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-green); font-weight: 700; font-size: 0.8rem; min-width: 24px;">02</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">异步处理流水线</span>
+        </div>
+        <div style="background: rgba(0,200,255,0.04); border: 1px solid rgba(0,200,255,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-cyan); font-weight: 700; font-size: 0.8rem; min-width: 24px;">03</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">用户画像构建</span>
+        </div>
+        <div style="background: rgba(168,85,247,0.04); border: 1px solid rgba(168,85,247,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-purple); font-weight: 700; font-size: 0.8rem; min-width: 24px;">04</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">多路召回策略</span>
+        </div>
+        <div style="background: rgba(244,114,182,0.04); border: 1px solid rgba(244,114,182,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-pink); font-weight: 700; font-size: 0.8rem; min-width: 24px;">05</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">内容质量评估</span>
+        </div>
+        <div style="background: rgba(0,100,255,0.04); border: 1px solid rgba(0,100,255,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-blue); font-weight: 700; font-size: 0.8rem; min-width: 24px;">06</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">排序与打分</span>
+        </div>
+        <div style="background: rgba(255,170,0,0.04); border: 1px solid rgba(255,170,0,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-orange); font-weight: 700; font-size: 0.8rem; min-width: 24px;">07</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">结果打散</span>
+        </div>
+        <div style="background: rgba(255,100,130,0.04); border: 1px solid rgba(255,100,130,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-pink); font-weight: 700; font-size: 0.8rem; min-width: 24px;">08</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">已读去重</span>
+        </div>
+        <div style="background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-green); font-weight: 700; font-size: 0.8rem; min-width: 24px;">09</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">待推队列与无限刷</span>
+        </div>
+        <div style="background: rgba(0,200,255,0.04); border: 1px solid rgba(0,200,255,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-cyan); font-weight: 700; font-size: 0.8rem; min-width: 24px;">10</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">存储架构</span>
+        </div>
+        <div style="background: rgba(168,85,247,0.04); border: 1px solid rgba(168,85,247,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-purple); font-weight: 700; font-size: 0.8rem; min-width: 24px;">11</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">衡量指标体系</span>
+        </div>
+        <div style="background: rgba(255,170,0,0.04); border: 1px solid rgba(255,170,0,0.1); border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: center;">
+          <span style="color: var(--accent-orange); font-weight: 700; font-size: 0.8rem; min-width: 24px;">12</span>
+          <span style="color: var(--text-secondary); font-size: 0.82rem;">演进路线图</span>
+        </div>
+      </div>
+    </div>
+  </section>

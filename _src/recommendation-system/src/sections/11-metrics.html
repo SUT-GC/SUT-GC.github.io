@@ -1,0 +1,407 @@
+  <!-- 11 Metrics -->
+  <section class="section" id="metrics">
+    <div class="section-header">
+      <div class="section-number">11 — METRICS</div>
+      <h2 class="section-title">衡量指标体系</h2>
+      <p class="section-desc">推荐系统的好坏不是拍脑袋评价的——需要一套完整的指标体系，从北极星指标到诊断指标，层层拆解，用数据驱动每一次迭代。</p>
+    </div>
+
+    <!-- ===== 指标金字塔 ===== -->
+    <div class="flow-container">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-cyan)"></div> 指标金字塔</div>
+      <!-- 指标金字塔 HTML 图 -->
+      <div style="display: grid; gap: 12px; padding: 0.5rem 0;">
+        <!-- 顶层：北极星 -->
+        <div style="display: flex; justify-content: center;">
+          <div style="background: linear-gradient(135deg, rgba(0,200,255,0.12), rgba(168,85,247,0.12)); border: 1px solid rgba(0,200,255,0.3); border-radius: 10px; padding: 12px 32px; text-align: center;">
+            <div style="color: var(--text-muted); font-size: 0.75rem; letter-spacing: 1px;">NORTH STAR</div>
+            <div style="color: var(--text-primary); font-weight: 700; font-size: 1rem;">DAU × 人均时长</div>
+          </div>
+        </div>
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">↓ ↓ ↓</div>
+        <!-- 中层：三类指标 -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div style="background: rgba(0,100,255,0.06); border: 1px solid rgba(0,100,255,0.2); border-radius: 8px; padding: 12px; text-align: center;">
+            <div style="color: var(--accent-blue); font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">效果指标（核心）</div>
+            <div style="color: var(--text-muted); font-size: 0.78rem;">CTR / 互动率<br>完读率 / 时长</div>
+          </div>
+          <div style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.2); border-radius: 8px; padding: 12px; text-align: center;">
+            <div style="color: var(--accent-purple); font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">体验指标</div>
+            <div style="color: var(--text-muted); font-size: 0.78rem;">多样性 / 新鲜度<br>负反馈率</div>
+          </div>
+          <div style="background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.2); border-radius: 8px; padding: 12px; text-align: center;">
+            <div style="color: var(--accent-green); font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">生态指标</div>
+            <div style="color: var(--text-muted); font-size: 0.78rem;">覆盖率 / 公平性<br>创作者活跃度</div>
+          </div>
+        </div>
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">↓ ↓ ↓</div>
+        <!-- 底层：诊断指标 -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 18px; text-align: center;">
+          <div style="color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">系统诊断指标（技术层）</div>
+          <div style="color: var(--text-muted); font-size: 0.78rem;">召回延迟 / 空队列率 / 降级比例 / Bloom 误判率 / ...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 北极星指标 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">North Star 北极星指标</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        北极星指标是整个推荐团队唯一的终极目标，所有优化最终都要看它有没有涨。
+      </p>
+      <div style="background: linear-gradient(135deg, rgba(0,200,255,0.1), rgba(168,85,247,0.1)); border-radius: 12px; padding: 1.5rem; text-align: center; margin-bottom: 1rem;">
+        <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">NORTH STAR METRIC</div>
+        <div style="color: var(--text-primary); font-size: 1.5rem; font-weight: 700;">DAU × 人均浏览时长</div>
+        <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+          综合了"来多少人"和"每人待多久"两个维度。单独看 DAU 可能被营销拉动，单独看时长可能被少数重度用户拉高。
+        </div>
+      </div>
+      <div class="callout">
+        <strong>为什么不是 DAU？</strong>DAU 只衡量"来没来"，不衡量"来了之后推荐好不好"。
+        一个推荐很差的 App 也能靠推送把用户骗来，但用户打开后马上走——DAU 高但时长低。
+        乘积才能反映真实的用户价值。
+      </div>
+    </div>
+
+    <!-- ===== 效果指标（核心）===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">核心效果指标</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+        这些是推荐系统直接优化的对象——A/B 测试中主要看这些指标的变化。
+      </p>
+
+      <!-- 指标卡片保留原有样式 -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">点击率 CTR</div>
+          <div class="metric-value" style="color: var(--accent-blue);">~15%</div>
+          <div class="metric-desc">点击数 / 曝光数。反映兴趣匹配准确度。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 65%; background: var(--accent-blue);"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">互动率 Engagement</div>
+          <div class="metric-value" style="color: var(--accent-green);">~8%</div>
+          <div class="metric-desc">（点赞+评论+收藏+分享）/ 曝光数。比 CTR 更深层。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 45%; background: var(--accent-green);"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">完读率 Finish Rate</div>
+          <div class="metric-value" style="color: var(--accent-purple);">~40%</div>
+          <div class="metric-desc">看完全部图片或文字的比例。反映内容质量匹配。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 55%; background: var(--accent-purple);"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">人均浏览时长</div>
+          <div class="metric-value" style="color: var(--accent-cyan);">25min</div>
+          <div class="metric-desc">单次 Session 的平均停留时间。综合反映推荐效果。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 70%; background: var(--accent-cyan);"></div></div>
+        </div>
+      </div>
+
+      <!-- 公式详解 -->
+      <div style="display: grid; gap: 16px; margin-top: 1.5rem;">
+        <div class="flow-container" style="margin: 0;">
+          <div class="flow-title"><div class="dot" style="background: var(--accent-blue)"></div> CTR 的坑</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            <strong>位置偏差（Position Bias）：</strong>第 1 条帖子的 CTR 天然比第 10 条高 3~5 倍，因为用户一定会看到第 1 条。
+            正确做法是<strong>分位置统计 CTR</strong>，或用 IPW（Inverse Propensity Weighting）校正。<br><br>
+            <strong>曝光定义：</strong>什么算"曝光"？画面露出 50% 且停留 &gt;500ms 才算有效曝光。
+            否则用户快速划过的内容也算曝光，会稀释 CTR。
+          </div>
+        </div>
+        <div class="flow-container" style="margin: 0;">
+          <div class="flow-title"><div class="dot" style="background: var(--accent-green)"></div> 互动率的分层</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            不同互动行为的价值差异巨大，业界通常使用<strong>加权互动率</strong>：<br><br>
+            <code>WeightedEngagement = (Like×1 + Comment×3 + Collect×5 + Share×8) / Impressions</code><br><br>
+            分享是最强的正信号——用户愿意用自己的社交货币为内容背书。
+            评论次之（需要思考和输入成本）。点赞最轻（无脑操作）。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 体验指标 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">体验指标 — 护栏（Guardrail）</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        体验指标是"护栏"——不一定要最大化，但不能突破底线。如果为了提升 CTR 而牺牲多样性，长期会导致用户疲劳、流失。
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>公式</th>
+              <th>基线</th>
+              <th>红线</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 500;">多样性 ILS</td>
+              <td><code>1 - avg(sim(i,j))</code></td>
+              <td>0.75</td>
+              <td>&lt; 0.5</td>
+              <td>推荐列表中内容的两两相似度均值的补。越接近 1 越多样。</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">新鲜度</td>
+              <td>推荐列表中 24h 内发布的占比</td>
+              <td>&gt;30%</td>
+              <td>&lt; 15%</td>
+              <td>过低说明在推老内容，用户感觉 App "没有新东西"。</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">负反馈率</td>
+              <td>（不喜欢+举报）/ 曝光数</td>
+              <td>&lt; 2%</td>
+              <td>&gt; 5%</td>
+              <td>用户主动表达"不想看"。飙升说明推荐严重跑偏。</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">重复率</td>
+              <td>用户看到重复内容的比例</td>
+              <td>&lt; 0.5%</td>
+              <td>&gt; 2%</td>
+              <td>Bloom Filter 误判或跨 Session 去重失效。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>指标冲突的经典案例：</strong>只优化 CTR 会导致信息茧房——用户只看同类内容，
+        短期 CTR 上涨但多样性下降，长期用户流失。所以 A/B 实验必须<strong>同时看效果指标 + 护栏指标</strong>，
+        任何一个护栏突破红线就不能上线。
+      </div>
+    </div>
+
+    <!-- ===== 生态指标 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">生态指标 — 平台健康度</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        推荐不只是"给用户推内容"，还要维护平台的<strong>内容生态</strong>——创作者发帖的积极性、内容的公平分发。
+      </p>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">推荐覆盖率</div>
+          <div class="metric-value" style="color: var(--accent-orange);">&gt;60%</div>
+          <div class="metric-desc">过去 7 天被推荐过的帖子 / 全部帖子。过低说明大量内容被"埋没"，伤害创作者积极性。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 60%; background: var(--accent-orange);"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">基尼系数</div>
+          <div class="metric-value" style="color: var(--accent-pink);">&lt; 0.6</div>
+          <div class="metric-desc">帖子曝光量的分布均匀度。越接近 0 越公平。&gt;0.8 说明流量严重集中在少数头部帖子（马太效应）。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 40%; background: var(--accent-pink);"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">创作者满意度</div>
+          <div class="metric-value" style="color: var(--accent-green);">NPS</div>
+          <div class="metric-desc">创作者的发帖频率、是否持续活跃。推荐不公平会导致中腰部创作者"出走"。</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width: 55%; background: var(--accent-green);"></div></div>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>"杀鸡取卵"警告：</strong>如果推荐只给头部创作者导流，中小创作者发帖得不到曝光就会停止创作，
+        内容池枯竭后头部内容也撑不住——这就是为什么覆盖率和基尼系数如此重要。
+      </div>
+    </div>
+
+    <!-- ===== A/B 测试 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">A/B 测试 — 指标驱动迭代的核心机制</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        推荐系统的每一次改动（换召回策略、调排序权重、改打散窗口……）都必须通过 A/B 测试验证。"我觉得好"没有意义，<strong>数据说好才是好</strong>。
+      </p>
+      <!-- A/B 测试流程 HTML 图 -->
+      <div style="display: grid; gap: 14px; padding: 0.5rem 0;">
+        <!-- Step 1: 分桶 -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+          <div style="background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.25); border-radius: 8px; padding: 10px 20px; text-align: center;">
+            <div style="color: var(--accent-cyan); font-weight: 600; font-size: 0.85rem;">全量用户</div>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">── 按 uid 哈希分桶 →</div>
+          <div style="display: grid; gap: 6px;">
+            <div style="background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); border-radius: 6px; padding: 6px 16px; font-size: 0.82rem;">
+              <span style="color: var(--accent-green); font-weight: 600;">对照组 A (50%)</span>
+              <span style="color: var(--text-muted);"> → 现有策略</span>
+            </div>
+            <div style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2); border-radius: 6px; padding: 6px 16px; font-size: 0.82rem;">
+              <span style="color: var(--accent-purple); font-weight: 600;">实验组 B (50%)</span>
+              <span style="color: var(--text-muted);"> → 新策略</span>
+            </div>
+          </div>
+        </div>
+        <!-- Step 2: 收集数据 -->
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">↓ 收集 7~14 天数据 ↓</div>
+        <!-- Step 3: 统计检验 -->
+        <div style="display: flex; justify-content: center;">
+          <div style="background: rgba(255,170,0,0.08); border: 1px solid rgba(255,170,0,0.2); border-radius: 8px; padding: 12px 24px; text-align: center;">
+            <div style="color: var(--accent-orange); font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">统计检验</div>
+            <div style="color: var(--text-muted); font-size: 0.8rem;">t-test / Mann-Whitney · p-value &lt; 0.05 · 效果量 &gt; MDE</div>
+          </div>
+        </div>
+        <!-- Step 4: 结论 -->
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">↓</div>
+        <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+          <div style="background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.25); border-radius: 8px; padding: 8px 20px; text-align: center; color: var(--accent-green); font-weight: 600; font-size: 0.85rem;">✅ 全量上线</div>
+          <div style="background: rgba(255,170,0,0.1); border: 1px solid rgba(255,170,0,0.25); border-radius: 8px; padding: 8px 20px; text-align: center; color: var(--accent-orange); font-weight: 600; font-size: 0.85rem;">⚠️ 延长观测</div>
+          <div style="background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.25); border-radius: 8px; padding: 8px 20px; text-align: center; color: #ff5050; font-weight: 600; font-size: 0.85rem;">❌ 回滚</div>
+        </div>
+      </div>
+      <div style="display: grid; gap: 12px; margin-top: 1rem;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 100px;">样本量估算</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            检测 CTR 从 15% → 15.5%（相对提升 3.3%），需要每组 ~5 万用户，跑 7 天。
+            DAU 10 万以上才能做有意义的 A/B 测试。更小的产品可以用 Bandit 算法替代。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 100px;">常见陷阱</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            <strong>新奇效应</strong>：新策略上线头几天指标偏高（用户好奇），需至少跑 7 天让效应消退。
+            <strong>辛普森悖论</strong>：总体 CTR 提升但某子群体下降——需分人群看。
+            <strong>P-hacking</strong>：跑了 20 个指标总有一个 p&lt;0.05，需做 Bonferroni 校正。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 离线评估 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">离线评估指标 — 上线前的"沙盘推演"</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        A/B 测试成本高（占用线上流量 + 等待时间长）。在上线前，用离线数据集做评估可以快速淘汰差策略。
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>含义</th>
+              <th>公式直觉</th>
+              <th>适用场景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 500;">Precision@K</td>
+              <td>推荐的 Top K 中用户真正交互的比例</td>
+              <td>推了 20 条，用户点了 3 条 → 15%</td>
+              <td>召回 + 排序</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">Recall@K</td>
+              <td>用户感兴趣的内容中被推荐 Top K 覆盖的比例</td>
+              <td>用户喜欢 10 条，推的 20 条里命中 3 条 → 30%</td>
+              <td>召回</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">NDCG@K</td>
+              <td>考虑排序位置的相关度——排在前面的越相关越好</td>
+              <td>用户点的帖子排在第 1 位比第 20 位得分高很多</td>
+              <td>排序</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">MAP</td>
+              <td>所有相关结果位置的平均精度</td>
+              <td>综合考虑所有正样本的排序位置</td>
+              <td>整体评估</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">AUC</td>
+              <td>模型区分正负样本的能力</td>
+              <td>随机选一正一负样本，正样本分数更高的概率</td>
+              <td>CTR 预估模型</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>离线 vs 在线的 gap：</strong>离线指标好不代表线上一定好。
+        因为离线数据只包含"过去策略推荐过的内容"的反馈，对新策略推出的新内容没有信号——
+        这就是经典的 <strong>off-policy evaluation 问题</strong>。所以离线评估用于初筛，最终结论以 A/B 为准。
+      </div>
+    </div>
+
+    <!-- ===== 系统诊断指标 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">系统诊断指标 — 技术层监控</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        当业务指标下降时，需要通过技术指标定位问题出在哪个环节。
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+        <div style="background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-green); font-weight: 600; font-size: 0.85rem;">召回延迟 P99</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">ES 查询 + 多路合并的端到端延迟。目标 &lt; 200ms。飙升说明 ES 负载过高或网络问题。</div>
+        </div>
+        <div style="background: rgba(0,200,255,0.05); border: 1px solid rgba(0,200,255,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-cyan); font-weight: 600; font-size: 0.85rem;">空队列率</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">Pull 时队列为空。<strong>P0</strong>，目标 &lt; 0.1%。影响面：用户看到空白或 loading。</div>
+        </div>
+        <div style="background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-purple); font-weight: 600; font-size: 0.85rem;">降级触发率</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">L2~L6 层级的触发比例。L3+ 过高说明个性化召回池枯竭或画像更新异常。</div>
+        </div>
+        <div style="background: rgba(255,170,0,0.05); border: 1px solid rgba(255,170,0,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-orange); font-weight: 600; font-size: 0.85rem;">Bloom 误判率</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">已读去重误判导致的有效内容被过滤。理论 &lt; 1%，实际监控看过滤比例的波动。</div>
+        </div>
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-pink); font-weight: 600; font-size: 0.85rem;">ES 缓存命中率</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">ES query cache + request cache 的命中率。过低说明查询模式太随机，考虑加应用层缓存。</div>
+        </div>
+        <div style="background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: #6366f1; font-weight: 600; font-size: 0.85rem;">画像新鲜度</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">Redis 中画像的平均最后更新时间距今。&gt;48h 说明画像 Job 异常。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 指标驱动的诊断框架 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">指标异常诊断框架</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        当北极星指标下降时，按以下路径逐层排查：
+      </p>
+      <!-- 诊断树 HTML -->
+      <div style="font-size: 0.83rem; line-height: 1.8;">
+        <div style="color: var(--accent-orange); font-weight: 700;">北极星下降（DAU × 时长 ↓）</div>
+        <div style="padding-left: 1.2rem; border-left: 2px solid rgba(255,170,0,0.2); margin-top: 6px;">
+          <div><span style="color: var(--text-secondary);">DAU 下降？</span> → <span style="color: var(--text-muted);">非推荐问题（市场/推送/外部因素）</span></div>
+          <div style="margin-top: 8px;"><span style="color: var(--accent-cyan); font-weight: 600;">人均时长下降？</span></div>
+          <div style="padding-left: 1.2rem; border-left: 2px solid rgba(0,200,255,0.2); margin-top: 4px;">
+            <!-- CTR 下降分支 -->
+            <div><span style="color: var(--accent-blue); font-weight: 600;">CTR 下降？</span></div>
+            <div style="padding-left: 1.2rem; border-left: 2px solid rgba(0,100,255,0.15); margin-top: 2px; margin-bottom: 8px;">
+              <div>召回延迟升高？ → <span style="color: var(--accent-pink);">ES/Redis 性能问题</span></div>
+              <div>降级率升高？ → <span style="color: var(--accent-pink);">内容池不足 or 画像过期</span></div>
+              <div>新鲜度下降？ → <span style="color: var(--accent-pink);">新帖入库管道异常</span></div>
+              <div>某通道 CTR 骤降？ → <span style="color: var(--accent-pink);">定位具体通道排查</span></div>
+            </div>
+            <!-- 互动率下降分支 -->
+            <div><span style="color: var(--accent-green); font-weight: 600;">CTR 正常但互动率下降？</span></div>
+            <div style="padding-left: 1.2rem; border-left: 2px solid rgba(0,255,136,0.15); margin-top: 2px; margin-bottom: 8px;">
+              <div>完读率下降？ → <span style="color: var(--accent-pink);">质量分模型需调优</span></div>
+              <div>点赞/评论下降？ → <span style="color: var(--accent-pink);">可能是产品交互变更</span></div>
+            </div>
+            <!-- 时长下降分支 -->
+            <div><span style="color: var(--accent-purple); font-weight: 600;">CTR/互动都正常但时长下降？</span></div>
+            <div style="padding-left: 1.2rem; border-left: 2px solid rgba(168,85,247,0.15); margin-top: 2px;">
+              <div>多样性下降？ → <span style="color: var(--accent-pink);">打散策略失效 → scatter 模块</span></div>
+              <div>负反馈率上升？ → <span style="color: var(--accent-pink);">某类内容触怒用户 → 质量过滤</span></div>
+              <div>空队列率上升？ → <span style="color: var(--accent-pink);">补充机制故障 → queue 模块</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 2rem;">
+      <strong>核心原则：</strong>好的指标体系不是"看板上有很多数字"，而是<strong>每个数字都能 actionable</strong>——
+      指标异常时你知道该查什么、该改什么。如果一个指标涨了跌了你不知道该干嘛，那这个指标就是噪音。
+    </div>
+  </section>

@@ -1,0 +1,364 @@
+  <!-- 05 Quality Score -->
+  <section class="section" id="quality">
+    <div class="section-header">
+      <div class="section-number">05 — QUALITY SCORE</div>
+      <h2 class="section-title">内容质量分</h2>
+      <p class="section-desc">质量分帮助系统判断一篇帖子值不值得推荐。分为发布时的初始分和上线后根据互动数据更新的反馈分，两者按曝光量动态加权合并。</p>
+    </div>
+
+    <div class="callout">
+      <strong>质量分贯穿整个推荐链路。</strong>召回阶段用它做底线过滤（quality_score ≥ 0.5），排序阶段用它作为打分因子，热度计算也依赖它。一个帖子的质量分越高，被推出去的机会越多。
+    </div>
+
+    <!-- ========== 初始分 ========== -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">初始分：发布时立即计算</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      帖子发布后，异步消费 Kafka 消息时同步计算初始分。不依赖任何互动数据，纯粹基于内容本身的特征。
+    </p>
+
+    <div class="formula-box" style="margin-bottom: 1.5rem;">
+      <div class="formula-line">
+        <span class="formula-var blue">初始分</span> <span class="formula-op">=</span>
+        <span class="formula-var cyan">文本长度分</span> <span class="formula-op">×</span> <span class="number">0.3</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var green">图片分</span> <span class="formula-op">×</span> <span class="number">0.3</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var purple">文本质量分</span> <span class="formula-op">×</span> <span class="number">0.2</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var orange">作者信用分</span> <span class="formula-op">×</span> <span class="number">0.2</span>
+      </div>
+    </div>
+
+    <!-- 四个维度详解 -->
+    <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 2rem;">
+
+      <!-- 文本长度分 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(34,211,238,0.2); border: 2px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan); z-index: 1;">D1</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">文本长度分 <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 500;">— 权重 30%</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">太短的帖子（标题党）和太长的帖子（可能是复制粘贴）都扣分。50~500 字是图文帖子的"甜蜜区间"。</p>
+
+          <div class="card" style="padding: 1.2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>&lt; 10 字</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">0.1</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(251,191,36,0.08); font-size: 0.8rem;">
+                <span>10~50 字</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-yellow);">0.5</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>50~500 字</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">1.0</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(251,191,36,0.08); font-size: 0.8rem;">
+                <span>500~2000 字</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-yellow);">0.7</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>&gt; 2000 字</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">0.4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图片分 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(52,211,153,0.2); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-green); z-index: 1;">D2</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">图片分 <span style="font-size: 0.8rem; color: var(--accent-green); font-weight: 500;">— 权重 30%</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">图文帖子的图片是核心内容载体。数量和质量都影响评分。</p>
+
+          <div class="card" style="padding: 1.2rem;">
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.8rem; color: var(--accent-green);">图片数量映射</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 1rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>0 张</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">0.2</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(251,191,36,0.08); font-size: 0.8rem;">
+                <span>1~2 张</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-yellow);">0.6</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>3~9 张</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">1.0</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(251,191,36,0.08); font-size: 0.8rem;">
+                <span>&gt; 9 张</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-yellow);">0.7</span>
+              </div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.8rem;">额外加分项：首图宽度 ≥ 1080px 加 0.1 · 有封面图加 0.05。分数 clamp 到 [0, 1]。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 文本质量分 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(167,139,250,0.2); border: 2px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-purple); z-index: 1;">D3</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">文本质量分 <span style="font-size: 0.8rem; color: var(--accent-purple); font-weight: 500;">— 权重 20%</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">检测文本是否有"实质内容"，过滤掉垃圾帖、广告帖、纯表情帖等低质量内容。</p>
+
+          <div class="card" style="padding: 1.2rem;">
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">基础分 1.0，命中以下规则则扣分：</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>🚫 含广告关键词</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">-0.5</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>🔁 大量重复字符</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">-0.3</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>😀 纯表情/特殊符号</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">-0.4</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>📋 疑似复制粘贴</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">-0.3</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>✅ 含话题标签 #</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">+0.1</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>✅ 分段有结构</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">+0.1</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top: 1rem;">
+            <strong>前期用规则，后期上模型。</strong>初期用关键词匹配 + 正则规则检测，成本低、可解释。数据量上来后可以训练一个文本分类模型（如 FastText），甚至用大模型打质量标签，效果会好很多。
+          </div>
+        </div>
+      </div>
+
+      <!-- 作者信用分 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(251,146,60,0.2); border: 2px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-orange); z-index: 1;">D4</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">作者信用分 <span style="font-size: 0.8rem; color: var(--accent-orange); font-weight: 500;">— 权重 20%</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">基于作者的历史表现给加成或惩罚。优质创作者的新帖天然获得更高初始分。</p>
+
+          <div class="formula-box" style="margin-bottom: 1rem;">
+            <div class="formula-line">
+              <span class="formula-var orange">作者信用分</span> <span class="formula-op">=</span>
+              <span class="formula-var blue">历史平均反馈分</span> <span class="formula-op">×</span> <span class="number">0.5</span>
+              <span class="formula-op">+</span>
+              <span class="formula-var green">发帖频率分</span> <span class="formula-op">×</span> <span class="number">0.2</span>
+              <span class="formula-op">+</span>
+              <span class="formula-var purple">违规扣分</span> <span class="formula-op">×</span> <span class="number">0.3</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 1.2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>历史帖子平均互动率高</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">加分</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>持续稳定发帖</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">加分</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>被举报/帖子被删除</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">扣分</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>短时间内大量灌水</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">扣分</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 反馈分 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">反馈分：上线后根据真实互动更新</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      帖子获得曝光后，用户的真实互动行为是最可靠的质量信号。定时任务每 30 分钟从 ClickHouse 统计最新互动数据并重新计算反馈分。
+    </p>
+
+    <div class="formula-box" style="margin-bottom: 1.5rem;">
+      <div class="formula-line">
+        <span class="formula-var green">反馈分</span> <span class="formula-op">=</span>
+        <span class="formula-var blue">互动率</span> <span class="formula-op">×</span> <span class="number">0.4</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var cyan">完读率</span> <span class="formula-op">×</span> <span class="number">0.3</span>
+        <span class="formula-op">-</span>
+        <span class="formula-var orange">负向信号率</span> <span class="formula-op">×</span> <span class="number">0.3</span>
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-bottom: 1.5rem;">
+      <div class="card">
+        <div class="card-icon" style="background: rgba(79, 140, 255, 0.15); color: var(--accent-blue);">👍</div>
+        <h4>互动率</h4>
+        <p style="margin-bottom: 0.5rem;">正向互动次数 / 总曝光量</p>
+        <div class="code-block" style="margin: 0;">
+          <div class="code-body" style="padding: 0.8rem 1rem;"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 正向互动 = 点赞 + 评论 + 收藏 + 分享</span>
+<span class="formula-var blue">互动率</span> = (likes + comments + collects + shares) / impressions</pre></div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">典型值：优质帖 5~15% · 普通帖 1~5% · 低质帖 &lt; 1%</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(34, 211, 238, 0.15); color: var(--accent-cyan);">📖</div>
+        <h4>完读率</h4>
+        <p style="margin-bottom: 0.5rem;">图片浏览到最后一张的比例</p>
+        <div class="code-block" style="margin: 0;">
+          <div class="code-body" style="padding: 0.8rem 1rem;"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- image_progress ≥ 0.9 或停留 &gt; 阈值</span>
+<span class="formula-var cyan">完读率</span> = finish_view_count / total_view_count</pre></div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">完读率高说明内容有吸引力 · 封面党的完读率通常很低</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(251, 146, 60, 0.15); color: var(--accent-orange);">⚠️</div>
+        <h4>负向信号率</h4>
+        <p style="margin-bottom: 0.5rem;">用户用行为"投票"了不喜欢</p>
+        <div class="code-block" style="margin: 0;">
+          <div class="code-body" style="padding: 0.8rem 1rem;"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 负向 = 举报 + 不感兴趣 + 快速划走(&lt;1s)</span>
+<span class="formula-var orange">负向率</span> = (reports + dislikes + quick_swipes) / impressions</pre></div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">负向率 &gt; 10% 是强烈的降权信号</p>
+      </div>
+    </div>
+
+    <!-- 定时更新实现 -->
+    <div class="code-block" style="margin: 1.5rem 0;">
+      <div class="code-header">
+        <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+        <span class="code-title">cron/feedback_score.sql</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 每 30 分钟跑一次，统计所有帖子最新互动数据</span>
+<span class="keyword">SELECT</span>
+    post_id,
+    <span class="func">countIf</span>(event_type <span class="keyword">IN</span> (<span class="string">'like'</span>,<span class="string">'comment'</span>,<span class="string">'collect'</span>,<span class="string">'share'</span>)) <span class="keyword">AS</span> positive,
+    <span class="func">countIf</span>(event_type = <span class="string">'view'</span>)                                <span class="keyword">AS</span> impressions,
+    <span class="func">countIf</span>(event_type = <span class="string">'view'</span> <span class="keyword">AND</span> image_progress >= <span class="number">0.9</span>)      <span class="keyword">AS</span> finish_views,
+    <span class="func">countIf</span>(event_type <span class="keyword">IN</span> (<span class="string">'report'</span>,<span class="string">'dislike'</span>))                  <span class="keyword">AS</span> negatives,
+    <span class="func">countIf</span>(event_type = <span class="string">'view'</span> <span class="keyword">AND</span> duration_ms &lt; <span class="number">1000</span>)         <span class="keyword">AS</span> quick_swipes
+<span class="keyword">FROM</span> behavior_events
+<span class="keyword">WHERE</span> timestamp >= <span class="func">now</span>() - <span class="func">INTERVAL</span> <span class="number">7</span> <span class="keyword">DAY</span>
+<span class="keyword">GROUP BY</span> post_id
+<span class="keyword">HAVING</span> impressions >= <span class="number">10</span>  <span class="comment">-- 曝光太少的不更新，避免统计波动</span></pre></div>
+    </div>
+
+    <div class="flow-container" style="margin: 1.5rem 0;">
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="flow-title"><div class="dot" style="background: var(--accent-green)"></div> 反馈分更新流程</div>
+      <div class="flow-row">
+        <div class="flow-box arch-node green">定时任务触发</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node cyan">ClickHouse 聚合查询</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node purple">计算反馈分</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node blue">写回 MySQL</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node orange">同步到 ES 索引</div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 两阶段合并 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">两阶段动态合并</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+      初始分和反馈分的权重随曝光量动态变化。新帖以初始分为主（因为还没有足够的互动数据），随着曝光增加逐步过渡到以反馈分为主。
+    </p>
+
+    <div class="formula-box">
+      <div class="formula-line">
+        曝光量 &lt; 100：
+        <span class="formula-var blue">质量分</span> <span class="formula-op">=</span>
+        <span class="formula-var cyan">初始分</span> <span class="formula-op">×</span> <span class="number">0.8</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var green">反馈分</span> <span class="formula-op">×</span> <span class="number">0.2</span>
+        <span style="color: var(--text-muted); font-size: 0.8rem; margin-left: 12px;">← 初始分为主，反馈样本不够</span>
+      </div>
+      <div class="formula-line">
+        曝光量 100~1000：
+        <span class="formula-var blue">质量分</span> <span class="formula-op">=</span>
+        <span class="formula-var cyan">初始分</span> <span class="formula-op">×</span> <span class="number">0.3</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var green">反馈分</span> <span class="formula-op">×</span> <span class="number">0.7</span>
+        <span style="color: var(--text-muted); font-size: 0.8rem; margin-left: 12px;">← 反馈数据开始可靠</span>
+      </div>
+      <div class="formula-line">
+        曝光量 &gt; 1000：
+        <span class="formula-var blue">质量分</span> <span class="formula-op">=</span>
+        <span class="formula-var cyan">初始分</span> <span class="formula-op">×</span> <span class="number">0.1</span>
+        <span class="formula-op">+</span>
+        <span class="formula-var green">反馈分</span> <span class="formula-op">×</span> <span class="number">0.9</span>
+        <span style="color: var(--text-muted); font-size: 0.8rem; margin-left: 12px;">← 几乎完全由用户"投票"决定</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>为什么不直接用反馈分？</strong>因为新帖曝光太少时，统计数据有很大随机性。一篇新帖被 5 个人看了，1 个人点赞，互动率 20%——这不代表它比互动率 8% 的万曝帖子好。曝光量越大，反馈分才越可信。初始分在早期起到"兜底"作用。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 低质量处理 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">低质量内容处理</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      质量分不仅决定排名高低，低于特定阈值还会触发降权甚至屏蔽。
+    </p>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <table class="data-table" style="margin: 0;">
+        <thead>
+          <tr>
+            <th>质量分区间</th>
+            <th>处理策略</th>
+            <th>场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">0.7 ~ 1.0</span></td>
+            <td>正常推荐，排序加权</td>
+            <td>优质内容，进入所有召回通道</td>
+          </tr>
+          <tr>
+            <td><span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-yellow);">0.5 ~ 0.7</span></td>
+            <td>正常召回，排序中性</td>
+            <td>普通内容，不加权也不降权</td>
+          </tr>
+          <tr>
+            <td><span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-orange);">0.3 ~ 0.5</span></td>
+            <td style="color: var(--accent-orange);">召回过滤掉，仅搜索/个人主页可见</td>
+            <td>低质内容，不主动推荐</td>
+          </tr>
+          <tr>
+            <td><span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">&lt; 0.3</span></td>
+            <td style="color: var(--accent-red);">标记审核，可能自动隐藏</td>
+            <td>疑似垃圾/违规内容</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <strong>新帖冷启动：</strong>每篇新帖子不管初始分多少，都保证至少被 100 个人看到（通过召回阶段的"新帖探索"通道），然后再根据互动反馈决定是继续推还是降权。这避免了"初始分低 → 没曝光 → 没互动 → 分更低"的死循环。
+    </div>
+
+    <div class="callout success">
+      <strong>质量分的消费方。</strong>质量分写入 MySQL 后同步到 ES 索引的 <code style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">quality_score</code> 字段。召回阶段用 <code style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">filter: quality_score ≥ 0.5</code> 做底线过滤，排序阶段用它作为加权因子（详见 Section 06 排序打分），热门召回的热度公式也用它做衰减（低质量帖即使互动多也上不了热门）。
+    </div>
+  </section>

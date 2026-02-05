@@ -1,0 +1,549 @@
+  <!-- 10 Storage -->
+  <section class="section" id="storage">
+    <div class="section-header">
+      <div class="section-number">10 — STORAGE ARCHITECTURE</div>
+      <h2 class="section-title">存储架构总览</h2>
+      <p class="section-desc">推荐系统是"多存储协同"的典型场景——没有任何单一数据库能满足所有需求。每种存储解决一类问题，组合起来构成完整的数据底座。</p>
+    </div>
+
+    <!-- ===== 存储全景图 HTML ===== -->
+    <div style="display: grid; gap: 12px; padding: 0.5rem 0;">
+      <!-- MySQL -->
+      <div style="background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.2); border-radius: 10px; padding: 14px 20px;">
+        <div style="color: var(--accent-green); font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;">MySQL</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <span class="tech-badge green" style="font-size: 0.72rem;">帖子信息</span>
+          <span class="tech-badge green" style="font-size: 0.72rem;">帖子标签</span>
+          <span class="tech-badge green" style="font-size: 0.72rem;">帖子统计</span>
+          <span class="tech-badge green" style="font-size: 0.72rem;">用户信息</span>
+          <span class="tech-badge green" style="font-size: 0.72rem;">标签体系</span>
+          <span class="tech-badge green" style="font-size: 0.72rem;">关键词表</span>
+        </div>
+      </div>
+      <!-- ClickHouse + ES -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="background: rgba(0,200,255,0.06); border: 1px solid rgba(0,200,255,0.2); border-radius: 10px; padding: 14px 20px;">
+          <div style="color: var(--accent-cyan); font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">ClickHouse</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">用户行为日志（按时间分区）</div>
+        </div>
+        <div style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.2); border-radius: 10px; padding: 14px 20px;">
+          <div style="color: var(--accent-purple); font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">Elasticsearch</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">帖子召回索引（ID+标签+质量分）</div>
+        </div>
+      </div>
+      <!-- Redis -->
+      <div style="background: rgba(255,170,0,0.06); border: 1px solid rgba(255,170,0,0.2); border-radius: 10px; padding: 14px 20px;">
+        <div style="color: var(--accent-orange); font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;">Redis</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <span class="tech-badge orange" style="font-size: 0.72rem;">用户画像 Hash</span>
+          <span class="tech-badge orange" style="font-size: 0.72rem;">待推队列 List</span>
+          <span class="tech-badge orange" style="font-size: 0.72rem;">布隆过滤器</span>
+          <span class="tech-badge orange" style="font-size: 0.72rem;">热门池 ZSet</span>
+          <span class="tech-badge orange" style="font-size: 0.72rem;">缓存</span>
+        </div>
+      </div>
+      <!-- Kafka -->
+      <div style="background: rgba(255,100,130,0.06); border: 1px solid rgba(255,100,130,0.2); border-radius: 10px; padding: 14px 20px;">
+        <div style="color: var(--accent-pink); font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">Kafka</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem;">异步消息队列（发帖 + 行为上报）</div>
+      </div>
+    </div>
+
+    <!-- ===== 选型总表（保留增强） ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">选型对照表</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>存储</th>
+              <th>数据内容</th>
+              <th>读写特点</th>
+              <th>选型理由</th>
+              <th>可替代方案</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tech-badge green">MySQL</span></td>
+              <td>帖子信息、标签体系、用户信息</td>
+              <td>低频写、结构化查询</td>
+              <td>ACID 事务保证，强一致性</td>
+              <td>PostgreSQL</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge">ClickHouse</span></td>
+              <td>用户行为日志（日千万～亿条）</td>
+              <td>高频追加写、聚合分析</td>
+              <td>列式存储，聚合查询秒级</td>
+              <td>MongoDB（前期）/ StarRocks</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge cyan">Elasticsearch</span></td>
+              <td>帖子召回索引</td>
+              <td>高频读、多条件组合检索</td>
+              <td>倒排索引 + BM25 + Boost</td>
+              <td>Redis Set（前期）/ Milvus（向量）</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge orange">Redis</span></td>
+              <td>画像、队列、布隆、热门池、缓存</td>
+              <td>极高频读写、微秒级</td>
+              <td>数据结构丰富，延迟极低</td>
+              <td>—（核心组件，不可替代）</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge purple">Kafka</span></td>
+              <td>异步消息（发帖事件、行为上报）</td>
+              <td>高吞吐、顺序消费</td>
+              <td>削峰 + 解耦 + 可重放</td>
+              <td>Redis Stream / Pulsar / NATS</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== MySQL 详解 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">MySQL — 结构化数据的"真相源"</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        MySQL 是整个系统的 <strong>Source of Truth</strong>——所有其他存储的数据都是从 MySQL 同步/衍生过去的。
+      </p>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 核心表结构</span>
+
+<span class="comment">-- 帖子主表</span>
+<span class="keyword">CREATE TABLE</span> posts (
+    id          <span class="type">BIGINT</span> <span class="keyword">PRIMARY KEY</span> AUTO_INCREMENT,
+    author_id   <span class="type">BIGINT</span> <span class="keyword">NOT NULL</span>,
+    title       <span class="type">VARCHAR</span>(<span class="number">200</span>),
+    content     <span class="type">TEXT</span>,
+    image_urls  <span class="type">JSON</span>,               <span class="comment">-- 图片列表</span>
+    status      <span class="type">TINYINT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span>,  <span class="comment">-- 1=正常 2=隐藏 3=删除</span>
+    quality_score <span class="type">FLOAT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,  <span class="comment">-- 质量分（定期更新）</span>
+    created_at  <span class="type">DATETIME</span> <span class="keyword">NOT NULL</span>,
+    updated_at  <span class="type">DATETIME</span> <span class="keyword">NOT NULL</span>,
+    <span class="keyword">INDEX</span> idx_author (author_id),
+    <span class="keyword">INDEX</span> idx_created (created_at),
+    <span class="keyword">INDEX</span> idx_status_created (status, created_at)
+) ENGINE=InnoDB <span class="keyword">DEFAULT</span> CHARSET=utf8mb4;
+
+<span class="comment">-- 帖子标签关联表（多对多）</span>
+<span class="keyword">CREATE TABLE</span> post_tags (
+    post_id     <span class="type">BIGINT</span> <span class="keyword">NOT NULL</span>,
+    tag_id      <span class="type">INT</span> <span class="keyword">NOT NULL</span>,
+    weight      <span class="type">FLOAT</span> <span class="keyword">DEFAULT</span> <span class="number">1.0</span>,  <span class="comment">-- 标签权重（NLP 提取的置信度）</span>
+    source      <span class="keyword">ENUM</span>(<span class="string">'nlp'</span>, <span class="string">'manual'</span>, <span class="string">'user'</span>),
+    <span class="keyword">PRIMARY KEY</span> (post_id, tag_id),
+    <span class="keyword">INDEX</span> idx_tag (tag_id)
+) ENGINE=InnoDB;
+
+<span class="comment">-- 帖子统计表（独立出来，高频更新不影响主表）</span>
+<span class="keyword">CREATE TABLE</span> post_stats (
+    post_id       <span class="type">BIGINT</span> <span class="keyword">PRIMARY KEY</span>,
+    view_count    <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,
+    like_count    <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,
+    comment_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,
+    share_count   <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,
+    collect_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>,
+    updated_at    <span class="type">DATETIME</span> <span class="keyword">NOT NULL</span>
+) ENGINE=InnoDB;</pre></div></div>
+      <div class="callout">
+        <strong>关键设计：</strong>统计表和主表分离。帖子互动是高频更新（每秒可能几千次），如果和 content TEXT 字段在同一行，
+        每次更新都要锁定大行，严重影响读性能。分离后统计表的行很小（~50 Bytes），更新非常轻量。
+      </div>
+    </div>
+
+    <!-- ===== Elasticsearch 详解 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">Elasticsearch — 召回引擎的心脏</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        ES 不存完整内容，只存召回需要的字段——<strong>越精简越快</strong>。完整内容通过 post_id 回查 MySQL + 缓存获取。
+      </p>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// ES Index Mapping</span>
+<span class="keyword">PUT</span> /posts_recall
+{
+  <span class="string">"settings"</span>: {
+    <span class="string">"number_of_shards"</span>: <span class="number">3</span>,          <span class="comment">// 按数据量估算</span>
+    <span class="string">"number_of_replicas"</span>: <span class="number">1</span>,
+    <span class="string">"refresh_interval"</span>: <span class="string">"5s"</span>        <span class="comment">// 近实时，5s 延迟可接受</span>
+  },
+  <span class="string">"mappings"</span>: {
+    <span class="string">"properties"</span>: {
+      <span class="string">"post_id"</span>:       { <span class="string">"type"</span>: <span class="string">"long"</span> },
+      <span class="string">"author_id"</span>:     { <span class="string">"type"</span>: <span class="string">"long"</span> },
+      <span class="string">"tags"</span>:          { <span class="string">"type"</span>: <span class="string">"keyword"</span> },        <span class="comment">// 标签数组，精确匹配</span>
+      <span class="string">"category"</span>:      { <span class="string">"type"</span>: <span class="string">"keyword"</span> },        <span class="comment">// 一级类目</span>
+      <span class="string">"quality_score"</span>: { <span class="string">"type"</span>: <span class="string">"float"</span> },          <span class="comment">// 质量分</span>
+      <span class="string">"hot_score"</span>:     { <span class="string">"type"</span>: <span class="string">"float"</span> },          <span class="comment">// 热度分</span>
+      <span class="string">"created_at"</span>:    { <span class="string">"type"</span>: <span class="string">"date"</span> },
+      <span class="string">"status"</span>:        { <span class="string">"type"</span>: <span class="string">"byte"</span> },
+      <span class="string">"image_count"</span>:   { <span class="string">"type"</span>: <span class="string">"integer"</span> },
+      <span class="string">"text_length"</span>:   { <span class="string">"type"</span>: <span class="string">"integer"</span> },
+      <span class="string">"author_level"</span>:  { <span class="string">"type"</span>: <span class="string">"byte"</span> }            <span class="comment">// 作者等级</span>
+    }
+  }
+}</pre></div></div>
+      <div style="display: grid; gap: 12px; margin-top: 1rem;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 20px;">①</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">数据同步方式</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              MySQL → Kafka（binlog CDC）→ ES Consumer。新帖发布后 5~10s 内进入 ES 可被召回。
+              也可用 Canal/Debezium 监听 binlog，推到 Kafka，再由消费者写入 ES。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 20px;">②</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">分片策略</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              单分片建议 10~50GB。100 万帖子约 500MB（字段精简），3 分片绰绰有余。
+              千万级可按 created_at 按月建索引（posts_recall_202601），用 alias 统一查询。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 20px;">③</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">查询优化</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              filter 上下文（status=1, created_at 范围）走缓存不计分；should 上下文（tags boost）走评分。
+              <code>terminate_after: 500</code> 限制每个分片最多扫描 500 条，防止慢查。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Redis 详解 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">Redis — 推荐系统的"瑞士军刀"</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        Redis 在推荐系统中承担了 5 种完全不同的角色，充分利用其丰富的数据结构：
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>角色</th>
+              <th>数据结构</th>
+              <th>Key 设计</th>
+              <th>内存估算（100 万 DAU）</th>
+              <th>TTL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 500;">用户画像</td>
+              <td><span class="tech-badge" style="font-size: 0.75rem;">Hash</span></td>
+              <td><code>profile:{uid}</code></td>
+              <td>~2 GB（每人 ~2KB）</td>
+              <td>7 天（离线 Job 刷新）</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">待推队列</td>
+              <td><span class="tech-badge cyan" style="font-size: 0.75rem;">List</span></td>
+              <td><code>rec:queue:{uid}</code></td>
+              <td>~36 GB（每人 200 条）</td>
+              <td>24 小时</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">已读去重</td>
+              <td><span class="tech-badge purple" style="font-size: 0.75rem;">Bitmap / BloomFilter</span></td>
+              <td><code>bf:read:{uid}</code></td>
+              <td>~6 GB（每人 ~6KB）</td>
+              <td>30 天（滚动窗口）</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">热门池</td>
+              <td><span class="tech-badge orange" style="font-size: 0.75rem;">ZSet</span></td>
+              <td><code>hot:pool:{bucket}</code></td>
+              <td>~50 MB（共享，非 per-user）</td>
+              <td>随桶轮转</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 500;">帖子缓存</td>
+              <td><span class="tech-badge green" style="font-size: 0.75rem;">String / Hash</span></td>
+              <td><code>post:cache:{pid}</code></td>
+              <td>~1 GB（Top 10 万热帖）</td>
+              <td>1 小时（LRU 淘汰）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 用户画像 Hash 结构示例</span>
+<span class="keyword">HSET</span> profile:<span class="number">10086</span>
+    <span class="string">"interest_tags"</span>     <span class="string">'["摄影","美食","旅行"]'</span>
+    <span class="string">"interest_weights"</span>  <span class="string">'{"摄影":0.85,"美食":0.6,"旅行":0.3}'</span>
+    <span class="string">"category_dist"</span>     <span class="string">'{"生活":0.4,"技术":0.35,"娱乐":0.25}'</span>
+    <span class="string">"active_hours"</span>      <span class="string">'[10,12,14,20,21,22]'</span>
+    <span class="string">"avg_read_time"</span>     <span class="string">"45"</span>
+    <span class="string">"last_active"</span>       <span class="string">"1738700000"</span>
+    <span class="string">"follow_authors"</span>    <span class="string">'[2001,2002,2003]'</span></pre></div></div>
+      <div class="callout">
+        <strong>内存总计：</strong>画像 2GB + 队列 36GB + 布隆 6GB + 热门 0.05GB + 缓存 1GB ≈ <strong>45 GB</strong>。
+        一台 64GB 内存的 Redis 即可承载 100 万 DAU。超过则做 Redis Cluster 分片（按 uid 哈希）。
+      </div>
+    </div>
+
+    <!-- ===== ClickHouse 详解 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">ClickHouse — 行为日志的分析引擎</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        用户每一次曝光、点击、点赞、收藏、跳过……都是宝贵的信号。ClickHouse 负责<strong>存储 + 离线分析</strong>。
+      </p>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 行为日志表</span>
+<span class="keyword">CREATE TABLE</span> user_actions (
+    event_date  <span class="type">Date</span>,
+    event_time  <span class="type">DateTime</span>,
+    uid         <span class="type">UInt64</span>,
+    post_id     <span class="type">UInt64</span>,
+    action      <span class="type">Enum8</span>(
+        <span class="string">'impression'</span> = <span class="number">1</span>,
+        <span class="string">'click'</span> = <span class="number">2</span>,
+        <span class="string">'like'</span> = <span class="number">3</span>,
+        <span class="string">'collect'</span> = <span class="number">4</span>,
+        <span class="string">'comment'</span> = <span class="number">5</span>,
+        <span class="string">'share'</span> = <span class="number">6</span>,
+        <span class="string">'dislike'</span> = <span class="number">7</span>,
+        <span class="string">'report'</span> = <span class="number">8</span>,
+        <span class="string">'read_finish'</span> = <span class="number">9</span>
+    ),
+    duration_ms <span class="type">UInt32</span>,             <span class="comment">-- 停留时长</span>
+    recall_from <span class="type">LowCardinality</span>(<span class="type">String</span>),  <span class="comment">-- 召回来源</span>
+    position    <span class="type">UInt16</span>,             <span class="comment">-- 在列表中的位置</span>
+    device      <span class="type">LowCardinality</span>(<span class="type">String</span>),
+    app_version <span class="type">LowCardinality</span>(<span class="type">String</span>)
+)
+<span class="keyword">ENGINE</span> = MergeTree()
+<span class="keyword">PARTITION BY</span> <span class="func">toYYYYMM</span>(event_date)  <span class="comment">-- 按月分区</span>
+<span class="keyword">ORDER BY</span> (uid, event_date, post_id)
+<span class="keyword">TTL</span> event_date + <span class="keyword">INTERVAL</span> <span class="number">90</span> DAY  <span class="comment">-- 自动清理 90 天前数据</span>
+<span class="keyword">SETTINGS</span> index_granularity = <span class="number">8192</span>;</pre></div></div>
+      <div style="display: grid; gap: 12px; margin-top: 1rem;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">为什么列式</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            推荐系统的分析查询几乎都是 "某个维度的聚合"——按用户聚合算画像、按帖子聚合算热度、按时间段聚合算 CTR。
+            列式存储只读取需要的列，IO 减少 10~100 倍，聚合速度碾压行式存储。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">典型查询</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            计算某用户近 7 天的兴趣分布、某帖子的完读率趋势、某召回通道的转化漏斗——这些都是 ClickHouse 的强项，
+            亿级数据秒级出结果。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">数据量级</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            100 万 DAU × 每人日均 500 次曝光 = 5 亿条/天。ClickHouse 列式压缩后约 5~10GB/天，
+            90 天保留 ≈ 500GB~1TB 磁盘。单机可扛，超过可 Cluster 分布式。
+          </div>
+        </div>
+      </div>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 画像更新 Job（每天凌晨跑）：近 7 天兴趣标签分布</span>
+<span class="keyword">SELECT</span>
+    uid,
+    <span class="func">arrayJoin</span>(post_tags) <span class="keyword">AS</span> tag,
+    <span class="func">countIf</span>(action = <span class="string">'click'</span>) * <span class="number">1.0</span>
+        + <span class="func">countIf</span>(action = <span class="string">'like'</span>) * <span class="number">3.0</span>
+        + <span class="func">countIf</span>(action = <span class="string">'collect'</span>) * <span class="number">5.0</span>
+        + <span class="func">countIf</span>(action = <span class="string">'share'</span>) * <span class="number">4.0</span>
+        - <span class="func">countIf</span>(action = <span class="string">'dislike'</span>) * <span class="number">2.0</span> <span class="keyword">AS</span> weighted_score
+<span class="keyword">FROM</span> user_actions
+    <span class="keyword">LEFT JOIN</span> post_tag_map <span class="keyword">USING</span> (post_id)  <span class="comment">-- 维表 JOIN</span>
+<span class="keyword">WHERE</span> event_date &gt;= <span class="func">today</span>() - <span class="number">7</span>
+<span class="keyword">GROUP BY</span> uid, tag
+<span class="keyword">HAVING</span> weighted_score &gt; <span class="number">0</span>
+<span class="keyword">ORDER BY</span> uid, weighted_score <span class="keyword">DESC</span>;</pre></div></div>
+    </div>
+
+    <!-- ===== Kafka 详解 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">Kafka — 异步解耦的中枢神经</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        Kafka 是推荐系统的"神经系统"——所有事件通过它传递，各消费者按需订阅。
+      </p>
+      <!-- Kafka Topic HTML 卡片 -->
+      <div style="display: grid; gap: 10px;">
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+            <span style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem;">post.publish</span>
+            <div><span class="tech-badge pink" style="font-size: 0.7rem;">分区: 6</span> <span class="tech-badge" style="font-size: 0.7rem;">保留: 7d</span></div>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">生产者：发帖服务</div>
+          <div style="color: var(--text-secondary); font-size: 0.8rem;">消费者：NLP 打标签 → ES 索引写入 → 冷启动池更新</div>
+        </div>
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+            <span style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem;">user.action</span>
+            <div><span class="tech-badge pink" style="font-size: 0.7rem;">分区: 12</span> <span class="tech-badge" style="font-size: 0.7rem;">保留: 3d</span></div>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">生产者：客户端上报（通过 BFF）</div>
+          <div style="color: var(--text-secondary); font-size: 0.8rem;">消费者：ClickHouse 写入 → 实时画像更新 → 热度分计算</div>
+        </div>
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+            <span style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem;">post.stat.update</span>
+            <div><span class="tech-badge pink" style="font-size: 0.7rem;">分区: 6</span> <span class="tech-badge" style="font-size: 0.7rem;">保留: 1d</span></div>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">生产者：统计聚合服务（每分钟）</div>
+          <div style="color: var(--text-secondary); font-size: 0.8rem;">消费者：ES 热度分更新 → Redis 热门池更新</div>
+        </div>
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+            <span style="color: var(--accent-pink); font-weight: 700; font-size: 0.85rem;">content.moderate</span>
+            <div><span class="tech-badge pink" style="font-size: 0.7rem;">分区: 3</span> <span class="tech-badge" style="font-size: 0.7rem;">保留: 7d</span></div>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">生产者：审核服务</div>
+          <div style="color: var(--text-secondary); font-size: 0.8rem;">消费者：ES 状态更新 → MySQL 状态更新 → 缓存失效</div>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>为什么用 Kafka 而不是直接写？</strong>
+        ①<strong>削峰</strong>：发帖高峰期直接写 ES + ClickHouse 会打满，Kafka 做缓冲；
+        ②<strong>解耦</strong>：新增消费者（如增加一个推送服务）不需改发帖代码；
+        ③<strong>可重放</strong>：消费失败可重置 offset 重新消费，数据不丢失。
+      </div>
+    </div>
+
+    <!-- ===== 数据流转全景 ===== -->
+    <div class="flow-container">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-purple)"></div> 数据流转全景</div>
+      <!-- 数据流转 HTML 图 -->
+      <div style="display: grid; gap: 16px;">
+        <!-- 用户发帖 -->
+        <div style="background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.12); border-radius: 10px; padding: 14px 18px;">
+          <div style="color: var(--accent-green); font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">用户发帖</div>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+            <span class="tech-badge" style="font-size: 0.72rem;">App</span> →
+            <span class="tech-badge" style="font-size: 0.72rem;">BFF</span> →
+            <span class="tech-badge green" style="font-size: 0.72rem;">MySQL 主表</span> →
+            <span class="tech-badge pink" style="font-size: 0.72rem;">Kafka post.publish</span>
+          </div>
+          <div style="padding-left: 1rem; margin-top: 8px; border-left: 2px solid rgba(255,100,130,0.2); display: grid; gap: 4px; font-size: 0.8rem; color: var(--text-muted);">
+            <div>→ NLP Worker → <span style="color: var(--accent-green);">MySQL(标签)</span> → <span style="color: var(--accent-purple);">ES</span></div>
+            <div>→ 冷启动池 Worker → <span style="color: var(--accent-orange);">Redis ZSet</span></div>
+            <div>→ 审核 Worker → <span style="color: var(--accent-green);">MySQL(status)</span> → <span style="color: var(--accent-purple);">ES</span></div>
+          </div>
+        </div>
+        <!-- 用户行为 -->
+        <div style="background: rgba(0,200,255,0.04); border: 1px solid rgba(0,200,255,0.12); border-radius: 10px; padding: 14px 18px;">
+          <div style="color: var(--accent-cyan); font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">用户行为</div>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+            <span class="tech-badge" style="font-size: 0.72rem;">App</span> →
+            <span class="tech-badge" style="font-size: 0.72rem;">BFF</span> →
+            <span class="tech-badge pink" style="font-size: 0.72rem;">Kafka user.action</span>
+          </div>
+          <div style="padding-left: 1rem; margin-top: 8px; border-left: 2px solid rgba(255,100,130,0.2); display: grid; gap: 4px; font-size: 0.8rem; color: var(--text-muted);">
+            <div>→ <span style="color: var(--accent-cyan);">ClickHouse</span> Writer（批量写入）</div>
+            <div>→ 实时画像 Worker → <span style="color: var(--accent-orange);">Redis Hash</span></div>
+            <div>→ 热度计算 Worker → <span style="color: var(--accent-orange);">Redis ZSet</span> + <span style="color: var(--accent-purple);">ES hot_score</span></div>
+          </div>
+        </div>
+        <!-- 用户刷推荐 -->
+        <div style="background: rgba(168,85,247,0.04); border: 1px solid rgba(168,85,247,0.12); border-radius: 10px; padding: 14px 18px;">
+          <div style="color: var(--accent-purple); font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">用户刷推荐</div>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+            <span class="tech-badge" style="font-size: 0.72rem;">App</span> →
+            <span class="tech-badge" style="font-size: 0.72rem;">BFF</span> →
+            <span class="tech-badge orange" style="font-size: 0.72rem;">Redis Queue LPOP</span>
+          </div>
+          <div style="padding-left: 1rem; margin-top: 8px; border-left: 2px solid rgba(255,170,0,0.2); display: grid; gap: 4px; font-size: 0.8rem; color: var(--text-muted);">
+            <div>队列不够 → 触发召回</div>
+            <div>→ <span style="color: var(--accent-orange);">Redis Profile</span> + <span style="color: var(--accent-purple);">ES Query</span> + <span style="color: var(--accent-orange);">Redis Bloom</span></div>
+            <div>→ 排序 → 打散 → <span style="color: var(--accent-orange);">Redis Queue RPUSH</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 数据一致性 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">数据一致性策略</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        推荐系统对一致性的要求是<strong>最终一致</strong>——允许 5~10 秒的延迟，但不允许永久不一致。
+      </p>
+      <div style="display: grid; gap: 12px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 120px;">MySQL → ES</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            通过 Kafka 异步同步。如果消费失败，Kafka 重试保证最终写入。
+            兜底：每天凌晨全量对账 Job，对比 MySQL 和 ES 的 post_id 集合，修补缺失/多余的数据。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 120px;">MySQL → Redis</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            画像：离线 Job 每天全量刷新（ClickHouse 计算 → Redis 写入）。
+            缓存：写穿透（write-through）或旁路缓存（cache-aside），TTL 兜底过期。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 120px;">删帖/封禁</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            MySQL 更新 status → Kafka 广播 → ES 更新 / Redis 缓存删除。
+            队列里的脏数据靠取出时懒过滤（Section 09 已讲）。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 容灾与降级 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">容灾降级 — 各存储挂了怎么办？</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>故障场景</th>
+              <th>影响范围</th>
+              <th>降级策略</th>
+              <th>恢复时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tech-badge green" style="font-size: 0.75rem;">MySQL 不可用</span></td>
+              <td>新帖无法发布，详情页兜底缓存</td>
+              <td>推荐链路不受影响（不直接依赖 MySQL）</td>
+              <td>主从切换 &lt; 30s</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge cyan" style="font-size: 0.75rem;">ES 不可用</span></td>
+              <td>召回失败，无法补充新内容</td>
+              <td>消费现有队列存量 + 全局热门池兜底</td>
+              <td>集群恢复 ~分钟级</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge orange" style="font-size: 0.75rem;">Redis 不可用</span></td>
+              <td>全链路受影响（画像/队列/布隆全丢）</td>
+              <td><strong>P0 故障</strong>。降级为无个性化热门流 + 内存布隆过滤器</td>
+              <td>Sentinel/Cluster 自动切换 &lt; 10s</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge purple" style="font-size: 0.75rem;">Kafka 不可用</span></td>
+              <td>新帖延迟入库、行为日志丢失</td>
+              <td>本地磁盘暂存 + 恢复后重放</td>
+              <td>Controller 选举 ~秒级</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge" style="font-size: 0.75rem;">ClickHouse 不可用</span></td>
+              <td>画像无法更新（用旧画像）</td>
+              <td>无直接影响，画像 Redis 有 7 天 TTL</td>
+              <td>可容忍 ~小时级</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>优先级排序：</strong>Redis &gt; ES &gt; Kafka &gt; MySQL &gt; ClickHouse。Redis 是唯一挂了就"全盘崩"的组件，
+        必须做高可用（Sentinel / Cluster + 持久化 + 定期快照备份）。
+      </div>
+    </div>
+  </section>

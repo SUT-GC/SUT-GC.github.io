@@ -1,0 +1,273 @@
+  <!-- 07 Scatter -->
+  <section class="section" id="scatter">
+    <div class="section-header">
+      <div class="section-number">07 — DIVERSIFICATION</div>
+      <h2 class="section-title">结果打散</h2>
+      <p class="section-desc">排序后同类内容可能扎堆出现。打散保证推荐列表的多样性，避免用户审美疲劳。打散是排序之后、入队之前的最后一步调整。</p>
+    </div>
+
+    <div class="callout">
+      <strong>为什么排序后会扎堆？</strong>因为排序公式中"兴趣匹配度"权重最高（35%），而用户的第一兴趣标签权重又远大于其他标签。结果就是 Top 10 里可能 7 条都是同一个类目（比如美食）。用户连刷 7 条美食帖，即使每条都很好，体验也很差——这就是"信息茧房"的微观表现。
+    </div>
+
+    <!-- ========== 打散前 vs 打散后 ========== -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">打散效果对比</h3>
+
+    <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="card">
+        <h4 style="color: var(--accent-red); margin-bottom: 1rem;">打散前（同类扎堆）</h4>
+        <div class="scatter-demo">
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item travel">旅行</div>
+          <div class="scatter-item travel">旅行</div>
+          <div class="scatter-item photo">摄影</div>
+          <div class="scatter-item photo">摄影</div>
+          <div class="scatter-item pet">宠物</div>
+          <div class="scatter-item hot">热门</div>
+          <div class="scatter-item hot">热门</div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.8rem;">用户刷了 5 条美食后已经腻了，可能直接关掉 App</p>
+      </div>
+      <div class="card">
+        <h4 style="color: var(--accent-green); margin-bottom: 1rem;">打散后（交错分布）</h4>
+        <div class="scatter-demo">
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item travel">旅行</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item photo">摄影</div>
+          <div class="scatter-item pet">宠物</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item hot">热门</div>
+          <div class="scatter-item travel">旅行</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item photo">摄影</div>
+          <div class="scatter-item food">美食</div>
+          <div class="scatter-item hot">热门</div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.8rem;">每隔 1~2 条换个类目，保持新鲜感，用户刷得更久</p>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 打散维度 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">打散维度</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      打散不只看类目，实际要考虑多个维度。多维度之间有冲突时，按优先级依次处理。
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 0;">
+
+      <!-- 维度1: 类目 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(79,140,255,0.2); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-blue); z-index: 1;">P1</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">类目打散 <span style="font-size: 0.8rem; color: var(--accent-blue); font-weight: 500;">— 最高优先级</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">同一个一级类目（美食/旅行/摄影）的帖子不能连续超过 <strong style="color: var(--text-primary);">N=2</strong> 条。这是最核心的打散规则。</p>
+        </div>
+      </div>
+
+      <!-- 维度2: 作者 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(34,211,238,0.2); border: 2px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan); z-index: 1;">P2</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">作者打散 <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 500;">— 次高优先级</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">同一个作者的帖子不能连续出现。即使某个大 V 发了 10 篇优质帖，也要穿插其他作者的内容。连续推同一个人会给用户"这是广告"的感觉。</p>
+        </div>
+      </div>
+
+      <!-- 维度3: 来源 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(167,139,250,0.2); border: 2px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-purple); z-index: 1;">P3</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">来源打散 <span style="font-size: 0.8rem; color: var(--accent-purple); font-weight: 500;">— 可选</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">不同召回通道的帖子要穿插。如果前 10 条全是"兴趣匹配"的结果，关注流和探索的帖子就被挤没了。保证每 5 条内至少有 1 条来自非兴趣通道。</p>
+        </div>
+      </div>
+
+      <!-- 维度4: 图片相似度 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(52,211,153,0.2); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-green); z-index: 1;">P4</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">视觉打散 <span style="font-size: 0.8rem; color: var(--accent-green); font-weight: 500;">— 进阶</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">两篇帖子可能属于不同类目，但封面图很像（比如都是蓝天白云）。视觉打散需要计算图片特征相似度，成本较高，后期再做。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 算法实现 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">算法实现：滑动窗口打散</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      核心思路：遍历排序后的列表，用一个滑动窗口检查最近 N 条的类目/作者是否重复。如果重复就跳过放入"待插队列"，最后把跳过的帖子插回空位。
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+        <span class="code-title">scatter/scatter.go</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">const</span> (
+    maxSameCategory = <span class="number">2</span>   <span class="comment">// 同类目最多连续 2 条</span>
+    maxSameAuthor   = <span class="number">1</span>   <span class="comment">// 同作者不连续（最多 1 条）</span>
+)
+
+<span class="keyword">func</span> <span class="func">Scatter</span>(ranked []<span class="type">Post</span>) []<span class="type">Post</span> {
+    result  := <span class="func">make</span>([]<span class="type">Post</span>, <span class="number">0</span>, <span class="func">len</span>(ranked))
+    skipped := <span class="func">make</span>([]<span class="type">Post</span>, <span class="number">0</span>)
+
+    <span class="keyword">for</span> _, post := <span class="keyword">range</span> ranked {
+        <span class="keyword">if</span> <span class="func">shouldSkip</span>(result, post) {
+            skipped = <span class="func">append</span>(skipped, post)
+        } <span class="keyword">else</span> {
+            result = <span class="func">append</span>(result, post)
+        }
+    }
+
+    <span class="comment">// 把跳过的帖子插回结果中的"安全位置"</span>
+    result = <span class="func">insertSkipped</span>(result, skipped)
+    <span class="keyword">return</span> result
+}
+
+<span class="keyword">func</span> <span class="func">shouldSkip</span>(result []<span class="type">Post</span>, post <span class="type">Post</span>) <span class="type">bool</span> {
+    n := <span class="func">len</span>(result)
+
+    <span class="comment">// 规则 1: 类目不连续超过 2 条</span>
+    <span class="keyword">if</span> n >= maxSameCategory {
+        allSame := <span class="keyword">true</span>
+        <span class="keyword">for</span> i := n - maxSameCategory; i &lt; n; i++ {
+            <span class="keyword">if</span> result[i].Category != post.Category {
+                allSame = <span class="keyword">false</span>
+                <span class="keyword">break</span>
+            }
+        }
+        <span class="keyword">if</span> allSame && result[n-<span class="number">1</span>].Category == post.Category {
+            <span class="keyword">return</span> <span class="keyword">true</span>
+        }
+    }
+
+    <span class="comment">// 规则 2: 同作者不连续</span>
+    <span class="keyword">if</span> n >= maxSameAuthor && result[n-<span class="number">1</span>].AuthorID == post.AuthorID {
+        <span class="keyword">return</span> <span class="keyword">true</span>
+    }
+
+    <span class="keyword">return</span> <span class="keyword">false</span>
+}
+
+<span class="keyword">func</span> <span class="func">insertSkipped</span>(result, skipped []<span class="type">Post</span>) []<span class="type">Post</span> {
+    <span class="comment">// 对跳过的帖子，找到第一个不违反规则的位置插入</span>
+    <span class="keyword">for</span> _, post := <span class="keyword">range</span> skipped {
+        inserted := <span class="keyword">false</span>
+        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="func">len</span>(result); i++ {
+            <span class="keyword">if</span> <span class="func">canInsertAt</span>(result, i, post) {
+                result = <span class="func">insertAt</span>(result, i, post)
+                inserted = <span class="keyword">true</span>
+                <span class="keyword">break</span>
+            }
+        }
+        <span class="keyword">if</span> !inserted {
+            result = <span class="func">append</span>(result, post) <span class="comment">// 放末尾兜底</span>
+        }
+    }
+    <span class="keyword">return</span> result
+}</pre></div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 业界进阶算法 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">业界进阶算法</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      上面的滑动窗口是最简单的规则打散。业界还有更数学化的多样性算法：
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background: rgba(79, 140, 255, 0.15); color: var(--accent-blue);">📊</div>
+        <h4>MMR（Maximal Marginal Relevance）</h4>
+        <p style="margin-bottom: 0.8rem;">每次选下一条帖子时，同时考虑<strong>相关性</strong>（和用户兴趣的匹配度）和<strong>多样性</strong>（和已选帖子的差异度），取两者加权最高的。</p>
+        <div class="formula-box" style="margin: 0;">
+          <div class="formula-line" style="font-size: 0.82rem;">
+            <span class="formula-var blue">MMR</span> <span class="formula-op">=</span>
+            <span class="formula-var cyan">λ</span> <span class="formula-op">×</span> <span class="formula-var green">相关性</span>
+            <span class="formula-op">-</span> <span class="formula-op">(</span><span class="number">1</span><span class="formula-op">-</span><span class="formula-var cyan">λ</span><span class="formula-op">)</span> <span class="formula-op">×</span>
+            <span class="func">max</span><span class="formula-op">(</span><span class="formula-var orange">与已选相似度</span><span class="formula-op">)</span>
+          </div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">λ=0.7 偏重相关性 · λ=0.3 偏重多样性 · 复杂度 O(n²)</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(167, 139, 250, 0.15); color: var(--accent-purple);">🎯</div>
+        <h4>DPP（Determinantal Point Process）</h4>
+        <p style="margin-bottom: 0.8rem;">数学上最优雅的多样性方法。构造一个核矩阵，用行列式的值衡量一个子集的"质量×多样性"联合概率。抖音/快手早期多样性用的就是 DPP。</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">优点：全局最优 · 数学保证 · 缺点：计算成本高，需要近似算法 · 适合精排后的 Top 50</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(52, 211, 153, 0.15); color: var(--accent-green);">⚡</div>
+        <h4>规则打散（当前方案）</h4>
+        <p style="margin-bottom: 0.8rem;">滑动窗口 + 分类/作者约束。简单直接，性能极佳（O(n)），适合中小规模。缺点是规则是"硬"约束，不能像 MMR/DPP 那样连续地平衡相关性和多样性。</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">推荐：先用规则打散上线，效果不够再升级 MMR</p>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 打散的度量 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">打散的代价与度量</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      打散<strong style="color: var(--text-primary);">必然牺牲排序分数</strong>——把排序靠前的帖子往后挪了。关键是找到"相关性"和"多样性"的平衡点。
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4 style="color: var(--accent-red);">打散过度</h4>
+        <p>用户刷到的帖子和兴趣不匹配，点击率下降。为了多样性牺牲了太多相关性。</p>
+        <div class="separator"></div>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">表现：CTR 下降 · 人均阅读时长减少</p>
+      </div>
+      <div class="card">
+        <h4 style="color: var(--accent-yellow);">打散不足</h4>
+        <p>用户觉得推荐"千篇一律"，审美疲劳后离开。短期 CTR 可能还行，但长期留存下降。</p>
+        <div class="separator"></div>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">表现：次日留存下降 · 刷新次数减少</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>如何度量多样性？</strong>常用指标：<strong>ILS（Intra-List Similarity）</strong>——推荐列表中任意两条帖子的平均相似度，越低表示越多样。还有<strong>类目覆盖率</strong>——推荐列表覆盖了多少个不同类目。理想状态是 CTR 不降的前提下，ILS 尽可能低。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 特殊处理 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">特殊内容的处理</h3>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background: rgba(251, 146, 60, 0.15); color: var(--accent-orange);">📌</div>
+        <h4>运营置顶</h4>
+        <p>运营可以手动将某篇帖子"置顶"到推荐列表前几条。置顶帖不参与打散，直接插入指定位置。但一次最多 1~2 条置顶，不能滥用。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(244, 114, 182, 0.15); color: var(--accent-pink);">💰</div>
+        <h4>广告插入</h4>
+        <p>如果有广告系统，广告帖在打散之后按固定规则插入（如每 8 条推荐插 1 条广告）。广告不影响推荐内容的打散逻辑，是独立叠加的。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(167, 139, 250, 0.15); color: var(--accent-purple);">🆕</div>
+        <h4>探索帖位置</h4>
+        <p>随机探索和新帖探索的帖子，不宜全放在列表末尾（用户可能刷不到）。应在打散时保证每 10 条中至少穿插 1 条探索帖，给它们足够的曝光。</p>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <strong>打散的最终目标。</strong>让用户在刷推荐流时，每一屏都有"惊喜感"——既有熟悉的兴趣内容，也有不一样的新发现。好的打散让用户觉得"这个 App 很懂我，又总能给我新东西"。
+    </div>
+  </section>

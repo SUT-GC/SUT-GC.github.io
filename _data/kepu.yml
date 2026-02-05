@@ -1,0 +1,43 @@
+# 科普内容列表配置
+# 添加新科普内容时，按以下格式添加：
+# - name: 标题
+#   description: 描述
+#   icon: emoji 图标
+#   url: 链接
+#   date: 日期
+
+- name: Kotlin 分享
+  description: Kotlin 语言深入分享
+  icon: "📱"
+  url: /files/powerpoint/kotlin-thorough/index.html
+  date: 2017-09-16
+
+- name: 门店 LPD 分享
+  description: 门店 LPD 相关分享
+  icon: "📊"
+  url: /files/powerpoint/shop-lpd/index.html
+  date: 2018-12-16
+
+- name: DevOps & Docker
+  description: DevOps 与 Docker 技术分享
+  icon: "🐳"
+  url: /files/powerpoint/shop-devops-share/index.html
+  date: 2018-03-21
+
+- name: Agent Skills 布道与教学
+  description: Claude Code Agent Skills 实践分享
+  icon: "🤖"
+  url: /files/powerpoint/agent-skills/index.html
+  date: 2025-01-06
+
+- name: 声音的数字之旅
+  description: 从声波到耳朵 - 数字音频科普指南
+  icon: "🎵"
+  url: /files/powerpoint/audio-guide/index.html
+  date: 2025-01-12
+
+- name: 图文帖子推荐系统
+  description: 全链路技术架构 - 从用户发帖到内容推荐的完整工程方案
+  icon: "🎯"
+  url: /files/powerpoint/recommendation-system/index.html
+  date: 2026-02-05

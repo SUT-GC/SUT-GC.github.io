@@ -1,0 +1,486 @@
+  <!-- 04 Recall -->
+  <section class="section" id="recall">
+    <div class="section-header">
+      <div class="section-number">04 — MULTI-CHANNEL RECALL</div>
+      <h2 class="section-title">多路召回</h2>
+      <p class="section-desc">召回是推荐的第一步——从百万级内容池中快速筛选出几百条候选帖子。多路并发执行，用 Go 的 goroutine 天然适合。每路独立运行、互不依赖，某一路超时或失败不影响其他路。</p>
+    </div>
+
+    <!-- 总览：五路并发 -->
+    <div class="recall-animation">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-cyan)"></div> 五路并发召回</div>
+      <div class="recall-channels">
+        <div class="recall-channel">
+          <div class="ch-icon">🎯</div>
+          <div class="ch-name">兴趣匹配</div>
+          <div class="ch-ratio">60% · ES Boost</div>
+        </div>
+        <div class="recall-channel">
+          <div class="ch-icon">🔥</div>
+          <div class="ch-name">热门召回</div>
+          <div class="ch-ratio">15% · Redis ZSet</div>
+        </div>
+        <div class="recall-channel">
+          <div class="ch-icon">👥</div>
+          <div class="ch-name">关注流</div>
+          <div class="ch-ratio">15% · MySQL/Redis</div>
+        </div>
+        <div class="recall-channel">
+          <div class="ch-icon">🎲</div>
+          <div class="ch-name">随机探索</div>
+          <div class="ch-ratio">5% · 反兴趣采样</div>
+        </div>
+        <div class="recall-channel">
+          <div class="ch-icon">🆕</div>
+          <div class="ch-name">新帖探索</div>
+          <div class="ch-ratio">5% · 冷启动</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>为什么要"多路"？</strong>单一召回通道会导致结果同质化。兴趣匹配只能推用户已知的偏好（信息茧房），热门召回只能推大众内容（缺个性化），关注流只覆盖社交关系。多路组合才能兼顾 <strong>个性化 + 多样性 + 新鲜度 + 社交</strong>。
+    </div>
+
+    <!-- 并发骨架代码 -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">并发调度：Go 骨架代码</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+      五路召回通过 goroutine 并发执行，统一设置 50ms 超时。任何一路超时或出错都不阻塞整体，只是少一路候选而已。
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+        <span class="code-title">recall/multi_recall.go</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">func</span> <span class="func">MultiRecall</span>(ctx <span class="type">context.Context</span>, user *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>) {
+    ctx, cancel := <span class="func">context.WithTimeout</span>(ctx, <span class="number">50</span>*time.Millisecond)
+    <span class="keyword">defer</span> <span class="func">cancel</span>()
+
+    <span class="keyword">type</span> <span class="type">result</span> <span class="keyword">struct</span> {
+        posts []<span class="type">Post</span>
+        ch    <span class="type">string</span>
+    }
+    ch := <span class="func">make</span>(<span class="keyword">chan</span> <span class="type">result</span>, <span class="number">5</span>)
+
+    channels := []<span class="keyword">struct</span> {
+        name <span class="type">string</span>
+        fn   <span class="keyword">func</span>(<span class="type">context.Context</span>, *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>)
+    }{
+        {<span class="string">"interest"</span>, recallByInterest},  <span class="comment">// 60% — ES Boost</span>
+        {<span class="string">"hot"</span>,      recallByHot},       <span class="comment">// 15% — Redis ZSet</span>
+        {<span class="string">"follow"</span>,   recallByFollow},    <span class="comment">// 15% — MySQL/Redis</span>
+        {<span class="string">"explore"</span>,  recallByExplore},   <span class="comment">// 5%  — 反兴趣探索</span>
+        {<span class="string">"newpost"</span>,  recallByNewPost},   <span class="comment">// 5%  — 冷启动</span>
+    }
+
+    <span class="keyword">for</span> _, c := <span class="keyword">range</span> channels {
+        <span class="keyword">go func</span>(name <span class="type">string</span>, fn <span class="keyword">func</span>(<span class="type">context.Context</span>, *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>)) {
+            posts, err := <span class="func">fn</span>(ctx, user)
+            <span class="keyword">if</span> err != <span class="keyword">nil</span> {
+                <span class="func">log.Warn</span>(<span class="string">"recall channel %s failed: %v"</span>, name, err)
+                posts = <span class="keyword">nil</span>  <span class="comment">// 失败不影响其他路</span>
+            }
+            ch &lt;- <span class="type">result</span>{posts, name}
+        }(c.name, c.fn)
+    }
+
+    <span class="keyword">var</span> all []<span class="type">Post</span>
+    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="func">len</span>(channels); i++ {
+        r := &lt;-ch
+        all = <span class="func">append</span>(all, r.posts...)
+    }
+    <span class="keyword">return</span> <span class="func">mergeAndDedup</span>(all), <span class="keyword">nil</span>
+}</pre></div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 第一路：兴趣匹配 ========== -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(79,140,255,0.2); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-blue); z-index: 1;">R1</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.15rem; margin-bottom: 0.3rem;">🎯 兴趣匹配召回 <span style="font-size: 0.8rem; color: var(--accent-blue); font-weight: 500;">— 主力通道 60%</span></h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">从用户画像中取标签权重，映射为 ES Bool 查询的 Boost 值。一次查询覆盖所有兴趣维度，命中多标签的帖子分数叠加自动排前面。</p>
+
+        <div class="flow-container" style="margin: 1rem 0;">
+          <div class="flow-title"><div class="dot" style="background: var(--accent-blue)"></div> 数据流向</div>
+          <div class="flow-row">
+            <div class="flow-box arch-node blue">Redis 用户画像</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node cyan">构造 Boost 查询</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node purple">ES 倒排索引</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node green">返回 Top 500</div>
+          </div>
+        </div>
+
+        <div class="code-block" style="margin: 1rem 0;">
+          <div class="code-header">
+            <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+            <span class="code-title">es_boost_query.json</span>
+          </div>
+          <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;">{
+  <span class="string">"query"</span>: {
+    <span class="string">"bool"</span>: {
+      <span class="string">"should"</span>: [
+        { <span class="string">"term"</span>: { <span class="string">"tags"</span>: { <span class="string">"value"</span>: <span class="string">"美食"</span>, <span class="string">"boost"</span>: <span class="number">3.5</span> }}},
+        { <span class="string">"term"</span>: { <span class="string">"tags"</span>: { <span class="string">"value"</span>: <span class="string">"旅行"</span>, <span class="string">"boost"</span>: <span class="number">2.5</span> }}},
+        { <span class="string">"term"</span>: { <span class="string">"tags"</span>: { <span class="string">"value"</span>: <span class="string">"摄影"</span>, <span class="string">"boost"</span>: <span class="number">2.0</span> }}},
+        { <span class="string">"term"</span>: { <span class="string">"tags"</span>: { <span class="string">"value"</span>: <span class="string">"宠物"</span>, <span class="string">"boost"</span>: <span class="number">1.2</span> }}}
+      ],
+      <span class="string">"minimum_should_match"</span>: <span class="number">1</span>,
+      <span class="string">"filter"</span>: [
+        { <span class="string">"range"</span>: { <span class="string">"publish_time"</span>: { <span class="string">"gte"</span>: <span class="string">"now-48h"</span> }}},
+        { <span class="string">"range"</span>: { <span class="string">"quality_score"</span>: { <span class="string">"gte"</span>: <span class="number">0.5</span> }}},
+        <span class="comment">// 粗筛已读：传最近 1h 内看过的 ID（量小，几十条）</span>
+        { <span class="string">"bool"</span>: { <span class="string">"must_not"</span>: [
+          { <span class="string">"terms"</span>: { <span class="string">"post_id"</span>: [<span class="string">"recent_seen_id_1"</span>, <span class="string">"..."</span>] }}
+        ]}}
+      ]
+    }
+  },
+  <span class="string">"size"</span>: <span class="number">500</span>  <span class="comment">// 超量召回，预留已读过滤损耗</span>
+}</pre></div>
+        </div>
+
+        <div class="callout">
+          <strong>Boost 是什么？</strong>ES 的加权打分机制。默认命中一个标签得 1 分，设置 boost: 3.5 后命中就得 3.5 分。多标签命中时分数叠加。帖子 A 同时命中美食(3.5)+旅行(2.5) = 6.0 分，比只命中美食的帖子 B(3.5 分) 排名更靠前。
+        </div>
+
+        <div class="callout warn">
+          <strong>为什么 size 是 500 而不是 200？</strong>因为后续还有 Bloom Filter 做全量已读过滤，会扔掉一部分。超量召回 2~3 倍，过滤后才够用。这里的 filter 中只传最近 1 小时内看过的少量 ID（几十条），做一层粗筛减少浪费，全量精筛交给后面的 Bloom Filter。
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 第二路：热门召回 ========== -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(34,211,238,0.2); border: 2px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan); z-index: 1;">R2</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.15rem; margin-bottom: 0.3rem;">🔥 热门召回 <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 500;">— 全站热点 15%</span></h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">抓住全站的热门内容，保证用户不会错过爆款。离线定时任务计算热度分，写入 Redis ZSet，在线时一行命令取 Top N。</p>
+
+        <div class="card" style="margin-bottom: 1.2rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--accent-cyan);">离线：热度分计算（定时任务 · 每 10 分钟）</h4>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">从 ClickHouse 查最近 24h 的互动数据，按加权公式打分，写入 Redis 有序集合。</p>
+
+          <div class="formula-box" style="margin-bottom: 1rem;">
+            <div class="formula-line">
+              <span class="formula-var cyan">hot_score</span> <span class="formula-op">=</span>
+              <span class="formula-op">(</span><span class="formula-var blue">点赞数</span> <span class="formula-op">×</span> <span class="number">1</span>
+              <span class="formula-op">+</span> <span class="formula-var green">评论数</span> <span class="formula-op">×</span> <span class="number">3</span>
+              <span class="formula-op">+</span> <span class="formula-var purple">收藏数</span> <span class="formula-op">×</span> <span class="number">5</span><span class="formula-op">)</span>
+              <span class="formula-op">/</span> <span class="formula-var orange">time_decay</span>
+            </div>
+          </div>
+
+          <div class="code-block" style="margin: 0;">
+            <div class="code-header">
+              <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+              <span class="code-title">cron/hot_score.sql</span>
+            </div>
+            <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- ClickHouse: 聚合最近 24h 各帖子的互动数</span>
+<span class="keyword">SELECT</span> post_id,
+       <span class="func">countIf</span>(event_type = <span class="string">'like'</span>)    <span class="keyword">AS</span> likes,
+       <span class="func">countIf</span>(event_type = <span class="string">'comment'</span>) <span class="keyword">AS</span> comments,
+       <span class="func">countIf</span>(event_type = <span class="string">'collect'</span>) <span class="keyword">AS</span> collects,
+       <span class="func">min</span>(publish_time)               <span class="keyword">AS</span> pub_time
+<span class="keyword">FROM</span>   behavior_events
+<span class="keyword">WHERE</span>  timestamp >= <span class="func">now</span>() - <span class="func">INTERVAL</span> <span class="number">24</span> <span class="keyword">HOUR</span>
+<span class="keyword">GROUP BY</span> post_id</pre></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 1.2rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--accent-cyan);">在线：一行 Redis 命令</h4>
+          <div class="code-block" style="margin: 0;">
+            <div class="code-header">
+              <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+              <span class="code-title">recall/hot.go</span>
+            </div>
+            <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">func</span> <span class="func">recallByHot</span>(ctx <span class="type">context.Context</span>, user *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>) {
+    <span class="comment">// 全站热门 Top 50</span>
+    ids, _ := redis.<span class="func">ZRevRange</span>(ctx, <span class="string">"hot:global"</span>, <span class="number">0</span>, <span class="number">49</span>)
+
+    <span class="comment">// 也可按类目热门取，保证多样性</span>
+    <span class="comment">// cats := randomPick(allCategories, 3)</span>
+    <span class="comment">// for _, c := range cats {</span>
+    <span class="comment">//     catIds, _ := redis.ZRevRange(ctx, "hot:cat:"+c, 0, 9)</span>
+    <span class="comment">//     ids = append(ids, catIds...)</span>
+    <span class="comment">// }</span>
+
+    <span class="keyword">return</span> <span class="func">batchGetPosts</span>(ctx, ids)
+}</pre></div>
+          </div>
+        </div>
+
+        <div class="callout success">
+          <strong>性能极佳。</strong>Redis ZREVRANGE 是 O(logN+M) 操作，微秒级返回。这路是五路中最快的，通常在 1ms 内完成。
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 第三路：关注流 ========== -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(52,211,153,0.2); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-green); z-index: 1;">R3</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.15rem; margin-bottom: 0.3rem;">👥 关注流召回 <span style="font-size: 0.8rem; color: var(--accent-green); font-weight: 500;">— 社交关系 15%</span></h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">把用户关注的人的最新发帖拉出来。这一路的内容用户本身有关注意愿，点击率通常较高。</p>
+
+        <div class="card" style="margin-bottom: 1.2rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--accent-green);">推模式 vs 拉模式</h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>写扩散（推模式）</th>
+                <th>读扩散（拉模式） ✅</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: var(--text-primary);">原理</td>
+                <td>发帖时写入每个粉丝的收件箱</td>
+                <td>请求时实时拉取关注列表的帖子</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: var(--text-primary);">读速度</td>
+                <td>极快（直接读收件箱）</td>
+                <td>较快（合并 N 个作者）</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: var(--text-primary);">写成本</td>
+                <td style="color: var(--accent-red);">大 V 发帖时写放大严重</td>
+                <td style="color: var(--accent-green);">无额外写操作</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: var(--text-primary);">适用</td>
+                <td>粉丝数较少的产品</td>
+                <td style="color: var(--accent-green);">通用，中小规模首选</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block" style="margin: 1rem 0;">
+          <div class="code-header">
+            <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+            <span class="code-title">recall/follow.go（拉模式）</span>
+          </div>
+          <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">func</span> <span class="func">recallByFollow</span>(ctx <span class="type">context.Context</span>, user *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>) {
+    <span class="comment">// 1. 从 Redis/MySQL 拿关注列表</span>
+    followIDs, _ := redis.<span class="func">SMembers</span>(ctx, <span class="string">"following:"</span>+user.ID)
+
+    <span class="comment">// 2. 每个作者的最近发帖（Redis List 缓存）</span>
+    <span class="keyword">var</span> all []<span class="type">string</span>
+    <span class="keyword">for</span> _, authorID := <span class="keyword">range</span> followIDs {
+        ids, _ := redis.<span class="func">LRange</span>(ctx, <span class="string">"author_posts:"</span>+authorID, <span class="number">0</span>, <span class="number">9</span>)
+        all = <span class="func">append</span>(all, ids...)
+    }
+
+    <span class="comment">// 3. 按发布时间排序，取 Top 50</span>
+    posts := <span class="func">batchGetPosts</span>(ctx, all)
+    <span class="func">sort.Slice</span>(posts, <span class="keyword">func</span>(i, j <span class="type">int</span>) <span class="type">bool</span> {
+        <span class="keyword">return</span> posts[i].PublishTime.<span class="func">After</span>(posts[j].PublishTime)
+    })
+    <span class="keyword">if</span> <span class="func">len</span>(posts) > <span class="number">50</span> { posts = posts[:<span class="number">50</span>] }
+    <span class="keyword">return</span> posts, <span class="keyword">nil</span>
+}</pre></div>
+        </div>
+
+        <div class="callout">
+          <strong>优化：作者发帖列表缓存。</strong>每个作者发帖时往 Redis List <code style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">author_posts:{author_id}</code> 头部 LPUSH 新帖 ID，保留最近 20 条。这样在线拉取就不用查 MySQL，直接从 Redis 取。
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 第四路：随机探索 ========== -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(251,146,60,0.2); border: 2px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-orange); z-index: 1;">R4</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.15rem; margin-bottom: 0.3rem;">🎲 随机探索 <span style="font-size: 0.8rem; color: var(--accent-orange); font-weight: 500;">— 打破信息茧房 5%</span></h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">不是纯随机，而是<strong style="color: var(--text-primary);">反兴趣探索</strong>——在用户画像中<strong style="color: var(--text-primary);">不存在的标签</strong>类目里挑优质内容。这样探索的方向才有价值，而不是漫无目的。</p>
+
+        <div class="card" style="margin-bottom: 1.2rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--accent-orange);">离线：构建探索候选池（定时任务 · 每小时）</h4>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">从 ES 按条件筛选，按一级类目分桶，每桶取若干条，写入 Redis Set。</p>
+
+          <div class="flow-container" style="margin: 0; padding: 1.5rem;">
+            <div class="flow-row">
+              <div class="flow-box arch-node orange">ES 按类目分桶查询</div>
+              <span class="flow-arrow">→</span>
+              <div class="flow-box arch-node cyan">quality_score ≥ 0.6</div>
+              <span class="flow-arrow">→</span>
+              <div class="flow-box arch-node green">每桶取 100 条</div>
+              <span class="flow-arrow">→</span>
+              <div class="flow-box arch-node purple">Redis Set</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-block" style="margin: 1rem 0;">
+          <div class="code-header">
+            <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+            <span class="code-title">recall/explore.go</span>
+          </div>
+          <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">func</span> <span class="func">recallByExplore</span>(ctx <span class="type">context.Context</span>, user *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>) {
+    <span class="comment">// 1. 找到用户画像中【不存在】的类目（反兴趣）</span>
+    userTags := <span class="func">getUserTagSet</span>(user)         <span class="comment">// {美食, 旅行, 摄影}</span>
+    allTags  := <span class="func">getAllCategories</span>()           <span class="comment">// {美食, 旅行, 摄影, 健身, 数码, 穿搭, ...}</span>
+    blindTags := <span class="func">difference</span>(allTags, userTags) <span class="comment">// {健身, 数码, 穿搭, ...}</span>
+
+    <span class="comment">// 2. 随机选 3 个盲区类目</span>
+    picked := <span class="func">randomPick</span>(blindTags, <span class="number">3</span>)
+
+    <span class="comment">// 3. 从每个类目的探索池随机取 5 条</span>
+    <span class="keyword">var</span> ids []<span class="type">string</span>
+    <span class="keyword">for</span> _, tag := <span class="keyword">range</span> picked {
+        catIds, _ := redis.<span class="func">SRandMemberN</span>(ctx, <span class="string">"explore_pool:"</span>+tag, <span class="number">5</span>)
+        ids = <span class="func">append</span>(ids, catIds...)
+    }
+
+    <span class="keyword">return</span> <span class="func">batchGetPosts</span>(ctx, ids)  <span class="comment">// ~15 条</span>
+}</pre></div>
+        </div>
+
+        <div class="callout warn">
+          <strong>纯随机 vs 反兴趣探索。</strong>纯随机从全站池子里抽，大概率抽到用户不感兴趣的内容，点击率极低。反兴趣探索在盲区里挑高质量内容，命中率高得多。如果用户点了"健身"相关的帖子，下次这个标签就会进入画像，被兴趣匹配通道正式接管。
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 第五路：新帖探索 ========== -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(167,139,250,0.2); border: 2px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-purple); z-index: 1;">R5</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.15rem; margin-bottom: 0.3rem;">🆕 新帖探索 <span style="font-size: 0.8rem; color: var(--accent-purple); font-weight: 500;">— 冷启动 5%</span></h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">新帖没有互动数据，不会被兴趣匹配和热门召回捞到——这就是"冷启动"问题。这一路专门给曝光不足的新帖一个初始曝光机会。</p>
+
+        <div class="card" style="margin-bottom: 1.2rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--accent-purple);">离线：构建新帖候选池（定时任务 · 每 30 分钟）</h4>
+          <div class="code-block" style="margin: 0;">
+            <div class="code-header">
+              <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+              <span class="code-title">cron/new_post_pool.sql</span>
+            </div>
+            <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">-- 找出曝光不足的新帖</span>
+<span class="keyword">SELECT</span> post_id
+<span class="keyword">FROM</span>   posts
+<span class="keyword">WHERE</span>  publish_time >= <span class="func">now</span>() - <span class="func">INTERVAL</span> <span class="number">24</span> <span class="keyword">HOUR</span>  <span class="comment">-- 最近一天发布</span>
+  <span class="keyword">AND</span>  impression_count &lt; <span class="number">100</span>            <span class="comment">-- 曝光不足</span>
+  <span class="keyword">AND</span>  quality_score >= <span class="number">0.5</span>              <span class="comment">-- 质量兜底，不推垃圾</span>
+
+<span class="comment">-- 结果写入 Redis: SADD new_post_pool {post_id}</span>
+<span class="comment">-- 帖子曝光超过阈值后从池中移除: SREM new_post_pool {post_id}</span></pre></div>
+          </div>
+        </div>
+
+        <div class="code-block" style="margin: 1rem 0;">
+          <div class="code-header">
+            <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+            <span class="code-title">recall/newpost.go</span>
+          </div>
+          <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">func</span> <span class="func">recallByNewPost</span>(ctx <span class="type">context.Context</span>, user *<span class="type">Profile</span>) ([]<span class="type">Post</span>, <span class="type">error</span>) {
+    <span class="comment">// 从新帖候选池随机取 15 条</span>
+    ids, _ := redis.<span class="func">SRandMemberN</span>(ctx, <span class="string">"new_post_pool"</span>, <span class="number">15</span>)
+    <span class="keyword">return</span> <span class="func">batchGetPosts</span>(ctx, ids)
+}</pre></div>
+        </div>
+
+        <div class="flow-container" style="margin: 1rem 0;">
+          <div class="flow-title"><div class="dot" style="background: var(--accent-purple)"></div> 新帖生命周期</div>
+          <div class="flow-row">
+            <div class="flow-box arch-node purple">发布 · 进入冷启动池</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node cyan">获得初始曝光 · 产生互动</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node green">曝光 > 100 · 移出冷启动池</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node blue">被正常召回通道接管</div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>冷启动的本质。</strong>没有曝光就没有互动数据，没有互动数据就永远不会被兴趣匹配和热门通道捞到——死循环。新帖探索通道就是打破这个循环的"第一把火"，给新内容一个被用户看到的机会。
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 已读过滤：分层策略 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">已读过滤：分层策略</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      用户看过的帖子不能再推。但在 ES 查询中传全量已读 ID 代价太大，所以采用<strong style="color: var(--text-primary);">两层过滤</strong>的策略：
+    </p>
+
+    <div class="flow-container">
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="flow-title"><div class="dot" style="background: var(--accent-blue)"></div> 两层过滤</div>
+      <div class="flow-row">
+        <div class="flow-box arch-node blue">五路召回结果</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node cyan">第一层：ES must_not 粗筛</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node purple">第二层：Bloom Filter 精筛</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node green">干净的候选集</div>
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top: 1.5rem;">
+      <div class="card">
+        <div class="card-icon" style="background: rgba(34, 211, 238, 0.15); color: var(--accent-cyan);">L1</div>
+        <h4>第一层：ES 粗筛</h4>
+        <p>在 ES 查询的 filter 中传最近 1 小时内看过的 ID（量小，几十条），用 <code style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">must_not.terms</code> 排除。这层成本低，能过滤掉最热门的重复。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(167, 139, 250, 0.15); color: var(--accent-purple);">L2</div>
+        <h4>第二层：Bloom Filter 精筛</h4>
+        <p>召回合并后，逐条过 Redis 中的 Bloom Filter（每用户一个）。全量已读记录，微秒级判断，内存极小。详见 <strong>Section 08 已读去重</strong>。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <strong>为什么不在 ES 里直接过滤全量已读？</strong>一个中度活跃用户 30 天可能看了上万条。把这么大的 ID 列表塞进 ES 查询会导致查询体积膨胀、网络传输变慢、ES 匹配耗时急剧上升。terms 查询的 ID 数量也有上限（默认 65536）。Bloom Filter 是概率数据结构，无法嵌入 ES 查询。所以只能分层：ES 做轻量粗筛，应用层做全量精筛。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 降级策略 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">降级策略</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+      当精准召回 + 已读过滤后结果不够时，逐级放宽条件，保证用户永远有内容可刷：
+    </p>
+    <div class="flow-container">
+      <div class="flow-row">
+        <div class="flow-box arch-node blue">精准匹配+高质量</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node cyan">放宽时间窗口(7d)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node purple">全站热门</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node orange">随机兜底</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node pink">重推优质老内容</div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <strong>多路召回的容错优势。</strong>即使兴趣匹配这路挂了（ES 超时），热门 + 关注流 + 探索仍能撑起一整页推荐。用户体验只是"推荐不够精准"而不是"没有内容"。
+    </div>
+  </section>

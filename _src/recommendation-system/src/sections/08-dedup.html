@@ -1,0 +1,423 @@
+  <!-- 08 Dedup -->
+  <section class="section" id="dedup">
+    <div class="section-header">
+      <div class="section-number">08 — DEDUPLICATION</div>
+      <h2 class="section-title">已读去重</h2>
+      <p class="section-desc">用户刷过的帖子不能再推。布隆过滤器用极小的内存实现海量已读记录的快速判断。这是推荐体验的底线——重复推送会让用户觉得"这推荐系统有 bug"。</p>
+    </div>
+
+    <div class="callout">
+      <strong>去重发生在哪一步？</strong>在 Section 04 多路召回中我们讲过，去重分两层：第一层在 ES 查询中粗筛最近 1 小时的已读 ID（量小），第二层在召回合并后用 Bloom Filter 精筛全量已读。本节重点讲第二层——Bloom Filter 的原理和实现。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== Bloom Filter 原理 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">Bloom Filter 原理</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      Bloom Filter 是一个概率数据结构，用 <strong style="color: var(--text-primary);">一个 bit 数组 + K 个哈希函数</strong> 来判断"某个元素是否在集合中"。它的核心特性：<strong style="color: var(--accent-green);">判定不存在时一定不存在</strong>，<strong style="color: var(--accent-yellow);">判定存在时可能误判</strong>。
+    </p>
+
+    <!-- 写入过程 -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(79,140,255,0.2); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-blue); z-index: 1;">W</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">写入过程：标记已读</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">用户看了帖子 post_123 → 用 K 个哈希函数分别计算 → 得到 K 个位置 → 把这些位置的 bit 设为 1。</p>
+
+        <div class="flow-container" style="margin: 0; padding: 1.5rem;">
+          <div class="flow-row">
+            <div class="flow-box arch-node blue">post_123</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node cyan">hash₁ → 位置 3</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node purple">hash₂ → 位置 11</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box arch-node green">hash₃ → 位置 23</div>
+          </div>
+          <div style="margin-top: 1rem;">
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">bit 数组：将位置 3、11、23 设为 1</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 查询过程 -->
+    <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+      <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(52,211,153,0.2); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-green); z-index: 1;">R</div>
+      <div style="flex: 1;">
+        <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">查询过程：判断是否已读</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">要推帖子 post_456 → 用同样的 K 个哈希计算位置 → 检查这些位置的 bit 是否<strong style="color: var(--text-primary);">全部为 1</strong>。</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4 style="color: var(--accent-green);">全部为 1 → "可能已读"</h4>
+            <p>这些位可能是被其他元素标记的（哈希碰撞），所以存在<strong>误判</strong>的可能。误判的结果是少推一条帖子给用户——可接受。</p>
+          </div>
+          <div class="card">
+            <h4 style="color: var(--accent-blue);">有任一个 0 → "一定没读过"</h4>
+            <p>只要有一个位是 0，就说明这个元素一定没被写入过。这条帖子可以放心推给用户——<strong>绝对不会漏判</strong>。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 可视化 -->
+    <div class="card" style="margin: 1.5rem 0;">
+      <h4 style="margin-bottom: 1rem;">Bloom Filter bit 数组可视化</h4>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+        蓝色 = 被标记为 1（对应某个已读帖子的哈希位）。灰色 = 0（未被标记）。
+      </p>
+      <div class="bloom-viz">
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+        <div class="bloom-bit active"></div>
+        <div class="bloom-bit"></div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 参数设计 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">参数设计：要多大的 bit 数组？</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      Bloom Filter 的误判率由两个参数决定：<strong style="color: var(--text-primary);">bit 数组长度 m</strong> 和 <strong style="color: var(--text-primary);">哈希函数个数 K</strong>。对于 n 个元素，有精确的数学公式。
+    </p>
+
+    <div class="formula-box" style="margin-bottom: 1.5rem;">
+      <div class="formula-line">
+        <span class="comment" style="font-size: 0.8rem;">// 误判率公式</span>
+      </div>
+      <div class="formula-line">
+        <span class="formula-var orange">误判率 p</span> <span class="formula-op">≈</span>
+        <span class="formula-op">(</span><span class="number">1</span> <span class="formula-op">-</span>
+        <span class="formula-var blue">e</span><span class="formula-op">^(</span><span class="formula-op">-</span><span class="formula-var cyan">K</span><span class="formula-op">×</span><span class="formula-var green">n</span><span class="formula-op">/</span><span class="formula-var purple">m</span><span class="formula-op">))</span><span class="formula-op">^</span><span class="formula-var cyan">K</span>
+      </div>
+      <div class="formula-line" style="margin-top: 8px;">
+        <span class="comment" style="font-size: 0.8rem;">// 最优哈希函数个数</span>
+      </div>
+      <div class="formula-line">
+        <span class="formula-var cyan">K</span><sub>opt</sub> <span class="formula-op">=</span>
+        <span class="formula-op">(</span><span class="formula-var purple">m</span><span class="formula-op">/</span><span class="formula-var green">n</span><span class="formula-op">)</span> <span class="formula-op">×</span> <span class="func">ln</span>(<span class="number">2</span>)
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h4 style="margin-bottom: 1rem; color: var(--accent-cyan);">实际场景参数估算</h4>
+      <table class="data-table" style="margin: 0;">
+        <thead>
+          <tr>
+            <th>场景</th>
+            <th>已读数 n</th>
+            <th>目标误判率</th>
+            <th>bit 数组 m</th>
+            <th>内存</th>
+            <th>哈希数 K</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>轻度用户（30天）</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">1,000</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">1%</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">9,585 bit</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green);">~1.2 KB</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">7</td>
+          </tr>
+          <tr>
+            <td>中度用户（30天）</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">10,000</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">1%</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">95,851 bit</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green);">~12 KB</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">7</td>
+          </tr>
+          <tr>
+            <td>重度用户（30天）</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">50,000</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">1%</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">479,253 bit</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-yellow);">~59 KB</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">7</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.8rem;">1% 误判率意味着每推 100 条未读帖子中，大约有 1 条被误判为"已读"而被跳过——完全可接受。</p>
+    </div>
+
+    <div class="callout">
+      <strong>总内存估算。</strong>假设 10K DAU，平均每人 12 KB → 总共约 120 MB Redis 内存。这是非常小的开销。即使 100K DAU 也才 1.2 GB。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== Redis 实现 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">Redis 实现</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      Redis 4.0+ 支持 Bloom Filter 模块（RedisBloom），提供原生命令。如果 Redis 版本不支持，可以用 Redis Bitmap 手动实现。
+    </p>
+
+    <div class="code-block" style="margin-bottom: 1.5rem;">
+      <div class="code-header">
+        <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+        <span class="code-title">方案 A：RedisBloom 模块命令</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment"># 创建 Bloom Filter（每用户一个）</span>
+<span class="comment"># 预期 10000 条已读，误判率 1%</span>
+BF.RESERVE  seen:user:10086  <span class="number">0.01</span>  <span class="number">10000</span>
+
+<span class="comment"># 用户看了一篇帖子 → 标记已读</span>
+BF.ADD      seen:user:10086  post_456
+
+<span class="comment"># 推荐时判断帖子是否已读</span>
+BF.EXISTS   seen:user:10086  post_789    <span class="comment"># → 0(未读) / 1(可能已读)</span>
+
+<span class="comment"># 批量判断（一次检查多篇帖子）</span>
+BF.MEXISTS  seen:user:10086  post_1 post_2 post_3 post_4 post_5</pre></div>
+    </div>
+
+    <div class="code-block" style="margin-bottom: 1.5rem;">
+      <div class="code-header">
+        <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+        <span class="code-title">方案 B：Redis Bitmap 手动实现（无需 RedisBloom 模块）</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">func</span> <span class="func">MarkSeen</span>(ctx <span class="type">context.Context</span>, userID, postID <span class="type">string</span>) {
+    key := <span class="string">"seen:"</span> + userID
+    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numHashFuncs; i++ {
+        pos := <span class="func">hashN</span>(postID, i) % bitArraySize
+        redis.<span class="func">SetBit</span>(ctx, key, pos, <span class="number">1</span>)
+    }
+}
+
+<span class="keyword">func</span> <span class="func">IsSeen</span>(ctx <span class="type">context.Context</span>, userID, postID <span class="type">string</span>) <span class="type">bool</span> {
+    key := <span class="string">"seen:"</span> + userID
+    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numHashFuncs; i++ {
+        pos := <span class="func">hashN</span>(postID, i) % bitArraySize
+        bit, _ := redis.<span class="func">GetBit</span>(ctx, key, pos).<span class="func">Result</span>()
+        <span class="keyword">if</span> bit == <span class="number">0</span> {
+            <span class="keyword">return</span> <span class="keyword">false</span>  <span class="comment">// 有一个 0 就一定没读过</span>
+        }
+    }
+    <span class="keyword">return</span> <span class="keyword">true</span>  <span class="comment">// 全部为 1，可能已读（有误判风险）</span>
+}
+
+<span class="comment">// 批量过滤：在线推荐时使用 Pipeline 减少 RTT</span>
+<span class="keyword">func</span> <span class="func">FilterSeen</span>(ctx <span class="type">context.Context</span>, userID <span class="type">string</span>, posts []<span class="type">Post</span>) []<span class="type">Post</span> {
+    <span class="keyword">var</span> unseen []<span class="type">Post</span>
+    <span class="keyword">for</span> _, p := <span class="keyword">range</span> posts {
+        <span class="keyword">if</span> !<span class="func">IsSeen</span>(ctx, userID, p.ID) {
+            unseen = <span class="func">append</span>(unseen, p)
+        }
+    }
+    <span class="keyword">return</span> unseen
+}</pre></div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 滚动窗口 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">滚动时间窗口：定期重建</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      Bloom Filter <strong style="color: var(--text-primary);">不支持删除元素</strong>（把某个位设回 0 会影响其他元素）。随着已读帖子越来越多，bit 数组逐渐被填满，误判率会持续上升。解决方案：<strong style="color: var(--text-primary);">滚动时间窗口</strong>。
+    </p>
+
+    <div class="flow-container" style="margin-bottom: 1.5rem;">
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="flow-title"><div class="dot" style="background: var(--accent-purple)"></div> 双 Bloom Filter 轮换</div>
+      <div class="flow-row">
+        <div class="flow-box arch-node blue">BF-A（当前周期）</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node cyan">新已读写入 BF-A</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node purple">查询时同时查 BF-A + BF-B</div>
+      </div>
+      <div class="flow-row" style="margin-top: 1rem;">
+        <div class="flow-box arch-node green">到期后</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node orange">删除 BF-B</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node pink">BF-A 变成 BF-B · 新建空 BF-A</div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin-bottom: 1.5rem;">
+      <div class="code-header">
+        <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+        <span class="code-title">dedup/rolling_bloom.go</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 双 Bloom Filter 轮换</span>
+<span class="comment">// 每 15 天轮换一次 → 实际覆盖 15~30 天的已读记录</span>
+
+<span class="keyword">func</span> <span class="func">currentBFKey</span>(userID <span class="type">string</span>) <span class="type">string</span> {
+    period := time.<span class="func">Now</span>().<span class="func">Unix</span>() / (<span class="number">15</span> * <span class="number">86400</span>)  <span class="comment">// 15 天一个周期</span>
+    <span class="keyword">return</span> fmt.<span class="func">Sprintf</span>(<span class="string">"seen:%s:%d"</span>, userID, period)
+}
+
+<span class="keyword">func</span> <span class="func">previousBFKey</span>(userID <span class="type">string</span>) <span class="type">string</span> {
+    period := time.<span class="func">Now</span>().<span class="func">Unix</span>() / (<span class="number">15</span> * <span class="number">86400</span>) - <span class="number">1</span>
+    <span class="keyword">return</span> fmt.<span class="func">Sprintf</span>(<span class="string">"seen:%s:%d"</span>, userID, period)
+}
+
+<span class="keyword">func</span> <span class="func">MarkSeen</span>(ctx <span class="type">context.Context</span>, userID, postID <span class="type">string</span>) {
+    <span class="comment">// 只写入当前周期的 BF</span>
+    redis.<span class="func">Do</span>(ctx, <span class="string">"BF.ADD"</span>, <span class="func">currentBFKey</span>(userID), postID)
+}
+
+<span class="keyword">func</span> <span class="func">IsSeen</span>(ctx <span class="type">context.Context</span>, userID, postID <span class="type">string</span>) <span class="type">bool</span> {
+    <span class="comment">// 同时查当前和上一周期（覆盖 15~30 天）</span>
+    cur, _ := redis.<span class="func">Do</span>(ctx, <span class="string">"BF.EXISTS"</span>, <span class="func">currentBFKey</span>(userID), postID)
+    <span class="keyword">if</span> cur == <span class="number">1</span> { <span class="keyword">return</span> <span class="keyword">true</span> }
+    prev, _ := redis.<span class="func">Do</span>(ctx, <span class="string">"BF.EXISTS"</span>, <span class="func">previousBFKey</span>(userID), postID)
+    <span class="keyword">return</span> prev == <span class="number">1</span>
+}
+
+<span class="comment">// 清理：设置 key 的 TTL，过期自动删除</span>
+<span class="comment">// BF.RESERVE 后执行 EXPIRE seen:user:10086:123 2592000 (30天)</span></pre></div>
+    </div>
+
+    <div class="callout">
+      <strong>为什么用双 BF 而不是直接删重建？</strong>如果只有一个 BF，轮换时会有一个"空窗期"——新 BF 里什么已读记录都没有，之前看过的帖子全部会被重新推荐。双 BF 保证在任何时刻，至少有 15 天的已读覆盖。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 方案对比 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">去重方案对比</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      Bloom Filter 不是唯一选择。根据规模和需求，有几种方案可以选。
+    </p>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <table class="data-table" style="margin: 0;">
+        <thead>
+          <tr>
+            <th>方案</th>
+            <th>内存 / 用户</th>
+            <th>查询速度</th>
+            <th>支持删除</th>
+            <th>误判</th>
+            <th>适用场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight: 700; color: var(--text-primary);">Redis Set</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-red);">~500 KB</td>
+            <td style="color: var(--accent-green);">O(1)</td>
+            <td style="color: var(--accent-green);">支持</td>
+            <td style="color: var(--accent-green);">无</td>
+            <td>DAU &lt; 1K · 精确去重</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 700; color: var(--text-primary);">Redis Bitmap</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-yellow);">~60 KB</td>
+            <td style="color: var(--accent-green);">O(K)</td>
+            <td style="color: var(--accent-red);">不支持</td>
+            <td style="color: var(--accent-yellow);">~1%</td>
+            <td>无 RedisBloom 模块时</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 700; color: var(--accent-blue);">Bloom Filter ✅</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green);">~12 KB</td>
+            <td style="color: var(--accent-green);">O(K)</td>
+            <td style="color: var(--accent-red);">不支持</td>
+            <td style="color: var(--accent-yellow);">~1%</td>
+            <td>万级 DAU · 推荐场景首选</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 700; color: var(--text-primary);">Cuckoo Filter</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green);">~15 KB</td>
+            <td style="color: var(--accent-green);">O(1)</td>
+            <td style="color: var(--accent-green);">支持</td>
+            <td style="color: var(--accent-yellow);">~3%</td>
+            <td>需要删除能力时</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <strong>Redis Set 为什么不行？</strong>假设用户看了 10000 条帖子，每个 ID 平均 20 字节，Redis Set 需要 ~500 KB/人（含 Set 内部开销）。10K DAU = 5 GB。这还能接受。但如果 100K DAU 就是 50 GB——Redis 内存成本不可忽视。Bloom Filter 用 12 KB 存同样的数据量，差了 40 倍。
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ========== 多级去重 ========== -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;">多级去重策略（推荐架构总览）</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      在完整的推荐链路中，去重不止一层：
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 0;">
+
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(79,140,255,0.2); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-blue); z-index: 1;">L1</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.3rem;">召回时粗筛 <span style="font-size: 0.8rem; color: var(--accent-blue); font-weight: 500;">— ES must_not</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">传最近 1 小时内看过的 ID（几十条）给 ES，用 <code style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">must_not.terms</code> 排除。成本低，减少下游浪费。</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(34,211,238,0.2); border: 2px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan); z-index: 1;">L2</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.3rem;">合并后精筛 <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 500;">— Bloom Filter（本节）</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">五路召回合并后，逐条过 Bloom Filter。覆盖全量已读（30 天），微秒级判断。这是去重的主力。</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(167,139,250,0.2); border: 2px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-purple); z-index: 1;">L3</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.3rem;">多路间去重 <span style="font-size: 0.8rem; color: var(--accent-purple); font-weight: 500;">— 内存 Set</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">同一篇帖子可能被多路召回同时捞到（兴趣匹配 + 热门都命中了）。合并时用 Go 内存 map 按 post_id 去重，取分数最高的那个。</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(52,211,153,0.2); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-green); z-index: 1;">L4</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.3rem;">待推队列去重 <span style="font-size: 0.8rem; color: var(--accent-green); font-weight: 500;">— 入队前校验</span></h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">每次新批推荐结果写入待推队列前，和队列中已有的帖子做去重。避免用户快速刷新时，两批结果中有重复。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <strong>四层去重的效果。</strong>L1 粗筛减少召回浪费 → L2 Bloom Filter 过滤全量已读 → L3 去掉多路重复 → L4 避免批次间重复。四层配合，确保用户永远不会看到重复帖子（除非 30 天后 Bloom Filter 轮换导致的极少量重推，用户早已忘记了）。
+    </div>
+  </section>

@@ -1,0 +1,408 @@
+  <!-- 12 Evolution -->
+  <section class="section" id="evolution">
+    <div class="section-header">
+      <div class="section-number">12 — EVOLUTION ROADMAP</div>
+      <h2 class="section-title">迭代演进路线</h2>
+      <p class="section-desc">推荐系统不是一步到位的工程——从"能用"到"好用"到"智能"，需要分阶段演进。每个阶段有明确的目标、技术栈、团队要求和判断"该不该进入下一阶段"的信号。</p>
+    </div>
+
+    <!-- ===== Phase 1 ===== -->
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-phase">PHASE 1 · 规则驱动（1-2 个月）</div>
+        <div class="timeline-title">跑通全链路 · 验证可行性</div>
+        <div class="timeline-desc" style="margin-bottom: 1rem;">
+          这个阶段的目标不是"做好推荐"，而是<strong>让整条数据管道通起来</strong>。从帖子发布到用户看到推荐，中间的每一个环节都跑通。推荐效果"凑合"就行。
+        </div>
+        <span class="tech-badge">Go</span>
+        <span class="tech-badge pink">Python jieba</span>
+        <span class="tech-badge cyan">ES</span>
+        <span class="tech-badge orange">Redis</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-title">Phase 1 详解</div>
+      <div style="display: grid; gap: 16px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">做什么</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            ① jieba 分词 + TF-IDF 提取关键词做标签<br>
+            ② 简单规则画像：用户近 N 天点赞最多的标签 = 兴趣标签<br>
+            ③ ES bool query + should boost 做召回<br>
+            ④ 手写公式排序（兴趣×0.4 + 质量×0.3 + 新鲜度×0.2 + 热度×0.1）<br>
+            ⑤ 简单滑动窗口打散<br>
+            ⑥ Redis List 做待推队列 + Redis Bitmap 做已读去重
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 80px;">不做什么</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            ❌ 不搞机器学习模型<br>
+            ❌ 不搞实时特征<br>
+            ❌ 不搞 A/B 测试平台<br>
+            ❌ 不搞向量召回<br>
+            这些都是后面阶段的事，过早引入只会增加复杂度、拖慢进度。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 80px;">团队要求</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            1 个后端工程师（Go/Java）+ 1 个数据工程师（Python，兼 NLP 和数据管道）。
+            不需要算法工程师。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-purple); font-weight: 700; min-width: 80px;">预期效果</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            CTR ~10%（比纯时间线好一些）。用户能感知到"推的内容和我有关"。
+            推荐覆盖率 ~40%。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-pink); font-weight: 700; min-width: 80px;">常见踩坑</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            <strong>数据管道不稳定</strong>：Kafka 消费延迟、ES 写入失败、Redis 内存溢出——Phase 1 大部分时间在修管道而不是优化推荐。
+            <strong>标签质量差</strong>：jieba 分词出来的关键词噪声大，"的""了""在"等停用词没过滤干净。
+            <strong>冷启动无解</strong>：新用户没有画像，推啥都不准——先用热门兜底。
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>进入 Phase 2 的信号：</strong>数据管道稳定运行 &gt;30 天，ClickHouse 积累了 &gt;1000 万条行为日志，
+        有明确的"标签不准"或"排序不好"的业务痛点。
+      </div>
+    </div>
+
+    <!-- ===== Phase 2 ===== -->
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-phase">PHASE 2 · 简单模型（3-6 个月）</div>
+        <div class="timeline-title">引入机器学习 · 用数据说话</div>
+        <div class="timeline-desc" style="margin-bottom: 1rem;">
+          Phase 1 积累的数据终于派上用场了。用这些数据训练简单模型，替换手写规则，效果会有<strong>质的飞跃</strong>。
+        </div>
+        <span class="tech-badge green">LightGBM</span>
+        <span class="tech-badge purple">scikit-learn</span>
+        <span class="tech-badge">协同过滤</span>
+        <span class="tech-badge cyan">BERT 蒸馏</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-title">Phase 2 详解</div>
+      <div style="display: grid; gap: 16px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">标签升级</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            jieba 关键词 → <strong>文本分类模型</strong>。用人工标注的 5000~10000 条数据训练 FastText 或轻量 BERT 分类器，
+            标签准确率从 ~60% 提升到 ~85%。也可以用 LLM API 批量打标（成本可控时）。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">排序升级</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            手写公式 → <strong>LightGBM / XGBoost 排序模型</strong>。<br>
+            训练数据：ClickHouse 中的行为日志（点击=正样本，曝光未点击=负样本）。<br>
+            特征：用户画像特征 + 帖子特征 + 上下文特征（时间、设备），通常 50~200 维。<br>
+            效果：CTR 模型 AUC 从 0.5（随机）→ 0.65~0.72，线上 CTR 提升 20~40%。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 80px;">召回升级</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            新增<strong>协同过滤召回通道</strong>：基于 item-based CF（"看了 A 的人也看了 B"），
+            用 Spark 或 Python 离线计算 item-item 相似度矩阵，存到 Redis，线上查询。
+            对兴趣标签匹配的一个很好的补充——能发现"标签不同但用户群重叠"的内容。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 80px;">团队要求</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            新增 1 个算法工程师（懂传统 ML，会特征工程和模型训练）。
+            后端工程师负责模型上线（模型推理服务 + 特征查询）。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-pink); font-weight: 700; min-width: 80px;">常见踩坑</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            <strong>特征穿越</strong>：训练时不小心用了未来的数据（比如用帖子最终的点赞数预测是否会被点击）。
+            <strong>样本偏差</strong>：只有被推荐过的帖子才有行为数据，模型会对"没推过的好内容"视而不见。
+            <strong>线上线下不一致</strong>：离线 AUC 很好但线上效果不涨——通常是特征工程的线上线下计算口径不一致。
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>进入 Phase 3 的信号：</strong>LightGBM 模型的 AUC 在 0.70+ 趋于饱和，增加新特征带来的提升越来越小。
+        DAU &gt;50 万，有 GPU 资源预算，有意愿招聘深度学习工程师。
+      </div>
+    </div>
+
+    <!-- ===== Phase 3 ===== -->
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-phase">PHASE 3 · 深度模型（6-12 个月）</div>
+        <div class="timeline-title">精细化个性化 · 深度特征交叉</div>
+        <div class="timeline-desc" style="margin-bottom: 1rem;">
+          树模型擅长低阶特征交叉，但搞不定高阶隐式交互。深度模型能自动学习"用户的哪些属性和帖子的哪些属性之间存在微妙关联"。
+        </div>
+        <span class="tech-badge">双塔模型</span>
+        <span class="tech-badge cyan">DeepFM</span>
+        <span class="tech-badge purple">多任务学习</span>
+        <span class="tech-badge orange">GPU 训练</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-title">Phase 3 详解</div>
+      <div style="display: grid; gap: 16px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 100px;">召回：双塔模型</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            User Tower 编码用户特征 → 128 维向量，Item Tower 编码帖子特征 → 128 维向量。
+            内积 = 匹配度。帖子向量离线写入向量数据库（Milvus / Faiss），
+            线上用用户向量做 ANN（近似最近邻）检索，毫秒级返回 Top-K 最相似帖子。<br>
+            <strong>优势</strong>：能捕捉语义层面的相似性（标签不同但"感觉"相似的内容），突破标签匹配的天花板。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 100px;">排序：DeepFM</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            FM 部分学习二阶特征交叉（类似 LightGBM 做的事），DNN 部分学习高阶隐式交叉。
+            两部分共享 Embedding 层，联合训练。<br>
+            <strong>输入</strong>：用户特征（画像、行为序列）+ 帖子特征（标签、质量分、统计）+ 上下文（时间、位置、设备）。<br>
+            <strong>输出</strong>：pCTR（预估点击率），用于排序。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 100px;">多任务学习</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            单一优化 CTR 会导致"标题党"内容排在前面。<strong>多任务模型（MMoE / PLE）</strong>同时预估：<br>
+            pCTR × 0.4 + pLike × 0.3 + pCollect × 0.2 + pFinish × 0.1 = 最终排序分。<br>
+            确保推荐的内容不仅"被点击"，还"被认可"。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700; min-width: 100px;">基础设施</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            <strong>特征仓库（Feature Store）</strong>：统一管理线上线下特征，解决特征一致性问题。<br>
+            <strong>模型推理服务</strong>：TensorFlow Serving / Triton Inference Server，P99 延迟 &lt;10ms。<br>
+            <strong>向量数据库</strong>：Milvus / Faiss，存储帖子 Embedding，支持 ANN 检索。<br>
+            <strong>训练平台</strong>：GPU 集群 + 数据管道 + 实验管理（MLflow / W&amp;B）。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 100px;">团队要求</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            算法团队 2~3 人（召回/排序/特征各一人），工程团队 2~3 人（推理服务/特征平台/数据管道）。
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>进入 Phase 4 的信号：</strong>深度模型效果趋于稳定，单纯提升模型已经很难再涨指标。
+        开始出现"模型很好但产品指标不涨"的困境——问题不在模型，在系统的其他部分。
+      </div>
+    </div>
+
+    <!-- ===== Phase 4 ===== -->
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-phase">PHASE 4 · 高级能力（12 个月+）</div>
+        <div class="timeline-title">系统化与智能化 · 推荐科学</div>
+        <div class="timeline-desc" style="margin-bottom: 1rem;">
+          从"做推荐"到"做推荐系统"——关注的不再是单个模型的 AUC，而是整个系统的闭环能力和平台的长期健康。
+        </div>
+        <span class="tech-badge green">A/B 平台</span>
+        <span class="tech-badge">实时特征</span>
+        <span class="tech-badge pink">强化学习</span>
+        <span class="tech-badge purple">知识图谱</span>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-title">Phase 4 详解</div>
+      <div style="display: grid; gap: 16px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 100px;">A/B 测试平台</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            自建分流平台，支持多层嵌套实验（召回层实验 × 排序层实验互不干扰）。
+            自动计算统计显著性，自动告警护栏指标突破红线。
+            好的 A/B 平台让迭代速度提升 3~5 倍——从"一个月上一个实验"到"每周 3~5 个并行实验"。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 100px;">实时特征</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            从"昨天的画像"到"最近 5 分钟的行为"。用 Flink / Kafka Streams 做流式计算：<br>
+            用户最近 10 分钟点了 3 篇美食帖 → 实时将"美食"兴趣权重拉到最高 → 下次补充队列时优先召回美食。<br>
+            <strong>效果</strong>：捕捉用户的实时意图（Session 内兴趣），CTR 再提升 5~10%。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 100px;">多目标优化</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            不再单纯优化用户指标，同时考虑：<br>
+            <strong>用户价值</strong>：CTR、互动率、留存率<br>
+            <strong>创作者价值</strong>：覆盖率、公平分发、创作者留存<br>
+            <strong>平台价值</strong>：广告收入、商业化转化<br>
+            三者之间有冲突（给用户推广告降体验，不推广告没收入），需要 Pareto 优化找平衡点。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 100px;">强化学习探索</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            Contextual Bandit / RL 替换固定的探索策略。
+            模型自动学习"什么时候该推兴趣内容、什么时候该探索新品类"，
+            在 Exploitation（利用已知兴趣）和 Exploration（探索未知兴趣）之间动态平衡。
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-green); font-weight: 700; min-width: 100px;">LLM 增强</span>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">
+            用大语言模型理解帖子的<strong>深层语义</strong>（不只是标签，还有情感、风格、受众定位）。
+            用 LLM 生成推荐理由（"因为你最近关注了街头摄影"）提升用户信任感。
+            用 LLM 做内容审核和质量评估，减少人工标注成本。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 演进全景对比 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">四阶段全景对比</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Phase 1</th>
+              <th>Phase 2</th>
+              <th>Phase 3</th>
+              <th>Phase 4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 600;">召回</td>
+              <td>ES Boost</td>
+              <td>+ 协同过滤</td>
+              <td>+ 双塔向量召回</td>
+              <td>+ Graph / RL 探索</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">排序</td>
+              <td>手写公式</td>
+              <td>LightGBM</td>
+              <td>DeepFM / DIN</td>
+              <td>多任务 + 多目标</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">标签</td>
+              <td>jieba 关键词</td>
+              <td>FastText 分类</td>
+              <td>BERT Embedding</td>
+              <td>LLM 语义理解</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">画像</td>
+              <td>规则聚合</td>
+              <td>离线 ClickHouse Job</td>
+              <td>+ 近实时特征</td>
+              <td>实时流式特征</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">实验</td>
+              <td>无（直接上线）</td>
+              <td>手动 A/B</td>
+              <td>简单 A/B 平台</td>
+              <td>多层自动化 A/B</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">团队</td>
+              <td>2 人</td>
+              <td>3~4 人</td>
+              <td>5~6 人</td>
+              <td>8~10+ 人</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">预期 CTR</td>
+              <td>~10%</td>
+              <td>~15%</td>
+              <td>~20%</td>
+              <td>~22%+</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">关键基础设施</td>
+              <td>ES + Redis + Kafka</td>
+              <td>+ ClickHouse + 离线训练</td>
+              <td>+ GPU + 特征仓库 + 向量库</td>
+              <td>+ 流计算 + A/B 平台 + MLOps</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== 常见误区 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">演进中的常见误区</div>
+      <div style="display: grid; gap: 12px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">①</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">一上来就搞深度学习</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              没有数据积累（&lt;100 万行为日志），深度模型训不出来。没有特征工程经验，深度模型的输入都不对。
+              <strong>先用规则 + 树模型把基线做好，深度模型才有的比较。</strong>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">②</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">忽视数据管道</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              80% 的推荐问题其实是数据问题——标签不准、画像过期、行为日志丢失、特征线上线下不一致。
+              <strong>投入在管道质量上的 ROI 远高于模型调参。</strong>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">③</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">没有 A/B 测试就上线</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              "我觉得这个策略更好"不是上线的理由。离线指标好也不是理由。
+              <strong>只有线上 A/B 测试证明的结果才能全量。</strong>否则就是在赌。
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">④</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">过度优化短期指标</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              只盯着 CTR 涨不涨，忽略多样性、覆盖率、创作者活跃度。
+              <strong>短期 CTR 涨了，但 3 个月后用户觉得"推的东西越来越无聊"就流失了。</strong>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">⑤</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">跳阶段</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              每个阶段的产出是下一阶段的前置条件。跳过 Phase 1 直接搞模型 = 没有训练数据。
+              跳过 Phase 2 直接搞深度 = 没有 baseline 对比。
+              <strong>捷径就是最远的弯路。</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success" style="margin-top: 2rem;">
+      <strong>核心原则：</strong>数据是模型的粮食，管道是数据的血管。Phase 1 把数据链路打好、把行为日志积累起来，
+      就是在为后续所有阶段做最好的准备。<strong>先让整条链路通了，比任何一个环节做到极致都重要。</strong>
+    </div>
+  </section>

@@ -1,0 +1,543 @@
+  <!-- 09 Queue -->
+  <section class="section" id="queue">
+    <div class="section-header">
+      <div class="section-number">09 — PUSH QUEUE</div>
+      <h2 class="section-title">待推队列与无限刷</h2>
+      <p class="section-desc">待推队列是推荐系统和客户端之间的"缓冲池"——一次召回 200 条缓存在 Redis，用户每次取 20 条。核心命题：如何保证用户永远刷不光？</p>
+    </div>
+
+    <!-- ===== 队列整体架构 ===== -->
+    <div class="flow-container">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-green)"></div> 队列整体架构</div>
+      <!-- 队列架构 HTML 图 -->
+      <div style="display: grid; gap: 16px; padding: 0.75rem 0;">
+        <!-- 第一层：Client ↔ BFF ↔ Redis -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+          <div style="background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.25); border-radius: 8px; padding: 10px 18px; text-align: center;">
+            <div style="color: var(--accent-cyan); font-weight: 600; font-size: 0.85rem;">Client (App)</div>
+          </div>
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; line-height: 1.6;">
+            <div>pull 20 →</div><div>← response</div>
+          </div>
+          <div style="background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.25); border-radius: 8px; padding: 10px 18px; text-align: center;">
+            <div style="color: var(--accent-green); font-weight: 600; font-size: 0.85rem;">Gateway / BFF</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">取数 + 兜底检查</div>
+          </div>
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; line-height: 1.6;">
+            <div>LPOP 20 →</div><div>← items</div>
+          </div>
+          <div style="background: rgba(255,170,0,0.08); border: 1px solid rgba(255,170,0,0.25); border-radius: 8px; padding: 10px 18px; text-align: center;">
+            <div style="color: var(--accent-orange); font-weight: 600; font-size: 0.85rem;">Redis List</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">per-user · TTL = 24h</div>
+          </div>
+        </div>
+        <!-- 第二层：水位线触发 -->
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+          ↓ <span style="color: var(--accent-orange);">len &lt; watermark?</span> → async trigger
+        </div>
+        <!-- 第三层：Pipeline 回写 -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+          <div style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); border-radius: 8px; padding: 10px 18px; text-align: center;">
+            <div style="color: var(--accent-purple); font-weight: 600; font-size: 0.85rem;">Recall + Rank Pipeline</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">异步触发 · 算 200 条</div>
+          </div>
+          <div style="color: var(--text-muted); font-size: 0.75rem;">── 200 items →</div>
+          <div style="background: rgba(255,170,0,0.08); border: 1px solid rgba(255,170,0,0.25); border-radius: 8px; padding: 10px 18px; text-align: center;">
+            <div style="color: var(--accent-orange); font-weight: 600; font-size: 0.85rem;">RPUSH 入队</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">↑ 写回 Redis List</div>
+          </div>
+        </div>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+        每个用户一条 Redis List，key = <code>rec:queue:{uid}</code>，LPOP 消费、RPUSH 补充，天然 FIFO 顺序。
+      </p>
+    </div>
+
+    <!-- ===== 队列数据结构 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">队列元素设计</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        队列中不只存 post_id，还需要携带<strong>预计算的排序分</strong>和<strong>召回来源</strong>，方便后续取出时做轻量重排和日志归因。
+      </p>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 队列元素结构（JSON 序列化存入 Redis）</span>
+<span class="keyword">type</span> <span class="type">QueueItem</span> <span class="keyword">struct</span> {
+    PostID      <span class="type">int64</span>   <span class="string">`json:"pid"`</span>
+    Score       <span class="type">float64</span> <span class="string">`json:"s"`</span>      <span class="comment">// 排序综合分（已算好）</span>
+    RecallFrom  <span class="type">string</span>  <span class="string">`json:"rf"`</span>     <span class="comment">// 召回来源: interest/hot/follow/explore/cold</span>
+    EnqueueTime <span class="type">int64</span>   <span class="string">`json:"et"`</span>     <span class="comment">// 入队时间戳（用于过期淘汰）</span>
+    Quality     <span class="type">float64</span> <span class="string">`json:"q"`</span>      <span class="comment">// 质量分快照</span>
+}</pre></div></div>
+    </div>
+
+    <!-- ===== 无限滚动时序（保留并增强） ===== -->
+    <div class="flow-container">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-cyan)"></div> 无限滚动时序</div>
+
+      <div style="display: grid; gap: 12px; margin-top: 1rem;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge" style="min-width: 80px; justify-content: center;">T=0</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">用户打开 App → 队列为空 → 触发<strong>首次召回</strong> → 算 200 条入队 → 返回前 20 条</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge cyan" style="min-width: 80px; justify-content: center;">第 5 屏</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">已消费 100 条 → 剩余 100 条 → 暂时不触发</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge purple" style="min-width: 80px; justify-content: center;">第 8 屏</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">已消费 160 条 → 剩余 40 条 → ⚡ 触发<strong>低水位预加载</strong> → 后端异步召回新一批 200 条追加</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge green" style="min-width: 80px; justify-content: center;">第 10 屏</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">新内容已补好 → 无缝继续刷 → 用户零感知</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="tech-badge orange" style="min-width: 80px; justify-content: center;">循环</span>
+          <span style="color: var(--text-secondary); font-size: 0.85rem;">每次接近尾部自动补充 → 无限循环 → 永远有内容可刷</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 水位线机制 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">水位线（Watermark）补充机制</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        "什么时候补"比"补多少"更关键。业界普遍采用<strong>双水位线</strong>策略：
+      </p>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">const</span> (
+    HighWatermark = <span class="number">200</span>  <span class="comment">// 每次补充目标量</span>
+    LowWatermark  = <span class="number">40</span>   <span class="comment">// 触发补充的阈值</span>
+    PageSize      = <span class="number">20</span>   <span class="comment">// 每次客户端取的条数</span>
+    MinServe      = <span class="number">5</span>    <span class="comment">// 最少保证能返回的条数（否则进兜底）</span>
+)
+
+<span class="comment">// 拉取逻辑</span>
+<span class="keyword">func</span> <span class="func">Pull</span>(ctx <span class="type">context.Context</span>, uid <span class="type">int64</span>) ([]<span class="type">QueueItem</span>, <span class="type">error</span>) {
+    <span class="comment">// 1. 从队列头部取 PageSize 条</span>
+    items, err := redis.<span class="func">LPopN</span>(ctx, <span class="func">queueKey</span>(uid), PageSize)
+    <span class="keyword">if</span> err != <span class="keyword">nil</span> {
+        <span class="keyword">return</span> <span class="keyword">nil</span>, err
+    }
+
+    <span class="comment">// 2. 检查剩余长度，决定是否补充</span>
+    remaining := redis.<span class="func">LLen</span>(ctx, <span class="func">queueKey</span>(uid))
+
+    <span class="keyword">if</span> remaining &lt; LowWatermark {
+        <span class="comment">// 异步触发补充，不阻塞当前请求</span>
+        <span class="keyword">go</span> <span class="func">asyncRefill</span>(ctx, uid, HighWatermark)
+    }
+
+    <span class="comment">// 3. 如果取出的数量不够，走兜底逻辑</span>
+    <span class="keyword">if</span> <span class="func">len</span>(items) &lt; MinServe {
+        fallbackItems := <span class="func">fallbackPool</span>(ctx, uid, PageSize-<span class="func">len</span>(items))
+        items = <span class="func">append</span>(items, fallbackItems...)
+    }
+
+    <span class="keyword">return</span> items, <span class="keyword">nil</span>
+}</pre></div></div>
+      <div class="callout">
+        <strong>为什么是 40 而不是 0？</strong>因为异步补充需要时间（通常 200~500ms），40 条 ≈ 用户再刷 2 屏的缓冲。
+        如果等到 0 才补，用户就会看到"加载中"——这是体验上的 P0 事故。
+      </div>
+    </div>
+
+    <!-- ===== 核心：刷不光策略 ===== -->
+    <div class="flow-container" style="border-color: var(--accent-orange);">
+      <div class="flow-title"><div class="dot" style="background: var(--accent-orange)"></div> 核心问题：如何保证刷不光？</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+        用户刷了 2000 条之后，个性化召回确实会逐渐枯竭。业界的答案是<strong>多级降级（Fallback Ladder）</strong>——逐步放宽策略，保证永远有东西可看。
+      </p>
+
+      <div style="display: grid; gap: 16px;">
+        <!-- L1 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #000; flex-shrink: 0;">L1</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">个性化召回（正常模式）</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">兴趣匹配 + 关注 + 热门 + 探索，按标准链路走。覆盖用户 90% 的浏览时间。</div>
+          </div>
+        </div>
+        <!-- L2 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #000; flex-shrink: 0;">L2</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">放宽兴趣范围</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              从精准兴趣标签 → 上位类目。例：用户喜欢"街头摄影"→ 放宽为"摄影"整个类目。
+              或降低 ES Boost 中 <code>should</code> 子句的权重，让更多非精确匹配的内容进入召回池。
+            </div>
+          </div>
+        </div>
+        <!-- L3 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #000; flex-shrink: 0;">L3</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">全局热门兜底</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              放弃个性化，直接从全局热门池拉取。按时间分桶（24h / 72h / 7d），优先近期热门。
+              这一层<strong>几乎不可能耗尽</strong>——每天都有新热门产生。
+            </div>
+          </div>
+        </div>
+        <!-- L4 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #000; flex-shrink: 0;">L4</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">运营精选池</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              运营人工策划的优质内容集合，定期更新。高质量保底，不依赖算法，确保内容调性。
+            </div>
+          </div>
+        </div>
+        <!-- L5 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #000; flex-shrink: 0;">L5</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">历史优质重推</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              从用户已读列表中选出"高互动 + 距今 >30 天"的内容重新推荐。
+              用户记忆衰减后重看优质内容，体验可接受。加标签"精选回顾"区分。
+            </div>
+          </div>
+        </div>
+        <!-- L6 -->
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="min-width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-orange), var(--accent-green)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #000; flex-shrink: 0;">L6</div>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">跨域内容探索</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">
+              引入用户从未接触过的品类。例：一直看美食的用户，插入旅行内容试探。
+              风险最高但也是拓展用户兴趣的机会——需控制比例 ≤5%。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 降级触发逻辑 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">降级触发 — 代码实现</div>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 异步补充逻辑：分级降级</span>
+<span class="keyword">func</span> <span class="func">asyncRefill</span>(ctx <span class="type">context.Context</span>, uid <span class="type">int64</span>, target <span class="type">int</span>) {
+    <span class="keyword">var</span> items []<span class="type">QueueItem</span>
+    <span class="keyword">var</span> filled <span class="type">int</span>
+
+    <span class="comment">// L1: 标准个性化召回</span>
+    items = <span class="func">personalizedRecall</span>(ctx, uid, target)
+    filled += <span class="func">len</span>(items)
+    <span class="func">enqueue</span>(ctx, uid, items)
+
+    <span class="keyword">if</span> filled >= target {
+        <span class="keyword">return</span>
+    }
+
+    <span class="comment">// L2: 放宽兴趣范围（上位类目 + 降低匹配阈值）</span>
+    items = <span class="func">relaxedRecall</span>(ctx, uid, target-filled)
+    filled += <span class="func">len</span>(items)
+    <span class="func">enqueue</span>(ctx, uid, items)
+
+    <span class="keyword">if</span> filled >= target {
+        <span class="keyword">return</span>
+    }
+
+    <span class="comment">// L3: 全局热门兜底（按时间桶）</span>
+    items = <span class="func">globalHotRecall</span>(ctx, uid, target-filled)
+    filled += <span class="func">len</span>(items)
+    <span class="func">enqueue</span>(ctx, uid, items)
+
+    <span class="keyword">if</span> filled >= target {
+        <span class="keyword">return</span>
+    }
+
+    <span class="comment">// L4: 运营精选池</span>
+    items = <span class="func">editorialPool</span>(ctx, target-filled)
+    filled += <span class="func">len</span>(items)
+    <span class="func">enqueue</span>(ctx, uid, items)
+
+    <span class="comment">// L5 &amp; L6 类似，省略...</span>
+    <span class="comment">// 最终兜底: 如果所有层级都不够（几乎不可能），记录告警</span>
+    <span class="keyword">if</span> filled &lt; MinServe {
+        metrics.<span class="func">EmptyQueueAlert</span>(uid)
+    }
+}</pre></div></div>
+    </div>
+
+    <!-- ===== 各层级的召回池容量分析 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">"为什么刷不光" — 各层级容量分析</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>层级</th>
+              <th>候选池大小</th>
+              <th>更新频率</th>
+              <th>耗尽条件</th>
+              <th>是否可能耗尽</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tech-badge green" style="font-size: 0.75rem;">L1 个性化</span></td>
+              <td>取决于兴趣宽度，通常 1k~50k</td>
+              <td>实时（新内容持续入库）</td>
+              <td>兴趣极窄 + 日活高</td>
+              <td style="color: var(--accent-orange);">可能（深度用户）</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge cyan" style="font-size: 0.75rem;">L2 放宽兴趣</span></td>
+              <td>L1 的 5~10 倍</td>
+              <td>实时</td>
+              <td>类目本身内容少</td>
+              <td style="color: var(--accent-orange);">低概率</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge purple" style="font-size: 0.75rem;">L3 全局热门</span></td>
+              <td>全站 Top 10k（按时间桶滚动）</td>
+              <td>小时级</td>
+              <td>刷完全站所有热门</td>
+              <td style="color: var(--accent-green);">几乎不可能</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge pink" style="font-size: 0.75rem;">L4 运营精选</span></td>
+              <td>500~2000（人工维护）</td>
+              <td>日/周级</td>
+              <td>长时间不更新</td>
+              <td style="color: var(--accent-green);">不会（有 L3 前置）</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge orange" style="font-size: 0.75rem;">L5 历史重推</span></td>
+              <td>用户自身已读池（>30d）</td>
+              <td>随时间自然增长</td>
+              <td>新用户无历史</td>
+              <td style="color: var(--accent-green);">不会</td>
+            </tr>
+            <tr>
+              <td><span class="tech-badge" style="font-size: 0.75rem;">L6 跨域探索</span></td>
+              <td>全站内容</td>
+              <td>实时</td>
+              <td>—</td>
+              <td style="color: var(--accent-green);">不可能</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <strong>数学上不可能刷光：</strong>假设全站日均新增 1 万条内容，用户每天刷 500 条。即使不考虑存量，
+        每天净增 9500 条未读内容。L3 层以下的候选池是在<strong>持续膨胀</strong>的。
+      </div>
+    </div>
+
+    <!-- ===== 队列清洗与过期 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">队列清洗 — 已入队内容的失效处理</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        内容入队后不是一劳永逸的。以下情况需要处理已入队但"变质"的内容：
+      </p>
+      <div style="display: grid; gap: 12px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">①</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">内容被删除/隐藏</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">不做主动清洗（代价太高），在取出时做<strong>懒过滤</strong>——取 20 条时实际取 25 条，过滤掉已删除的，补足 20 条返回。</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">②</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">作者被封禁</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">同上，懒过滤。封禁时只更新内容状态表，不遍历所有用户队列。</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">③</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">内容入队后时效过期</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">队列整体 TTL = 24h（用户隔天重新召回）。单条也检查 <code>enqueueTime</code>：入队 >6h 的热点内容丢弃（热度可能已过）。</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-orange); font-weight: 700; min-width: 20px;">④</span>
+          <div>
+            <div style="color: var(--text-primary); font-weight: 500;">用户兴趣突变</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">用户连续负反馈（不喜欢/举报同一类目 ≥3 次）→ <strong>清空当前队列</strong>，强制重新召回。这是唯一的主动清洗场景。</div>
+          </div>
+        </div>
+      </div>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 懒过滤：取出时过滤无效内容</span>
+<span class="keyword">func</span> <span class="func">pullWithFilter</span>(ctx <span class="type">context.Context</span>, uid <span class="type">int64</span>, need <span class="type">int</span>) []<span class="type">QueueItem</span> {
+    result := <span class="func">make</span>([]<span class="type">QueueItem</span>, <span class="number">0</span>, need)
+    maxAttempts := <span class="number">3</span> <span class="comment">// 最多额外取 3 轮，防止死循环</span>
+
+    <span class="keyword">for</span> attempt := <span class="number">0</span>; <span class="func">len</span>(result) &lt; need &amp;&amp; attempt &lt; maxAttempts; attempt++ {
+        <span class="comment">// 多取一些，预留过滤空间</span>
+        fetchSize := (need - <span class="func">len</span>(result)) * <span class="number">5</span> / <span class="number">4</span> + <span class="number">2</span>
+        raw, _ := redis.<span class="func">LPopN</span>(ctx, <span class="func">queueKey</span>(uid), fetchSize)
+
+        <span class="keyword">for</span> _, item := <span class="keyword">range</span> raw {
+            <span class="comment">// 检查内容是否仍有效</span>
+            <span class="keyword">if</span> <span class="func">isContentDeleted</span>(item.PostID) {
+                <span class="keyword">continue</span>
+            }
+            <span class="comment">// 检查是否过期（热点内容 6h，普通内容不限）</span>
+            <span class="keyword">if</span> item.RecallFrom == <span class="string">"hot"</span> &amp;&amp; time.<span class="func">Since</span>(item.EnqueueTime) &gt; <span class="number">6</span>*time.Hour {
+                <span class="keyword">continue</span>
+            }
+            result = <span class="func">append</span>(result, item)
+            <span class="keyword">if</span> <span class="func">len</span>(result) &gt;= need {
+                <span class="keyword">break</span>
+            }
+        }
+
+        <span class="comment">// 如果队列空了，退出</span>
+        <span class="keyword">if</span> <span class="func">len</span>(raw) &lt; fetchSize {
+            <span class="keyword">break</span>
+        }
+    }
+    <span class="keyword">return</span> result
+}</pre></div></div>
+    </div>
+
+    <!-- ===== 多设备与并发 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">多设备并发问题</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        同一用户多设备同时刷推荐（手机 + 平板），会导致队列竞争：
+      </p>
+      <div style="display: grid; gap: 12px;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-cyan); font-weight: 700;">方案 A：共享队列（业界主流）</span>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 1rem;">
+          两台设备 LPOP 同一个队列。Redis LPOP 是原子操作，天然不会重复取。
+          <strong>缺点</strong>：设备 A 刷了 5 页后，设备 B 打开时队列已被消耗过半，可能直接触发补充。
+          <strong>优点</strong>：简单，已读去重天然一致。
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <span style="color: var(--accent-purple); font-weight: 700;">方案 B：设备隔离队列</span>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 1rem;">
+          key = <code>rec:queue:{uid}:{device_id}</code>，各自独立。
+          <strong>缺点</strong>：内存翻倍，已读去重需要在 Bloom Filter 层统一，可能推重复内容。
+          <strong>优点</strong>：各设备体验独立。
+        </div>
+      </div>
+      <div class="callout">
+        <strong>推荐做法：</strong>共享队列 + Bloom Filter 全局去重。多设备场景在图文社区中占比 &lt;5%，不值得为此增加架构复杂度。
+      </div>
+    </div>
+
+    <!-- ===== 冷启动用户的队列 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">新用户冷启动队列</div>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        新用户没有兴趣画像，L1 个性化召回几乎无法工作。冷启动队列的组成：
+      </p>
+      <div class="code-block"><div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 冷启动队列配比</span>
+<span class="keyword">func</span> <span class="func">coldStartRefill</span>(ctx <span class="type">context.Context</span>, uid <span class="type">int64</span>, target <span class="type">int</span>) []<span class="type">QueueItem</span> {
+    items := <span class="func">make</span>([]<span class="type">QueueItem</span>, <span class="number">0</span>, target)
+
+    <span class="comment">// 40% — 全局热门（安全牌，大众口味）</span>
+    hot := <span class="func">globalHotRecall</span>(ctx, uid, target*<span class="number">40</span>/<span class="number">100</span>)
+    items = <span class="func">append</span>(items, <span class="func">tag</span>(hot, <span class="string">"hot"</span>)...)
+
+    <span class="comment">// 25% — 注册时选择的兴趣（如果有）</span>
+    <span class="keyword">if</span> interests := <span class="func">getRegisterInterests</span>(uid); <span class="func">len</span>(interests) &gt; <span class="number">0</span> {
+        interest := <span class="func">interestRecall</span>(ctx, uid, interests, target*<span class="number">25</span>/<span class="number">100</span>)
+        items = <span class="func">append</span>(items, <span class="func">tag</span>(interest, <span class="string">"cold_interest"</span>)...)
+    } <span class="keyword">else</span> {
+        <span class="comment">// 没有选择兴趣 → 用运营精选补位</span>
+        editorial := <span class="func">editorialPool</span>(ctx, target*<span class="number">25</span>/<span class="number">100</span>)
+        items = <span class="func">append</span>(items, <span class="func">tag</span>(editorial, <span class="string">"editorial"</span>)...)
+    }
+
+    <span class="comment">// 20% — 同城/地域内容（基于 IP 或注册城市）</span>
+    local := <span class="func">localRecall</span>(ctx, uid, target*<span class="number">20</span>/<span class="number">100</span>)
+    items = <span class="func">append</span>(items, <span class="func">tag</span>(local, <span class="string">"local"</span>)...)
+
+    <span class="comment">// 15% — 探索内容（多样化品类，帮助快速建立画像）</span>
+    explore := <span class="func">diverseExplore</span>(ctx, target*<span class="number">15</span>/<span class="number">100</span>)
+    items = <span class="func">append</span>(items, <span class="func">tag</span>(explore, <span class="string">"explore"</span>)...)
+
+    <span class="keyword">return</span> items
+}</pre></div></div>
+      <div class="callout">
+        <strong>关键设计：</strong>冷启动阶段每一条互动都非常宝贵——用户点赞/收藏/跳过的行为会被<strong>实时捕获</strong>，
+        下一次补充时 L1 就能基于这些信号做个性化召回。通常 3~5 屏后即可过渡到正常模式。
+      </div>
+    </div>
+
+    <!-- ===== 队列容量与内存估算 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">Redis 内存估算</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>参数</th>
+              <th>值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>单条 QueueItem JSON</td>
+              <td>~120 Bytes</td>
+              <td>pid(8) + score(8) + rf(10) + et(8) + q(8) + JSON 开销</td>
+            </tr>
+            <tr>
+              <td>每用户队列上限</td>
+              <td>200 条</td>
+              <td>120B × 200 = 24 KB</td>
+            </tr>
+            <tr>
+              <td>同时在线用户数（DAU 高峰）</td>
+              <td>100 万</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>总内存占用</td>
+              <td>~24 GB</td>
+              <td>加上 Redis 内部数据结构开销 ×1.5 ≈ 36 GB</td>
+            </tr>
+            <tr>
+              <td>TTL 策略</td>
+              <td>24 小时</td>
+              <td>非活跃用户队列自动过期，实际占用远低于峰值</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+        优化：可以用 MessagePack 替代 JSON 序列化（体积减少 30~40%），或用 Redis Stream 替代 List（支持 Consumer Group 模式）。
+      </p>
+    </div>
+
+    <!-- ===== 监控指标 ===== -->
+    <div class="detail-card">
+      <div class="detail-card-title">关键监控指标</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <div style="background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-green); font-weight: 600; font-size: 0.85rem;">空队列率</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">Pull 时队列为空的比例。<strong>P0 指标</strong>，目标 &lt; 0.1%。超过则说明补充机制失效。</div>
+        </div>
+        <div style="background: rgba(0,200,255,0.05); border: 1px solid rgba(0,200,255,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-cyan); font-weight: 600; font-size: 0.85rem;">补充延迟 P99</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">从触发补充到入队完成的时间。目标 &lt; 500ms。超过则需优化召回链路或加缓存。</div>
+        </div>
+        <div style="background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-purple); font-weight: 600; font-size: 0.85rem;">降级比例</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">L2~L6 层级被触发的比例。L3+ 占比过高说明内容池不足或画像太窄。</div>
+        </div>
+        <div style="background: rgba(255,100,130,0.05); border: 1px solid rgba(255,100,130,0.15); border-radius: 8px; padding: 12px;">
+          <div style="color: var(--accent-pink); font-weight: 600; font-size: 0.85rem;">懒过滤丢弃率</div>
+          <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">取出后被过滤掉的比例。>10% 说明内容下架频繁或队列 TTL 设置不合理。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 双重保险 ===== -->
+    <div class="callout">
+      <strong>双重保险：</strong>前端设阈值提前请求（剩余 2 屏时触发） + 后端每次取数据时检查剩余量自动补充。
+      即使前端预加载因网络问题没发出，后端也能兜底。再加上多级降级策略，<strong>从架构上消灭了"刷光"的可能性</strong>。
+    </div>
+  </section>

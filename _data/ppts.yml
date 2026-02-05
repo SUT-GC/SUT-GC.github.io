@@ -9,19 +9,19 @@
 - name: Kotlin 分享
   description: Kotlin 语言深入分享
   icon: "📱"
-  url: /files/powerpoint/kotlin-thorough.html
+  url: /files/powerpoint/kotlin-thorough/index.html
   date: 2017-09-16
 
 - name: 门店 LPD 分享
   description: 门店 LPD 相关分享
   icon: "📊"
-  url: /files/powerpoint/shop-lpd.html
+  url: /files/powerpoint/shop-lpd/index.html
   date: 2018-12-16
 
 - name: DevOps & Docker
   description: DevOps 与 Docker 技术分享
   icon: "🐳"
-  url: /files/powerpoint/shop-devops-share.html
+  url: /files/powerpoint/shop-devops-share/index.html
   date: 2018-03-21
 
 - name: Agent Skills 布道与教学

@@ -1,0 +1,710 @@
+  <!-- 03 User Profile -->
+  <section class="section" id="profile">
+    <div class="section-header">
+      <div class="section-number">03 — USER PROFILE</div>
+      <h2 class="section-title">用户画像构建</h2>
+      <p class="section-desc">用户画像是推荐系统的核心数据。通过统计用户近期行为，建立兴趣标签的权重向量。</p>
+    </div>
+
+    <div class="callout">
+      <strong>标签体系是基础。</strong>用户画像和内容画像共用同一套标签，一般分 2 层：一级分类（10-20 个）如美食、旅行、摄影，二级分类（每个一级下 3-10 个）如烘焙、探店、家常菜。从现有数据中提炼，不要凭空想象。
+    </div>
+
+    <!-- Calculation Steps -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">画像计算：从行为数据到兴趣向量</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      拿到一堆行为数据后，通过以下 4 步算出用户的兴趣画像。核心思路是：<strong style="color: var(--text-primary);">找到用户互动过的帖子 → 拿到帖子的标签 → 按行为类型和时间加权 → 汇总归一化</strong>。
+    </p>
+
+    <!-- Step by Step -->
+    <div style="display: flex; flex-direction: column; gap: 0; position: relative; margin-bottom: 2rem;">
+
+      <!-- Step 1 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(79,140,255,0.2); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-blue); z-index: 1;">S1</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">拉取用户近期行为</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">从 ClickHouse 查询该用户最近 7 天（可配置）的所有行为记录。时间窗口不宜太长，否则画像会被过时的兴趣拖累。</p>
+          <div class="code-block" style="margin: 0;">
+            <div class="code-header">
+              <div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div>
+              <span class="code-title">step1_query.sql</span>
+            </div>
+            <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="keyword">SELECT</span> post_id, event_type, duration_ms, image_progress, timestamp
+<span class="keyword">FROM</span>   behavior_events
+<span class="keyword">WHERE</span>  user_id = <span class="string">'10086'</span>
+  <span class="keyword">AND</span>  timestamp >= <span class="func">now</span>() - <span class="func">INTERVAL</span> <span class="number">7</span> <span class="keyword">DAY</span>
+  <span class="keyword">AND</span>  event_type <span class="keyword">IN</span> (<span class="string">'like'</span>, <span class="string">'collect'</span>, <span class="string">'comment'</span>, <span class="string">'share'</span>, <span class="string">'view'</span>, <span class="string">'follow'</span>, <span class="string">'dislike'</span>)
+<span class="keyword">ORDER BY</span> timestamp <span class="keyword">DESC</span></pre></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(34,211,238,0.2); border: 2px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan); z-index: 1;">S2</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">关联帖子标签 + 计算行为权重</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">每条行为记录通过 post_id 关联到帖子的标签。然后根据行为类型赋予不同的基础权重——用户主动操作的权重远高于被动浏览。</p>
+
+          <div class="card" style="padding: 1.2rem; margin-bottom: 1rem;">
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.8rem; color: var(--accent-cyan);">行为类型 → 基础权重映射</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(167,139,250,0.08); font-size: 0.8rem;">
+                <span>🔗 分享</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-purple);">W=6</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(79,140,255,0.08); font-size: 0.8rem;">
+                <span>👍 点赞</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-blue);">W=5</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(52,211,153,0.08); font-size: 0.8rem;">
+                <span>💬 评论</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-green);">W=5</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(251,191,36,0.08); font-size: 0.8rem;">
+                <span>⭐ 收藏</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-yellow);">W=4</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(34,211,238,0.08); font-size: 0.8rem;">
+                <span>👁️ 完读</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-cyan);">W=3</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(107,114,128,0.08); font-size: 0.8rem;">
+                <span>👁️ 浏览</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text-muted);">W=1</span>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(248,113,113,0.08); font-size: 0.8rem;">
+                <span>🚫 不喜欢</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-red);">W=-5</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin: 0;">
+            <strong>浏览 vs 完读的区别：</strong>浏览（view）指帖子出现在屏幕上，但用户可能只是划过。完读指图片滑到最后一张（image_progress ≥ 0.9）或停留时长超过阈值。完读的权重是普通浏览的 3 倍，因为它代表了真实的内容消费。
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(167,139,250,0.2); border: 2px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-purple); z-index: 1;">S3</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">时间衰减：越近的行为越重要</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">用户的兴趣会随时间变化。3 天前点赞的"美食"帖子和 1 小时前点赞的"美食"帖子，对当前画像的贡献应该不同。通过时间衰减函数来实现：</p>
+
+          <div class="formula-box">
+            <div class="formula-line">
+              <span class="formula-var purple">time_decay</span> <span class="formula-op">=</span>
+              <span class="number">1.0</span> <span class="formula-op">/</span> <span class="formula-op">(</span><span class="number">1</span> <span class="formula-op">+</span>
+              <span class="formula-var cyan">hours_ago</span> <span class="formula-op">×</span> <span class="number">0.02</span><span class="formula-op">)</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 1.2rem; margin-top: 1rem;">
+            <h4 style="font-size: 0.85rem; margin-bottom: 0.8rem; color: var(--text-muted);">衰减系数 0.02 时的衰减效果</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;">
+              <div style="text-align: center; padding: 8px; border-radius: 6px; background: rgba(167,139,250,0.1);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">1 小时前</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-purple);">0.98</div>
+                <div style="height: 4px; background: var(--border-color); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                  <div style="width: 98%; height: 100%; background: var(--accent-purple); border-radius: 2px;"></div>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 8px; border-radius: 6px; background: rgba(79,140,255,0.1);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">12 小时前</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-blue);">0.81</div>
+                <div style="height: 4px; background: var(--border-color); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                  <div style="width: 81%; height: 100%; background: var(--accent-blue); border-radius: 2px;"></div>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 8px; border-radius: 6px; background: rgba(34,211,238,0.1);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">1 天前</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-cyan);">0.68</div>
+                <div style="height: 4px; background: var(--border-color); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                  <div style="width: 68%; height: 100%; background: var(--accent-cyan); border-radius: 2px;"></div>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 8px; border-radius: 6px; background: rgba(52,211,153,0.1);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">3 天前</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-green);">0.41</div>
+                <div style="height: 4px; background: var(--border-color); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                  <div style="width: 41%; height: 100%; background: var(--accent-green); border-radius: 2px;"></div>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 8px; border-radius: 6px; background: rgba(251,146,60,0.1);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">7 天前</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent-orange);">0.23</div>
+                <div style="height: 4px; background: var(--border-color); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                  <div style="width: 23%; height: 100%; background: var(--accent-orange); border-radius: 2px;"></div>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;">衰减系数可调：0.02 适合兴趣变化较慢的社区，0.05 适合热点驱动、兴趣变化快的产品。</p>
+          </div>
+
+          <div class="formula-box" style="margin-top: 1rem;">
+            <div class="formula-line" style="margin-bottom: 8px;">
+              <span class="comment">// 每条行为对某个标签的贡献 =</span>
+            </div>
+            <div class="formula-line">
+              <span class="formula-var blue">score</span> <span class="formula-op">=</span>
+              <span class="formula-var cyan">behavior_weight</span> <span class="formula-op">×</span>
+              <span class="formula-var purple">time_decay</span>
+            </div>
+            <div class="formula-line" style="margin-top: 8px;">
+              <span class="comment">// 例：3 天前的一个点赞 → 5 × 0.41 = 2.05</span>
+            </div>
+            <div class="formula-line">
+              <span class="comment">// 例：1 小时前的一个浏览 → 1 × 0.98 = 0.98</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div style="display: flex; gap: 1.2rem; padding: 1.5rem 0; position: relative;">
+        <div style="width: 44px; min-width: 44px; height: 44px; border-radius: 50%; background: rgba(52,211,153,0.2); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent-green); z-index: 1;">S4</div>
+        <div style="flex: 1;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.5rem;">汇总 & 归一化</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">把每条行为算出来的 score 按标签累加，然后归一化到 0~1 之间（所有标签权重之和 = 1），就得到了最终的兴趣向量。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete Numerical Example -->
+    <h3 style="margin: 1rem 0 1rem; font-size: 1.2rem;">完整数值示例</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      以用户 10086 为例，假设最近 7 天有以下 8 条行为记录，看看怎么一步步算出 TA 的画像。
+    </p>
+
+    <!-- Raw behavior data -->
+    <div class="card" style="margin-bottom: 1.5rem; overflow-x: auto;">
+      <h4 style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--accent-blue);">📋 原始行为数据（最近 7 天）</h4>
+      <table class="data-table" style="margin: 0; font-size: 0.8rem;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>时间</th>
+            <th>行为</th>
+            <th>帖子标签</th>
+            <th>行为权重 W</th>
+            <th>hours_ago</th>
+            <th>时间衰减 D</th>
+            <th style="color: var(--accent-green);">score = W × D</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td style="color: var(--text-muted);">2 小时前</td>
+            <td>👍 点赞</td>
+            <td><span class="tech-badge orange" style="font-size: 0.7rem;">美食</span><span class="tech-badge orange" style="font-size: 0.7rem;">烘焙</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">5</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">2</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.96</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">4.81</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td style="color: var(--text-muted);">5 小时前</td>
+            <td>⭐ 收藏</td>
+            <td><span class="tech-badge orange" style="font-size: 0.7rem;">美食</span><span class="tech-badge orange" style="font-size: 0.7rem;">探店</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">4</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">5</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.91</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">3.64</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td style="color: var(--text-muted);">8 小时前</td>
+            <td>👁️ 完读</td>
+            <td><span class="tech-badge" style="font-size: 0.7rem;">旅行</span><span class="tech-badge" style="font-size: 0.7rem;">攻略</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">3</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">8</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.86</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">2.59</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td style="color: var(--text-muted);">1 天前</td>
+            <td>👍 点赞</td>
+            <td><span class="tech-badge purple" style="font-size: 0.7rem;">摄影</span><span class="tech-badge purple" style="font-size: 0.7rem;">风光</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">5</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">24</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.68</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">3.38</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td style="color: var(--text-muted);">1 天前</td>
+            <td>👁️ 浏览</td>
+            <td><span class="tech-badge orange" style="font-size: 0.7rem;">美食</span><span class="tech-badge orange" style="font-size: 0.7rem;">家常菜</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">1</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">26</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.66</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">0.66</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td style="color: var(--text-muted);">3 天前</td>
+            <td>🔗 分享</td>
+            <td><span class="tech-badge orange" style="font-size: 0.7rem;">美食</span><span class="tech-badge orange" style="font-size: 0.7rem;">烘焙</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">6</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">72</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.41</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">2.47</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td style="color: var(--text-muted);">5 天前</td>
+            <td>👍 点赞</td>
+            <td><span class="tech-badge" style="font-size: 0.7rem;">旅行</span><span class="tech-badge" style="font-size: 0.7rem;">露营</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">5</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">120</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.29</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">1.47</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td style="color: var(--text-muted);">6 天前</td>
+            <td>👁️ 浏览</td>
+            <td><span class="tech-badge green" style="font-size: 0.7rem;">宠物</span><span class="tech-badge green" style="font-size: 0.7rem;">猫</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">1</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">144</td>
+            <td style="font-family: 'JetBrains Mono', monospace;">0.26</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green); font-weight: 700;">0.26</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Aggregation -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--accent-purple);">📊 按一级标签汇总 score</h4>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">每条行为的 score 分配给帖子的所有标签（一篇帖子有多个标签时，每个标签都累加）。下面按一级标签汇总：</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(251,146,60,0.06); border: 1px solid rgba(251,146,60,0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; color: var(--accent-orange);">🍜 美食</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--accent-orange);">11.58</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+            #1 点赞 4.81 + #2 收藏 3.64<br>+ #5 浏览 0.66 + #6 分享 2.47
+          </div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(79,140,255,0.06); border: 1px solid rgba(79,140,255,0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; color: var(--accent-blue);">✈️ 旅行</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--accent-blue);">4.06</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+            #3 完读 2.59 + #7 点赞 1.47
+          </div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; color: var(--accent-purple);">📸 摄影</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--accent-purple);">3.38</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+            #4 点赞 3.38
+          </div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; color: var(--accent-green);">🐱 宠物</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--accent-green);">0.26</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+            #8 浏览 0.26
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 12px; font-family: 'JetBrains Mono', monospace;">
+        总分 = 11.58 + 4.06 + 3.38 + 0.26 = <span style="color: var(--text-primary); font-weight: 700;">19.28</span>
+      </div>
+    </div>
+
+    <!-- Normalization Result -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--accent-green);">✅ 归一化 → 最终画像</h4>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">每个标签的 score 除以总分，得到 0~1 的权重比例：</p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); min-width: 50px;">美食</span>
+          <div style="flex: 1; height: 28px; background: var(--border-color); border-radius: 6px; overflow: hidden; position: relative;">
+            <div style="width: 60%; height: 100%; background: linear-gradient(90deg, var(--accent-orange), #f59e0b); border-radius: 6px; display: flex; align-items: center; padding: 0 10px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;">0.60</span>
+            </div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); min-width: 90px;">11.58 / 19.28</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); min-width: 50px;">旅行</span>
+          <div style="flex: 1; height: 28px; background: var(--border-color); border-radius: 6px; overflow: hidden; position: relative;">
+            <div style="width: 21%; height: 100%; background: linear-gradient(90deg, var(--accent-blue), #60a5fa); border-radius: 6px; display: flex; align-items: center; padding: 0 10px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;">0.21</span>
+            </div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); min-width: 90px;">4.06 / 19.28</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); min-width: 50px;">摄影</span>
+          <div style="flex: 1; height: 28px; background: var(--border-color); border-radius: 6px; overflow: hidden; position: relative;">
+            <div style="width: 18%; height: 100%; background: linear-gradient(90deg, var(--accent-purple), #c4b5fd); border-radius: 6px; display: flex; align-items: center; padding: 0 10px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;">0.18</span>
+            </div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); min-width: 90px;">3.38 / 19.28</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); min-width: 50px;">宠物</span>
+          <div style="flex: 1; height: 28px; background: var(--border-color); border-radius: 6px; overflow: hidden; position: relative;">
+            <div style="width: 5%; min-width: 45px; height: 100%; background: linear-gradient(90deg, var(--accent-green), #6ee7b7); border-radius: 6px; display: flex; align-items: center; padding: 0 10px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;">0.01</span>
+            </div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); min-width: 90px;">0.26 / 19.28</span>
+        </div>
+      </div>
+      <div style="margin-top: 16px; padding: 10px 14px; background: rgba(52,211,153,0.06); border-radius: 8px; border: 1px solid rgba(52,211,153,0.12);">
+        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+          写入 Redis：<code style="font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.78rem;">HSET user_profile:10086 美食 0.60 旅行 0.21 摄影 0.18 宠物 0.01</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <strong>为什么美食这么高？</strong>不只是因为行为次数多（4 次 vs 旅行 2 次），更因为美食相关的行为类型更强（点赞+收藏+分享），且时间更近（2/5 小时前 vs 5 天前）。这就是"行为权重 × 时间衰减"组合的效果——它同时反映了兴趣强度和兴趣时效性。
+    </div>
+
+    <!-- Pseudocode -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.1rem;">完整伪代码</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+        <span class="code-title">user_profile_builder.py</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;"><span class="comment">// 定时任务：每小时执行一次</span>
+<span class="keyword">for</span> <span class="type">user</span> <span class="keyword">in</span> <span class="func">getAllActiveUsers</span>():
+
+    behaviors = <span class="func">queryClickHouse</span>(<span class="string">"最近 7 天的行为"</span>, user.id)
+    profile = {}
+
+    <span class="keyword">for</span> behavior <span class="keyword">in</span> behaviors:
+
+        post_tags = <span class="func">getPostTags</span>(behavior.post_id)
+
+        <span class="comment">// 不同行为给不同权重</span>
+        weight = {
+            点赞: <span class="number">5</span>,
+            收藏: <span class="number">4</span>,
+            看完: <span class="number">3</span>,
+            浏览: <span class="number">1</span>
+        }[behavior.type]
+
+        <span class="comment">// 越近的行为权重越大</span>
+        decay = <span class="number">1.0</span> / (<span class="number">1</span> + hours_ago * <span class="number">0.02</span>)
+
+        <span class="keyword">for</span> tag <span class="keyword">in</span> post_tags:
+            profile[tag] += weight * decay
+
+    <span class="func">normalize</span>(profile)  <span class="comment">// 归一化到 0~1</span>
+    <span class="func">writeToRedis</span>(<span class="string">"user_profile:{user.id}"</span>, profile)</pre></div>
+    </div>
+
+    <div class="callout success">
+      <strong>输出示例：</strong><code style="font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">user_profile:10086 → {美食: 0.35, 旅行: 0.25, 摄影: 0.20, 宠物: 0.12, 运动: 0.08}</code>
+      <br>存储在 Redis Hash 中，在线服务直接读取，微秒级响应。MySQL 存一份备份防止 Redis 故障丢失。
+    </div>
+
+    <!-- Industry Profile Reference -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">业界画像维度参考</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      不同平台的标签体系规模差异很大，但核心逻辑一致。以下是业界典型的画像维度设置，供你参考定义自己的标签层级。
+    </p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>平台类型</th>
+          <th>一级标签数</th>
+          <th>二级标签数</th>
+          <th>总标签量级</th>
+          <th>特点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--accent-pink);">小红书（图文社区）</td>
+          <td>~20</td>
+          <td>每级 5-15</td>
+          <td>200-500</td>
+          <td>生活方式导向，标签精细且重叠度高</td>
+        </tr>
+        <tr>
+          <td style="color: var(--accent-blue);">抖音（短视频）</td>
+          <td>~30</td>
+          <td>每级 10-30</td>
+          <td>1000+</td>
+          <td>内容形态多，标签体系庞大，多层级</td>
+        </tr>
+        <tr>
+          <td style="color: var(--accent-orange);">今日头条（资讯）</td>
+          <td>~25</td>
+          <td>每级 10-20</td>
+          <td>500-1000</td>
+          <td>新闻分类明确，时效性标签权重高</td>
+        </tr>
+        <tr>
+          <td style="color: var(--accent-green);">你的 App（初期建议）</td>
+          <td><strong>10-15</strong></td>
+          <td>每级 3-8</td>
+          <td><strong>50-120</strong></td>
+          <td>先粗后细，从数据中验证再扩展</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Demo Profile -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">画像 Demo：三类典型用户</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      以下是三个不同兴趣偏好的用户画像示例，展示实际数据结构和权重分布。
+    </p>
+
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+
+      <!-- User A -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(251, 146, 60, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🍳</div>
+          <div>
+            <h4 style="margin: 0;">用户 A · 美食达人</h4>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">兴趣集中型 · 日活跃 40min</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">美食</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 82%; height: 100%; background: linear-gradient(90deg, var(--accent-orange), #f59e0b); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.42</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">旅行</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 36%; height: 100%; background: linear-gradient(90deg, var(--accent-blue), #60a5fa); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.18</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">生活</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 28%; height: 100%; background: linear-gradient(90deg, var(--accent-green), #6ee7b7); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.14</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">摄影</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 20%; height: 100%; background: linear-gradient(90deg, var(--accent-purple), #c4b5fd); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.10</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">其他</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 16%; height: 100%; background: linear-gradient(90deg, #6b7280, #9ca3af); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.16</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 12px; padding: 8px 12px; background: rgba(251,146,60,0.06); border-radius: 6px; font-size: 0.78rem; color: var(--text-muted);">
+          二级标签：烘焙 0.18 · 探店 0.12 · 家常菜 0.08 · 零食 0.04
+        </div>
+      </div>
+
+      <!-- User B -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(167, 139, 250, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🎨</div>
+          <div>
+            <h4 style="margin: 0;">用户 B · 兴趣广泛</h4>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">兴趣分散型 · 日活跃 25min</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">摄影</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 46%; height: 100%; background: linear-gradient(90deg, var(--accent-purple), #c4b5fd); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.23</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">旅行</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 40%; height: 100%; background: linear-gradient(90deg, var(--accent-blue), #60a5fa); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.20</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">数码</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 34%; height: 100%; background: linear-gradient(90deg, var(--accent-cyan), #67e8f9); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.17</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">影视</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 28%; height: 100%; background: linear-gradient(90deg, var(--accent-pink), #f9a8d4); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.14</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">其他</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 26%; height: 100%; background: linear-gradient(90deg, #6b7280, #9ca3af); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.26</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 12px; padding: 8px 12px; background: rgba(167,139,250,0.06); border-radius: 6px; font-size: 0.78rem; color: var(--text-muted);">
+          特点：权重分散，无明显主导兴趣，推荐打散需求更高
+        </div>
+      </div>
+
+      <!-- User C -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(52, 211, 153, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🆕</div>
+          <div>
+            <h4 style="margin: 0;">用户 C · 新注册用户</h4>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">冷启动阶段 · 注册第 1 天</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">游戏</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 50%; height: 100%; background: linear-gradient(90deg, var(--accent-green), #6ee7b7); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.50</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">数码</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 30%; height: 100%; background: linear-gradient(90deg, var(--accent-cyan), #67e8f9); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;">0.30</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); min-width: 55px;">未知</span>
+            <div style="flex: 1; height: 20px; background: var(--border-color); border-radius: 4px; overflow: hidden;">
+              <div style="width: 20%; height: 100%; background: repeating-linear-gradient(90deg, #4b5563 0px, #4b5563 4px, transparent 4px, transparent 8px); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-muted);">0.20</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 12px; padding: 8px 12px; background: rgba(52,211,153,0.06); border-radius: 6px; font-size: 0.78rem; color: var(--text-muted);">
+          仅浏览了 5 条帖子，画像极不稳定。需要大量探索流量来发现真实兴趣。虚线 = 待探索维度。
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tag System Demo -->
+    <h3 style="margin: 2.5rem 0 1rem; font-size: 1.2rem;">标签体系 Demo</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      以下是适合图文社区 App 的标签体系示例。一级分类控制在 12 个，每个下设 3-8 个二级标签，总量约 70 个。
+    </p>
+
+    <div class="card" style="overflow-x: auto;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(251,146,60,0.06); border: 1px solid rgba(251,146,60,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-orange); margin-bottom: 8px;">🍜 美食</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge orange" style="font-size: 0.7rem;">烘焙</span>
+            <span class="tech-badge orange" style="font-size: 0.7rem;">家常菜</span>
+            <span class="tech-badge orange" style="font-size: 0.7rem;">探店</span>
+            <span class="tech-badge orange" style="font-size: 0.7rem;">食谱</span>
+            <span class="tech-badge orange" style="font-size: 0.7rem;">零食测评</span>
+            <span class="tech-badge orange" style="font-size: 0.7rem;">饮品</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(79,140,255,0.06); border: 1px solid rgba(79,140,255,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-blue); margin-bottom: 8px;">✈️ 旅行</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge" style="font-size: 0.7rem;">国内游</span>
+            <span class="tech-badge" style="font-size: 0.7rem;">出境游</span>
+            <span class="tech-badge" style="font-size: 0.7rem;">攻略</span>
+            <span class="tech-badge" style="font-size: 0.7rem;">酒店民宿</span>
+            <span class="tech-badge" style="font-size: 0.7rem;">露营</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-purple); margin-bottom: 8px;">📸 摄影</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge purple" style="font-size: 0.7rem;">人像</span>
+            <span class="tech-badge purple" style="font-size: 0.7rem;">风光</span>
+            <span class="tech-badge purple" style="font-size: 0.7rem;">街拍</span>
+            <span class="tech-badge purple" style="font-size: 0.7rem;">后期修图</span>
+            <span class="tech-badge purple" style="font-size: 0.7rem;">器材</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-green); margin-bottom: 8px;">🐱 宠物</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge green" style="font-size: 0.7rem;">猫</span>
+            <span class="tech-badge green" style="font-size: 0.7rem;">狗</span>
+            <span class="tech-badge green" style="font-size: 0.7rem;">异宠</span>
+            <span class="tech-badge green" style="font-size: 0.7rem;">宠物用品</span>
+            <span class="tech-badge green" style="font-size: 0.7rem;">宠物医疗</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(244,114,182,0.06); border: 1px solid rgba(244,114,182,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-pink); margin-bottom: 8px;">👗 时尚</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge pink" style="font-size: 0.7rem;">穿搭</span>
+            <span class="tech-badge pink" style="font-size: 0.7rem;">美妆</span>
+            <span class="tech-badge pink" style="font-size: 0.7rem;">护肤</span>
+            <span class="tech-badge pink" style="font-size: 0.7rem;">潮牌</span>
+            <span class="tech-badge pink" style="font-size: 0.7rem;">发型</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-cyan); margin-bottom: 8px;">💻 数码</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge cyan" style="font-size: 0.7rem;">手机</span>
+            <span class="tech-badge cyan" style="font-size: 0.7rem;">电脑</span>
+            <span class="tech-badge cyan" style="font-size: 0.7rem;">智能家居</span>
+            <span class="tech-badge cyan" style="font-size: 0.7rem;">数码测评</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-red); margin-bottom: 8px;">🏃 运动</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.15); color: var(--accent-red);">健身</span>
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.15); color: var(--accent-red);">跑步</span>
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.15); color: var(--accent-red);">球类</span>
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.15); color: var(--accent-red);">瑜伽</span>
+          </div>
+        </div>
+
+        <div style="padding: 12px; border-radius: 8px; background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.12);">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-yellow); margin-bottom: 8px;">🎮 游戏</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15); color: var(--accent-yellow);">手游</span>
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15); color: var(--accent-yellow);">PC/主机</span>
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15); color: var(--accent-yellow);">电竞</span>
+            <span class="tech-badge" style="font-size: 0.7rem; background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.15); color: var(--accent-yellow);">攻略</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 1.5rem;">
+      <strong>画像维度数量建议：</strong>用户画像中实际参与推荐召回的标签，取权重最高的 3-5 个即可。长尾标签（权重 &lt; 0.05）对推荐质量贡献极小，可以不传给 ES。标签体系本身可以大，但每个用户的"有效画像"维度控制在 5 个以内最高效。
+    </div>
+  </section>

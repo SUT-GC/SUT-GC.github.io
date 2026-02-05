@@ -1,0 +1,268 @@
+  <!-- 02 Async -->
+  <section class="section" id="async">
+    <div class="section-header">
+      <div class="section-number">02 — ASYNC PIPELINE</div>
+      <h2 class="section-title">异步处理流水线</h2>
+      <p class="section-desc">所有耗时的计算都在后台异步完成，在线服务只需要读取预计算好的结果，保证推荐请求的实时性。</p>
+    </div>
+
+    <div class="flow-container">
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="data-particle"></div>
+      <div class="flow-title"><div class="dot" style="background: var(--accent-blue)"></div> 数据流向：发帖链路</div>
+      <div class="flow-row">
+        <div class="flow-box arch-node blue">用户发帖</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node purple">Go API</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node cyan">Kafka</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node pink">Python 标签服务</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node green">MySQL + ES</div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="flow-title"><div class="dot" style="background: var(--accent-cyan)"></div> 数据流向：行为链路</div>
+      <div class="flow-row">
+        <div class="flow-box arch-node blue">用户行为</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node purple">Go API</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node cyan">Kafka</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node orange">ClickHouse</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node green">定时任务</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box arch-node pink">Redis 画像</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background: rgba(167, 139, 250, 0.15); color: var(--accent-purple);">📨</div>
+        <h4>Kafka 消息队列</h4>
+        <p>异步解耦和削峰填谷。Go 接口收到请求后立即扔进队列，下游按自己的节奏消费。即使流量暴增也不会压垮下游服务。前期规模较小时也可用 Redis Stream 替代。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(34, 211, 238, 0.15); color: var(--accent-cyan);">📊</div>
+        <h4>ClickHouse 行为存储</h4>
+        <p>列式存储，特别适合"最近 7 天用户 A 点赞了哪些帖子"这类聚合查询。一天几千万条行为日志，按时间分区存储，查询速度极快。前期可用 MongoDB 替代。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(244, 114, 182, 0.15); color: var(--accent-pink);">🏷️</div>
+        <h4>Python 标签服务</h4>
+        <p>独立微服务，从 Kafka 消费新帖子消息。使用 jieba 分词 + 关键词匹配做内容分类。与 Go 后端通过消息队列解耦，互不影响。后期可升级为分类模型或大模型打标签。</p>
+      </div>
+    </div>
+
+    <!-- Behavior Tracking Detail -->
+    <h3 style="margin: 3rem 0 1rem; font-size: 1.2rem;">行为链路详解：采集什么数据</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      行为数据是推荐系统的燃料。采集得越全、越细，用户画像就越准。行为分为两大类：用户主动触发的<strong style="color: var(--text-primary);">显式行为</strong>和系统被动记录的<strong style="color: var(--text-primary);">隐式行为</strong>。
+    </p>
+
+    <!-- Explicit behaviors -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(79, 140, 255, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1rem;">👆</div>
+        <h4 style="margin: 0; font-size: 1.05rem;">显式行为（用户主动操作）</h4>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1rem;">有明确的接口调用，后端天然就能捕获。这类行为信号强，权重高。</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(79,140,255,0.06); border: 1px solid rgba(79,140,255,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">👍</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-blue);">点赞</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-weight: 700;">5</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">明确的正向信号，说明内容得到认可</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">⭐</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-yellow);">收藏</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-yellow); font-family: 'JetBrains Mono', monospace; font-weight: 700;">4</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">比点赞更强，说明用户想回头看</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">💬</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-green);">评论</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-green); font-family: 'JetBrains Mono', monospace; font-weight: 700;">5</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">参与度最高的行为之一</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">🔗</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-purple);">分享</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-purple); font-family: 'JetBrains Mono', monospace; font-weight: 700;">6</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">最强正向信号，愿意推荐给别人</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">➕</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-cyan);">关注作者</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-weight: 700;">6</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">长期兴趣信号，影响关注流召回</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">🚫</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-red);">举报 / 不感兴趣</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-red); font-family: 'JetBrains Mono', monospace; font-weight: 700;">-5</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">强烈负向信号，同类内容降权</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Implicit behaviors -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(34, 211, 238, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1rem;">👁️</div>
+        <h4 style="margin: 0; font-size: 1.05rem;">隐式行为（系统被动记录）</h4>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1rem;">用户没有主动操作，但客户端可以通过埋点捕捉。信号较弱但数据量大，是画像构建的重要补充。</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">⏱️</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-cyan);">停留时长</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-weight: 700;">1~3</span>（按时长分档）</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">停留 &lt;2s 视为划过（负信号）<br>&gt;5s 视为有效浏览<br>&gt;15s 视为深度阅读</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">📸</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-purple);">图片滑动完成率</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-purple); font-family: 'JetBrains Mono', monospace; font-weight: 700;">2~3</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">滑到最后一张图 = 完读<br>只看第 1 张就走 = 低兴趣<br>图文帖的核心隐式信号</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">📖</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-green);">正文展开</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-green); font-family: 'JetBrains Mono', monospace; font-weight: 700;">2</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">用户主动点"展开全文"<br>说明标题/首图吸引了 TA<br>且愿意花时间细看</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(251,146,60,0.06); border: 1px solid rgba(251,146,60,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">💬</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-orange);">查看评论区</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-orange); font-family: 'JetBrains Mono', monospace; font-weight: 700;">2</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">点开评论区但没评论<br>说明内容引发了好奇心<br>介于浏览和互动之间</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(244,114,182,0.06); border: 1px solid rgba(244,114,182,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">🔍</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-pink);">点击作者主页</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-pink); font-family: 'JetBrains Mono', monospace; font-weight: 700;">3</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">对作者感兴趣的信号<br>虽然没关注但有探索意图<br>可加强该作者内容的推荐</div>
+        </div>
+        <div style="padding: 12px 16px; border-radius: 10px; background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.12);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 1.1rem;">⚡</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: var(--accent-red);">快速划过</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">推荐权重：<span style="color: var(--accent-red); font-family: 'JetBrains Mono', monospace; font-weight: 700;">-1</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">停留 &lt;1s 直接划走<br>单次不说明什么<br>但连续划过同类 = 降权信号</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Behavior data structure -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.1rem;">行为日志数据结构</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+      每条行为日志写入 ClickHouse 时的字段结构。客户端攒一批（比如 5-10 条）后统一上报，减少网络请求。
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+        <span class="code-title">behavior_event.json</span>
+      </div>
+      <div class="code-body"><pre style="margin:0;font-family:inherit;font-size:inherit;line-height:inherit;">{
+  <span class="string">"user_id"</span>:        <span class="string">"10086"</span>,
+  <span class="string">"post_id"</span>:        <span class="string">"p_20260205_83721"</span>,
+  <span class="string">"event_type"</span>:     <span class="string">"view"</span>,           <span class="comment">// view | like | collect | comment | share | follow | report | dislike</span>
+  <span class="string">"duration_ms"</span>:    <span class="number">8200</span>,             <span class="comment">// 停留时长（毫秒），仅 view 类型有值</span>
+  <span class="string">"image_progress"</span>: <span class="number">0.75</span>,             <span class="comment">// 图片浏览进度 0~1，看了 4 张中的 3 张 = 0.75</span>
+  <span class="string">"text_expanded"</span>:  <span class="keyword">true</span>,             <span class="comment">// 是否点击了"展开全文"</span>
+  <span class="string">"comment_viewed"</span>: <span class="keyword">true</span>,             <span class="comment">// 是否查看了评论区</span>
+  <span class="string">"author_clicked"</span>: <span class="keyword">false</span>,            <span class="comment">// 是否点击了作者主页</span>
+  <span class="string">"source"</span>:         <span class="string">"recommend"</span>,      <span class="comment">// 来源：recommend | follow | search | hot | profile</span>
+  <span class="string">"position"</span>:       <span class="number">7</span>,                <span class="comment">// 在推荐列表中的位置（第几条）</span>
+  <span class="string">"timestamp"</span>:      <span class="string">"2026-02-05T14:32:18.000Z"</span>,
+  <span class="string">"device"</span>:         <span class="string">"iOS"</span>,            <span class="comment">// iOS | Android</span>
+  <span class="string">"session_id"</span>:     <span class="string">"sess_a8f3c2e1"</span>   <span class="comment">// 同一次打开 App 共用一个 session</span>
+}</pre></div>
+    </div>
+
+    <!-- Data volume estimation -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.1rem;">数据量估算</h3>
+
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div class="card" style="text-align: center;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700; color: var(--accent-blue);">~50</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">人均每日行为事件数</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">浏览 40 + 互动 10</div>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan);">~500K</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">日总行为事件量</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">10K 用户 × 50 事件</div>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700; color: var(--accent-purple);">~200B</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">单条事件大小</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">JSON 压缩后约 200 字节</div>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700; color: var(--accent-green);">~3GB</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">月存储量</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">ClickHouse 压缩后更小</div>
+      </div>
+    </div>
+
+    <!-- Client SDK tips -->
+    <h3 style="margin: 2rem 0 1rem; font-size: 1.1rem;">客户端埋点注意事项</h3>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background: rgba(79, 140, 255, 0.15); color: var(--accent-blue);">📦</div>
+        <h4>批量上报</h4>
+        <p>客户端不要每个事件都立即发请求，攒 5-10 条或每隔 5 秒批量上报一次。减少网络开销，降低服务端 QPS。App 退到后台时立即上报剩余事件，防止数据丢失。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(52, 211, 153, 0.15); color: var(--accent-green);">⏱️</div>
+        <h4>停留时长计算</h4>
+        <p>帖子进入可视区域开始计时，离开可视区域或用户切后台时停止。需要处理锁屏、来电话、切 App 等中断场景，避免统计出离谱的停留时长（比如 2 小时）。超过 5 分钟的一律截断。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background: rgba(251, 146, 60, 0.15); color: var(--accent-orange);">🔄</div>
+        <h4>Session 管理</h4>
+        <p>用户每次打开 App 生成一个 session_id，所有事件都带上。用于分析单次会话的行为路径，比如用户这次刷了多少帖子、在哪里流失、哪类内容让 TA 停下来互动。</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 1.5rem;">
+      <strong>优先级建议：</strong>第一版只采集显式行为（点赞、评论、收藏、分享）+ 停留时长就够了。这几个数据拿到后就能构建出基本可用的用户画像。图片滑动进度、正文展开这些精细的隐式行为可以放到第二版再加，需要客户端配合做更多埋点工作。
+    </div>
+  </section>
