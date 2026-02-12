@@ -1,0 +1,320 @@
+{
+  "started_at": "2026-02-12T17:11:05",
+  "input": "/Users/bytedance/GC/GitHub/GCSkills/image-assistant/out/apimart.requests.jsonl",
+  "output_dir": "outputs/apimart-20260212-171105",
+  "config": {
+    "api_url": "https://api.apimart.ai/v1/images/generations",
+    "model": "gemini-3-pro-image-preview",
+    "resolution": "2K",
+    "size": "16:9",
+    "n": 1,
+    "pad_url": ""
+  },
+  "items": [
+    {
+      "id": "01",
+      "request": {
+        "model": "gemini-3-pro-image-preview",
+        "prompt": "画一张16:9横版信息图。\n\n风格基准（唯一允许风格，不得换风格）：奶油色纸张底（纸纹可见），彩铅线稿（笔触可见）+ 淡水彩上色（轻晕染）。暖色调、轻涂鸦装饰、趣味但干净。中文必须清晰可读、无乱码；大字号；少字短句；留白充足、层级清晰、卡片对齐。不要扁平矢量海报风、不要3D、不要摄影写实、不要复杂背景/强渐变光效、不要额外小字注解/水印/署名、不要英文与随机字符。\n\n标题（顶部大字）：深度学习 ≈ 软件工程\n\n布局：左右两张等宽大卡片 + 中间用双向箭头表示映射关系。\n\n左卡：\n- 标题：软件工程\n- 画面隐喻：电脑屏幕、齿轮\n- 从上到下5个小图标配文字：数据库、IDE、编译、jar包、Tomcat\n\n右卡：\n- 标题：深度学习\n- 画面隐喻：大脑、神经网络\n- 从上到下5个小图标配文字：训练数据、PyTorch、训练、.pth、vLLM\n\n左右两卡之间每行用箭头连接，表示一一对应。\n\n底部结论（大字一行）：训练框架和推理引擎是解耦的\n\n除指定文字外不要生成任何额外文字。",
+        "size": "16:9",
+        "n": 1,
+        "resolution": "2K"
+      },
+      "post": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 12 Feb 2026 09:11:07 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "88",
+          "connection": "close",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "x-oneapi-request-id": "20260212171107142772568SguMZgUN",
+          "cf-cache-status": "DYNAMIC",
+          "server-timing": "cfEdge;dur=3,cfOrigin;dur=305",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=6Bki0pNgtQ1PEklEIOhZgBqIC4rvnYHxFhOFOl608xRIcTtzttjaaI1qk60ybWuNhVLpyg9xied7jDk71wYsUhec4AHq0gjw2Rg4emE%3D\"}]}",
+          "server": "cloudflare",
+          "cf-ray": "9ccaf4ecc94e5ea8-SEA",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "post_json": {
+        "code": 200,
+        "data": [
+          {
+            "status": "submitted",
+            "task_id": "task_01KH8HWM6JE425CT8RMPE515BX"
+          }
+        ]
+      },
+      "tasks": [
+        {
+          "task_id": "task_01KH8HWM6JE425CT8RMPE515BX",
+          "task": {
+            "code": 200,
+            "data": {
+              "actual_time": 37,
+              "completed": 1770887504,
+              "created": 1770887467,
+              "estimated_time": 100,
+              "id": "task_01KH8HWM6JE425CT8RMPE515BX",
+              "progress": 100,
+              "result": {
+                "images": [
+                  {
+                    "expires_at": 1770973904,
+                    "url": [
+                      "https://upload.apimart.ai/f/image/9998229112494816-7e20dc82-c1c1-4589-981b-520b6efd5370-image_task_01KH8HWM6JE425CT8RMPE515BX.jpg"
+                    ]
+                  }
+                ]
+              },
+              "status": "completed"
+            }
+          },
+          "image_urls": [
+            "https://upload.apimart.ai/f/image/9998229112494816-7e20dc82-c1c1-4589-981b-520b6efd5370-image_task_01KH8HWM6JE425CT8RMPE515BX.jpg"
+          ]
+        }
+      ],
+      "saved_images": [
+        {
+          "filename": "01-task1-1.jpg",
+          "source_kind": "task_url",
+          "task_id": "task_01KH8HWM6JE425CT8RMPE515BX",
+          "task_index": 1,
+          "url_index": 1,
+          "url": "https://upload.apimart.ai/f/image/9998229112494816-7e20dc82-c1c1-4589-981b-520b6efd5370-image_task_01KH8HWM6JE425CT8RMPE515BX.jpg"
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "request": {
+        "model": "gemini-3-pro-image-preview",
+        "prompt": "画一张16:9横版信息图。\n\n风格基准（唯一允许风格，不得换风格）：奶油色纸张底（纸纹可见），彩铅线稿（笔触可见）+ 淡水彩上色（轻晕染）。暖色调、轻涂鸦装饰、趣味但干净。中文必须清晰可读、无乱码；大字号；少字短句；留白充足、层级清晰。不要扁平矢量海报风、不要3D、不要摄影写实、不要复杂背景/强渐变光效、不要额外小字注解/水印/署名、不要英文与随机字符。\n\n标题（顶部超大字）：模型训练：标准五步循环\n\n主体：环形流程图，5个圆角矩形模块按顺时针排列，用粗弯曲箭头首尾相连形成循环。每个模块只放1行标题，配一个小插画图标。\n\n模块1（顶部）：取一批数据（图标：一叠卡片）\n模块2（右上）：前向传播·答题（图标：大脑在思考）\n模块3（右下）：算损失·对答案（图标：打叉打勾的试卷）\n模块4（左下）：反向传播·找错因（图标：放大镜查看）\n模块5（左上）：更新参数·改进（图标：扳手调节）\n\n底部结论（大字一行）：不管训练什么模型，这五步几乎不变\n\n除指定文字外不要生成任何额外文字。",
+        "size": "16:9",
+        "n": 1,
+        "resolution": "2K"
+      },
+      "post": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 12 Feb 2026 09:11:58 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "88",
+          "connection": "close",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "x-oneapi-request-id": "20260212171158297294349InGVgyTs",
+          "cf-cache-status": "DYNAMIC",
+          "server-timing": "cfEdge;dur=7,cfOrigin;dur=266",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ESZSakTWQtdwyxRvsfaXJiqP5cHh8RuNMltHXn1ahMP5R2BuAlHOzGKyAkAqMTgM6Cz13piWj8ypynQgsYlFs7cLQehmbPr2CBbtQXk%3D\"}]}",
+          "server": "cloudflare",
+          "cf-ray": "9ccaf62c7c76ba0e-SEA",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "post_json": {
+        "code": 200,
+        "data": [
+          {
+            "status": "submitted",
+            "task_id": "task_01KH8HY64BFZWA0TZPRX848F1M"
+          }
+        ]
+      },
+      "tasks": [
+        {
+          "task_id": "task_01KH8HY64BFZWA0TZPRX848F1M",
+          "task": {
+            "code": 200,
+            "data": {
+              "actual_time": 50,
+              "completed": 1770887568,
+              "created": 1770887518,
+              "estimated_time": 100,
+              "id": "task_01KH8HY64BFZWA0TZPRX848F1M",
+              "progress": 100,
+              "result": {
+                "images": [
+                  {
+                    "expires_at": 1770973968,
+                    "url": [
+                      "https://upload.apimart.ai/f/image/9998229112430893-00fb93ca-3be3-4b3a-96ce-8b17ca3cb10e-image_task_01KH8HY64BFZWA0TZPRX848F1M.jpg"
+                    ]
+                  }
+                ]
+              },
+              "status": "completed"
+            }
+          },
+          "image_urls": [
+            "https://upload.apimart.ai/f/image/9998229112430893-00fb93ca-3be3-4b3a-96ce-8b17ca3cb10e-image_task_01KH8HY64BFZWA0TZPRX848F1M.jpg"
+          ]
+        }
+      ],
+      "saved_images": [
+        {
+          "filename": "02-task1-1.jpg",
+          "source_kind": "task_url",
+          "task_id": "task_01KH8HY64BFZWA0TZPRX848F1M",
+          "task_index": 1,
+          "url_index": 1,
+          "url": "https://upload.apimart.ai/f/image/9998229112430893-00fb93ca-3be3-4b3a-96ce-8b17ca3cb10e-image_task_01KH8HY64BFZWA0TZPRX848F1M.jpg"
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "request": {
+        "model": "gemini-3-pro-image-preview",
+        "prompt": "画一张16:9横版信息图。\n\n风格基准（唯一允许风格，不得换风格）：奶油色纸张底（纸纹可见），彩铅线稿（笔触可见）+ 淡水彩上色（轻晕染）。暖色调、轻涂鸦装饰、趣味但干净。中文必须清晰可读、无乱码；大字号；少字短句；留白充足、层级清晰、卡片对齐。不要扁平矢量海报风、不要3D、不要摄影写实、不要复杂背景/强渐变光效、不要额外小字注解/水印/署名、不要英文与随机字符。\n\n标题（顶部大字）：CPU vs GPU：谁更适合深度学习？\n\n布局：左右两张等宽大卡片 + 中间 VS 对比符号。\n\n左卡：\n- 标题：CPU\n- 画面隐喻：画一个穿西装的资深工程师，表情自信，旁边只有几个核心（画3-4个小圆点）\n- 文案（1行）：1个资深工程师，什么都能干\n\n右卡：\n- 标题：GPU\n- 画面隐喻：画一大群穿工装的小人（几十个），排成整齐方阵在同时搬砖干活\n- 文案（1行）：几千个初级工程师，同时干活\n\n底部结论（大字一行）：深度学习的活，恰好能拆成几千份并行做\n\n除指定文字外不要生成任何额外文字。",
+        "size": "16:9",
+        "n": 1,
+        "resolution": "2K"
+      },
+      "post": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 12 Feb 2026 09:13:02 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "88",
+          "connection": "close",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "x-oneapi-request-id": "20260212171302445542509xpF2Ut76",
+          "cf-cache-status": "DYNAMIC",
+          "server-timing": "cfEdge;dur=6,cfOrigin;dur=292",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=J3B4Pyf0fRcPX8Rv%2BYQTIoN34PcZg6SWZ1GP%2FjdtB%2FnWoXa5MkgRMqMbvzWVdQG5N94cTTh8vSOqPx6cu7PuFXZjX8JOiMb8lcbU\"}]}",
+          "server": "cloudflare",
+          "cf-ray": "9ccaf7bd5b9093ab-SEA",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "post_json": {
+        "code": 200,
+        "data": [
+          {
+            "status": "submitted",
+            "task_id": "task_01KH8J04SY1KDWPC6H77S7N0S7"
+          }
+        ]
+      },
+      "tasks": [
+        {
+          "task_id": "task_01KH8J04SY1KDWPC6H77S7N0S7",
+          "task": {
+            "code": 200,
+            "data": {
+              "actual_time": 78,
+              "completed": 1770887660,
+              "created": 1770887582,
+              "estimated_time": 100,
+              "id": "task_01KH8J04SY1KDWPC6H77S7N0S7",
+              "progress": 100,
+              "result": {
+                "images": [
+                  {
+                    "expires_at": 1770974060,
+                    "url": [
+                      "https://upload.apimart.ai/f/image/9998229112339298-04692dc1-2e3e-4f62-b72f-d12fa12229e6-image_task_01KH8J04SY1KDWPC6H77S7N0S7.jpg"
+                    ]
+                  }
+                ]
+              },
+              "status": "completed"
+            }
+          },
+          "image_urls": [
+            "https://upload.apimart.ai/f/image/9998229112339298-04692dc1-2e3e-4f62-b72f-d12fa12229e6-image_task_01KH8J04SY1KDWPC6H77S7N0S7.jpg"
+          ]
+        }
+      ],
+      "saved_images": [
+        {
+          "filename": "03-task1-1.jpg",
+          "source_kind": "task_url",
+          "task_id": "task_01KH8J04SY1KDWPC6H77S7N0S7",
+          "task_index": 1,
+          "url_index": 1,
+          "url": "https://upload.apimart.ai/f/image/9998229112339298-04692dc1-2e3e-4f62-b72f-d12fa12229e6-image_task_01KH8J04SY1KDWPC6H77S7N0S7.jpg"
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "request": {
+        "model": "gemini-3-pro-image-preview",
+        "prompt": "画一张16:9横版信息图。\n\n风格基准（唯一允许风格，不得换风格）：奶油色纸张底（纸纹可见），彩铅线稿（笔触可见）+ 淡水彩上色（轻晕染）。暖色调、轻涂鸦装饰、趣味但干净。中文必须清晰可读、无乱码；大字号；少字短句；留白充足、层级清晰、卡片对齐。不要扁平矢量海报风、不要3D、不要摄影写实、不要复杂背景/强渐变光效、不要额外小字注解/水印/署名、不要英文与随机字符。\n\n标题（顶部大字）：三种让AI更好用的方法\n\n布局：三张等宽卡片横排，颜色区分（淡橙/淡蓝/淡绿），严格对齐。\n\n卡片1（淡橙色）：\n- 标题：蒸馏\n- 图标隐喻：一个大人蹲下来教一个小孩\n- 文案：大模型教小模型\n- 关键词：更小更便宜\n\n卡片2（淡蓝色）：\n- 标题：微调\n- 图标隐喻：一个工程师正在佩戴公司工牌\n- 文案：让模型适应你的场景\n- 关键词：更专业更精准\n\n卡片3（淡绿色）：\n- 标题：RAG\n- 图标隐喻：一个人手拿放大镜翻阅一摞书\n- 文案：给模型实时查文档\n- 关键词：知识随时更新\n\n底部结论（大字一行）：想让AI更懂你？推荐 RAG + 微调\n\n除指定文字外不要生成任何额外文字。",
+        "size": "16:9",
+        "n": 1,
+        "resolution": "2K"
+      },
+      "post": {
+        "status": 200,
+        "headers": {
+          "date": "Thu, 12 Feb 2026 09:14:29 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "88",
+          "connection": "close",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "x-oneapi-request-id": "20260212171429539270816U7tk9BW2",
+          "cf-cache-status": "DYNAMIC",
+          "server-timing": "cfEdge;dur=5,cfOrigin;dur=272",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=95sV3WSGhlzAgoIPVidhm4tLKMycyh2avecM00GNrpEwrNT2xfgFfrGrtBqHjMzf6XniigTcsKU1%2FA9bdQZcE17dYTxZUMPGd7K77xA%3D\"}]}",
+          "server": "cloudflare",
+          "cf-ray": "9ccaf9ddcf7dec1b-SEA",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "post_json": {
+        "code": 200,
+        "data": [
+          {
+            "status": "submitted",
+            "task_id": "task_01KH8J2STX1MF2M8X5QDGX35EW"
+          }
+        ]
+      },
+      "tasks": [
+        {
+          "task_id": "task_01KH8J2STX1MF2M8X5QDGX35EW",
+          "task": {
+            "code": 200,
+            "data": {
+              "actual_time": 55,
+              "completed": 1770887724,
+              "created": 1770887669,
+              "estimated_time": 100,
+              "id": "task_01KH8J2STX1MF2M8X5QDGX35EW",
+              "progress": 100,
+              "result": {
+                "images": [
+                  {
+                    "expires_at": 1770974124,
+                    "url": [
+                      "https://upload.apimart.ai/f/image/9998229112274353-660dd43a-4e7f-4b58-b008-39cb6c918eb3-image_task_01KH8J2STX1MF2M8X5QDGX35EW.jpg"
+                    ]
+                  }
+                ]
+              },
+              "status": "completed"
+            }
+          },
+          "image_urls": [
+            "https://upload.apimart.ai/f/image/9998229112274353-660dd43a-4e7f-4b58-b008-39cb6c918eb3-image_task_01KH8J2STX1MF2M8X5QDGX35EW.jpg"
+          ]
+        }
+      ],
+      "saved_images": [
+        {
+          "filename": "04-task1-1.jpg",
+          "source_kind": "task_url",
+          "task_id": "task_01KH8J2STX1MF2M8X5QDGX35EW",
+          "task_index": 1,
+          "url_index": 1,
+          "url": "https://upload.apimart.ai/f/image/9998229112274353-660dd43a-4e7f-4b58-b008-39cb6c918eb3-image_task_01KH8J2STX1MF2M8X5QDGX35EW.jpg"
+        }
+      ]
+    }
+  ],
+  "ended_at": "2026-02-12T17:15:38"
+}
