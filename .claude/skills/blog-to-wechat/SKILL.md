@@ -284,9 +284,12 @@ h2：color #1a1a1a; 左侧 4px solid #07c160; padding-left 12px
 #### 安全标签
 
 ```
-section, p, span, strong, em, u, a, h1-h6, ul, ol, li,
+section, p, span, strong, em, u, a, h1-h6,
 blockquote, pre, code, table, thead, tbody, tr, th, td,
 img, br, hr
+
+注意：虽然 ul/ol/li 是安全标签，但微信编辑器会在 <li> 标签之间的空白文本节点渲染出空的 bullet 点。
+因此**禁止使用 ul/ol/li**，改用 <p> 标签 + 手动列表符号（• 或 1. 2. 3.）来模拟列表。
 ```
 
 #### 禁止标签
@@ -326,6 +329,17 @@ transition, animation, @keyframes, filter, clip-path
 6. **链接只支持 https**，且外部链接可能被过滤
 7. **代码块特殊字符转义**：`<` → `&lt;`，`>` → `&gt;`
 
+### 微信渲染踩坑规则（必须严格遵守）
+
+> 以下规则来自实际发布后的渲染问题复盘，违反任何一条都会导致微信端黑屏、排版错乱。
+
+8. **必须有完整 HTML 文档结构**：文件必须以 `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>` 开头，`</body></html>` 结尾。缺少文档头会导致浏览器复制粘贴到微信时丢失所有样式。
+9. **禁止使用 `<section>` 做容器**：卡片容器必须用 `<div>`，不要用 `<section>`。微信编辑器对 `<section>` 的 copy-paste 支持不稳定。
+10. **禁止使用 `<hr>` 做分隔线**：用 `<div style="border-top: 1px dashed #c8d8e8; margin: 30px 0;"></div>` 替代。`<hr>` 在微信中渲染行为不可预测。
+11. **禁止使用 `<blockquote>` 做引用块**：用 `<div style="border-left: 4px solid {主题色}; background: {浅色}; padding: 12px 16px; ...">` 替代。`<blockquote>` 在微信中有默认样式会覆盖内联样式。
+12. **代码块必须用浅色背景**：用 `background: #f6f8fa; color: #3a4150; border: 1px solid #e8e8e8` 而非深色背景 `#2d2d2d`。深色代码块在微信中容易导致整页黑屏。
+13. **代码块必须用 `<pre><code>` 双层嵌套**：`<pre style="..."><code>内容</code></pre>`，不要只用 `<pre>`。
+
 ### 通用排版规范
 
 | 元素 | 样式 |
@@ -335,13 +349,12 @@ transition, animation, @keyframes, filter, clip-path
 | h2 | font-size 20px; font-weight bold |
 | h3 | font-size 18px; font-weight bold |
 | 行内代码 | background #f6f8fa; color #e83e8c; padding 2px 6px; border-radius 3px; font-size 14px |
-| 代码块 | background #2d2d2d; color #f8f8f2; padding 16px; border-radius 8px; font-size 13px; line-height 1.6; overflow-x auto |
-| 代码语言标识 | 代码块右上方; font-size 12px; color #999 |
+| 代码块 | background #f6f8fa; color #3a4150; padding 16px; border-radius 8px; font-size 13px; line-height 1.6; overflow-x auto; border 1px solid #e8e8e8。**必须用 `<pre><code>` 双层嵌套**。**禁止深色背景**（会导致微信黑屏） |
 | 表格 | width 100%; border-collapse collapse; border 1px solid #e8e8e8 |
 | 表头 | background #f6f8fa; font-weight bold; padding 10px 16px |
 | 表格行 | 偶数行 background #fafbfc; padding 10px 16px |
-| 列表项 | margin-bottom 8px |
-| 分隔线 | border-top 1px dashed #ddd; margin 30px 0 |
+| 列表项 | **禁止使用 `<ul>/<ol>/<li>` 标签**（微信会在 `<li>` 之间的空白节点渲染出空 bullet），改用 `<p>` 标签 + 手动符号：无序用 `•`，有序用 `1.` `2.` 等。样式：`padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 10px` |
+| 分隔线 | 用 `<div style="border-top: 1px dashed #c8d8e8; margin: 30px 0;"></div>`，**禁止用 `<hr>`** |
 | 图片 | display block; max-width 100%; margin 20px auto |
 | 图片说明 | text-align center; font-size 14px; color #999 |
 
@@ -355,27 +368,57 @@ transition, animation, @keyframes, filter, clip-path
 
 ### HTML 输出结构
 
+> 此模板已经过微信实际发布验证，**必须严格遵循**，不得省略任何部分。
+
 ```html
-<!-- 微信公众号文章：{title} -->
-<!-- 生成时间：{date} -->
-<!-- 主题：{theme} -->
-<!-- 使用方式：用浏览器打开 → 全选 → 复制 → 粘贴到微信公众号编辑器 -->
-
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+</head>
+<body>
 <div style="{主容器样式}">
-  <section style="{卡片样式，如有}">
+<div style="{卡片样式}">
 
-    <!-- 文章标题 -->
-    <h1 style="...">{title}</h1>
+<!-- 标题 -->
+<h1 style="color: {主题色}; font-size: 24px; text-align: center; line-height: 1.6; margin-bottom: 10px;">{title}</h1>
+<p style="color: #8a9aaa; font-size: 14px; text-align: center; margin-bottom: 30px;">{description}</p>
 
-    <!-- 文章描述（可选） -->
-    <p style="...">{description}</p>
+<!-- 分隔线（用 div，禁止用 hr） -->
+<div style="border-top: 1px dashed #c8d8e8; margin: 30px 0;"></div>
 
-    <!-- 正文内容 -->
-    ...
+<!-- 正文段落（每个 p 必须显式指定 color） -->
+<p style="color: {文字色}; font-size: 16px; line-height: 1.8; margin-bottom: 20px;">正文内容</p>
 
-  </section>
+<!-- 二级标题 -->
+<h2 style="color: {主题色}; border-left: 4px solid {主题色}; padding-left: 12px; font-size: 20px; margin-top: 30px; margin-bottom: 16px;"><span style="color: {主题色}; text-shadow: 0 0 12px rgba(...);">◆</span> 标题</h2>
+
+<!-- 代码块（浅色背景 + pre>code 双层嵌套，禁止深色背景） -->
+<pre style="background: #f6f8fa; color: #3a4150; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin-bottom: 20px; border: 1px solid #e8e8e8;"><code>代码内容</code></pre>
+
+<!-- 引用块（用 div，禁止用 blockquote） -->
+<div style="border-left: 4px solid {主题色}; background: {浅色背景}; padding: 12px 16px; color: #5a6a7a; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+<p style="color: #5a6a7a; font-size: 15px; line-height: 1.8; margin: 0;">引用内容</p>
 </div>
+
+<!-- 列表（用 p + 手动符号，禁止用 ul/ol/li） -->
+<p style="color: {文字色}; font-size: 16px; line-height: 1.8; margin-bottom: 4px; padding-left: 1.5em; text-indent: -1.5em;">• 列表项</p>
+
+</div>
+</div>
+</body>
+</html>
 ```
+
+**关键点回顾**：
+- 必须有 `<!DOCTYPE html>` 完整文档头
+- 卡片容器用 `<div>`，禁止 `<section>`
+- 分隔线用 `<div>` + border-top，禁止 `<hr>`
+- 引用用 `<div>` + border-left，禁止 `<blockquote>`
+- 代码块用浅色背景 `#f6f8fa`，禁止深色 `#2d2d2d`
+- 代码块用 `<pre><code>` 双层嵌套
 
 ### 输出文件
 
