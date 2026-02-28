@@ -1,15 +1,15 @@
 ---
 name: blog-to-wechat
-description: 博客转微信公众号一站式工具。支持：博客转 HTML、写作风格润色、AI 痕迹去除、主题切换、图片处理、一键发布草稿。当用户想要把博客转成公众号格式、润色文章、去 AI 味、导出微信 HTML 时使用此技能。
+description: 博客转微信公众号一站式工具。支持：博客转 HTML、写作风格润色、AI 痕迹去除、主题切换、封面图生成、一键发布草稿。当用户想要把博客转成公众号格式、润色文章、去 AI 味、导出微信 HTML 时使用此技能。
 ---
 
 # 博客转微信公众号 — 一站式工作流
 
-将 `_posts/` 中的博客文章转换为微信公众号格式，支持写作润色、AI 去痕、主题切换、图片处理和一键发布。所有转换由 Claude 完成，输出到 `_wechat_html/` 目录。
+将 `_posts/` 中的博客文章转换为微信公众号格式，支持写作润色、AI 去痕、主题切换、封面图生成和一键发布。所有转换由 Claude 完成，输出到 `_wechat_html/` 目录。
 
 ---
 
-## 完整工作流程（6 步）
+## 完整工作流程（7 步）
 
 用户可以从任意步骤开始，也可以跳过不需要的步骤。向用户确认需要哪些步骤后执行。
 
@@ -19,7 +19,8 @@ description: 博客转微信公众号一站式工具。支持：博客转 HTML�
          → [Step 3] AI 去痕（可选）
          → [Step 4] 选择主题
          → [Step 5] 转换 HTML
-         → [Step 6] 发布草稿（可选）
+         → [Step 6] 生成封面图（可选）
+         → [Step 7] 发布草稿（可选）
 ```
 
 ---
@@ -430,11 +431,88 @@ transition, animation, @keyframes, filter, clip-path
 1. 文件路径
 2. 使用方式：浏览器打开 HTML → Ctrl/Cmd+A 全选 → 复制 → 粘贴到微信公众号编辑器
 3. 图片提醒：文中图片需要在公众号编辑器中重新上传
-4. 询问是否需要发布到草稿箱（Step 6）
+4. 询问是否需要生成封面图（Step 6）或直接发布到草稿箱（Step 7）
 
 ---
 
-## Step 6：发布草稿（可选）
+## Step 6：生成封面图（可选）
+
+使用 image-assistant 工具为文章生成 AI 封面图。发布草稿（Step 7）需要封面图。
+
+### 工具位置
+
+```
+/Users/bytedance/GC/GitHub/GCSkills/image-assistant/
+├── scripts/
+│   ├── apimart_batch_generate.py   # 批量出图脚本
+│   └── apimart.env                 # API 配置（含 TOKEN，不要公开）
+```
+
+### 生成流程
+
+#### 1. 根据文章内容生成提示词
+
+分析文章标题、分类、核心概念，生成一条封面图提示词。
+
+**提示词模板**（基于 image-assistant 的风格规范）：
+
+```
+一张 16:9 横版信息图封面，奶油白纸底 + 彩铅水彩手绘风格。
+中央超大标题「{文章主标题}」，深蓝色手写体，下方副标题「{副标题/描述}」浅灰色小字。
+中间区域从左到右排列 {N} 个圆角彩色气泡，分别写着：{核心概念1}、{核心概念2}、...，
+用手绘粗箭头依次连接，颜色渐变从浅蓝到深蓝。
+气泡旁边点缀小图标：{图标1}、{图标2}、...。
+整体留白充足，干净清爽，中文清晰可读无乱码，除指定文字外不要生成任何额外文字。
+```
+
+提示词要求：
+- 文字内容简短，标题 + 副标题 + 3~6 个核心概念
+- 风格固定：奶油纸底 + 彩铅水彩手绘
+- 必须包含约束：「中文清晰可读无乱码，除指定文字外不要生成任何额外文字」
+
+#### 2. 写入 JSONL 请求文件
+
+```bash
+# 写到 /tmp/{id}-cover-prompt.jsonl
+{"id":"{id}-cover","prompt":"<提示词内容>","size":"16:9","n":1,"resolution":"2K","model":"gemini-3-pro-image-preview","pad_url":""}
+```
+
+#### 3. 提交生成请求（异步，不等结果）
+
+```bash
+python3 /Users/bytedance/GC/GitHub/GCSkills/image-assistant/scripts/apimart_batch_generate.py \
+  --config /Users/bytedance/GC/GitHub/GCSkills/image-assistant/scripts/apimart.env \
+  --input /tmp/{id}-cover-prompt.jsonl \
+  --out /tmp/{id}-cover-output \
+  --no-download
+```
+
+> **重要**：使用 `--no-download` 参数，只提交任务不等下载。脚本会轮询直到任务完成或超时。
+
+#### 4. 返回 task_id 给用户，停止等待
+
+脚本运行后，读取 `/tmp/{id}-cover-output/run.json`，从中提取 `task_id`，告诉用户：
+
+```
+封面图生成任务已提交：
+- Task ID: {task_id}
+- 输出目录: /tmp/{id}-cover-output/
+- 请到 APIMart 控制台查看生成结果
+
+生成完成后告诉我，我继续帮你发布草稿。
+```
+
+**不要在这里等待生成结果**。用户会自行查看结果，确认满意后再告诉你继续。
+
+#### 5. 用户确认后继续
+
+当用户告知封面图已生成成功：
+- 用户提供图片路径 → 在 Step 7 中使用该图片作为封面
+- 用户说"用那张图" → 从 `/tmp/{id}-cover-output/` 目录中找到图片文件
+
+---
+
+## Step 7：发布草稿（可选）
 
 将转换好的 HTML 直接发布到微信公众号草稿箱。需要配置微信 API 凭据。
 
@@ -519,5 +597,6 @@ curl -s -X POST "https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${TOKE
 | "用秋日暖光主题转换这篇文章" | Step 1 → 4(autumn-warm) → 5 |
 | "帮我润色一下这篇文章再转" | Step 1 → 2 → 4 → 5 |
 | "去掉 AI 味再转成公众号" | Step 1 → 3 → 4 → 5 |
-| "全套流程走一遍" | Step 1 → 2 → 3 → 4 → 5 → 6 |
-| "转好后直接发到草稿箱" | Step 1 → 4 → 5 → 6 |
+| "全套流程走一遍" | Step 1 → 2 → 3 → 4 → 5 → 6 → 7 |
+| "转好后直接发到草稿箱" | Step 1 → 4 → 5 → 6 → 7 |
+| "帮我生成个封面图" | Step 1 → 6 |
