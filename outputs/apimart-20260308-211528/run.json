@@ -1,0 +1,167 @@
+{
+  "started_at": "2026-03-08T21:15:28",
+  "input": "/Users/bytedance/GC/GitHub/GCSkills/image-assistant/out/apimart.requests.jsonl",
+  "output_dir": "outputs/apimart-20260308-211528",
+  "config": {
+    "api_url": "https://api.apimart.ai/v1/images/generations",
+    "model": "gemini-3-pro-image-preview",
+    "resolution": "2K",
+    "size": "16:9",
+    "n": 1,
+    "pad_url": ""
+  },
+  "items": [
+    {
+      "id": "01",
+      "request": {
+        "model": "gemini-3-pro-image-preview",
+        "prompt": "16:9 横版信息图。奶油色纸张底（纸纹可见），彩铅线稿（笔触可见）+ 淡水彩上色（轻晕染），暖色调，轻涂鸦装饰，趣味但干净。\n\n标题（顶部大字）：现在：每个App都在替用户交“流量费”\n\n主体：画面中央展示一个混乱的多对多连接图。左侧三个圆角矩形，分别写“App A”“App B”“App C”，每个框旁边画一个小手机/应用图标。右侧三个圆角矩形，分别写“GPT”“Claude”“Gemini”，每个框旁边画一个小机器人/大脑图标。左右之间用大量交叉的线连接（每个App连到每个模型），线条用红色/橙色，每条线上画一个钱袋图标，表示每次调用都要付费。整体感觉：线条纠缠、混乱、昂贵。\n\n底部结论框（大字一行）：App越多，线越乱，钱越烧\n\n强制约束：中文清晰可读、无乱码；大字号；少字短句；避免密集小字；留白充足；不要扁平矢量海报风、不要3D、不要摄影写实、不要复杂背景/强渐变光效、不要额外小字注解/水印/署名。以此风格为唯一基础，不得换风格。",
+        "size": "16:9",
+        "n": 1,
+        "resolution": "2K"
+      },
+      "post": {
+        "status": 200,
+        "headers": {
+          "date": "Sun, 08 Mar 2026 13:15:29 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "88",
+          "connection": "close",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "x-oneapi-request-id": "20260308211529356879220uZlDDn5g",
+          "cf-cache-status": "DYNAMIC",
+          "server-timing": "cfEdge;dur=5,cfOrigin;dur=191",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KwmUcIXqlGgj5%2Fu%2BY18PtBn0GROAHeiE1ff93DPmtads%2BYHTh0HB3d94gyH1S6NBdBZKRl3oyZPb3PnoUVrRfbPBlLsfHPHNbTNVGlc%3D\"}]}",
+          "server": "cloudflare",
+          "cf-ray": "9d921be458f121b5-NRT",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "post_json": {
+        "code": 200,
+        "data": [
+          {
+            "status": "submitted",
+            "task_id": "task_01KK6SDASWERNG7DQ3TCXM1SRV"
+          }
+        ]
+      },
+      "tasks": [
+        {
+          "task_id": "task_01KK6SDASWERNG7DQ3TCXM1SRV",
+          "task": {
+            "code": 200,
+            "data": {
+              "actual_time": 43,
+              "completed": 1772975772,
+              "created": 1772975729,
+              "estimated_time": 100,
+              "id": "task_01KK6SDASWERNG7DQ3TCXM1SRV",
+              "progress": 100,
+              "result": {
+                "images": [
+                  {
+                    "expires_at": 1773062172,
+                    "url": [
+                      "https://upload.apimart.ai/f/image/9998227024226311-e7682435-ea01-4860-a9d3-de187b607953-image_task_01KK6SDASWERNG7DQ3TCXM1SRV.jpg"
+                    ]
+                  }
+                ]
+              },
+              "status": "completed"
+            }
+          },
+          "image_urls": [
+            "https://upload.apimart.ai/f/image/9998227024226311-e7682435-ea01-4860-a9d3-de187b607953-image_task_01KK6SDASWERNG7DQ3TCXM1SRV.jpg"
+          ]
+        }
+      ],
+      "saved_images": [
+        {
+          "filename": "01-task1-1.jpg",
+          "source_kind": "task_url",
+          "task_id": "task_01KK6SDASWERNG7DQ3TCXM1SRV",
+          "task_index": 1,
+          "url_index": 1,
+          "url": "https://upload.apimart.ai/f/image/9998227024226311-e7682435-ea01-4860-a9d3-de187b607953-image_task_01KK6SDASWERNG7DQ3TCXM1SRV.jpg"
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "request": {
+        "model": "gemini-3-pro-image-preview",
+        "prompt": "16:9 横版信息图。奶油色纸张底（纸纹可见），彩铅线稿（笔触可见）+ 淡水彩上色（轻晕染），暖色调，轻涂鸦装饰，趣味但干净。\n\n标题（顶部大字）：理想：像SIM卡一样，用户绑定模型厂商\n\n主体：清晰的三层架构，从上到下排列。\n- 顶层：一个大圆角矩形写“用户”，旁边画一张SIM卡/订阅卡图标，右侧用虚线箭头连到一朵云写“模型厂商（按月付费）”，箭头上写“一次付费”。\n- 中间层：一个宽横条矩形写“系统层 / OS”，用淡蓝色填充，旁边画一个手机轮廓。从顶层“用户”到中间层有一条粗箭头写“身份认证”。\n- 底层：三个并排的小矩形分别写“App A”“App B”“App C”，每个旁边画个小应用图标。从底层到中间层各有一条绿色箭头写“自由调用”。\n\n整体感觉：清晰、有序、轻松。与图1形成鲜明对比。\n\n底部结论框（大字一行）：App只管调用，费用归用户\n\n强制约束：中文清晰可读、无乱码；大字号；少字短句；避免密集小字；留白充足；不要扁平矢量海报风、不要3D、不要摄影写实、不要复杂背景/强渐变光效、不要额外小字注解/水印/署名。以此风格为唯一基础，不得换风格。",
+        "size": "16:9",
+        "n": 1,
+        "resolution": "2K"
+      },
+      "post": {
+        "status": 200,
+        "headers": {
+          "date": "Sun, 08 Mar 2026 13:16:24 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "88",
+          "connection": "close",
+          "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+          "x-oneapi-request-id": "20260308211623221318590cABXWC0P",
+          "cf-cache-status": "DYNAMIC",
+          "server-timing": "cfEdge;dur=8,cfOrigin;dur=996",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=l%2BFjTjTXHmu%2F1g%2B4rv1uJFqFNdDeWOgyVHKpZiQNr9zv0KpFcIAWKylbWJvHG%2FutZs2suLAAl9jqE2nKq9dq5eemzK3jIHd1r02N\"}]}",
+          "server": "cloudflare",
+          "cf-ray": "9d921d348ddaf5c0-NRT",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "post_json": {
+        "code": 200,
+        "data": [
+          {
+            "status": "submitted",
+            "task_id": "task_01KK6SF03JRD488M6MJ2QQW3JW"
+          }
+        ]
+      },
+      "tasks": [
+        {
+          "task_id": "task_01KK6SF03JRD488M6MJ2QQW3JW",
+          "task": {
+            "code": 200,
+            "data": {
+              "actual_time": 39,
+              "completed": 1772975823,
+              "created": 1772975784,
+              "estimated_time": 100,
+              "id": "task_01KK6SF03JRD488M6MJ2QQW3JW",
+              "progress": 100,
+              "result": {
+                "images": [
+                  {
+                    "expires_at": 1773062223,
+                    "url": [
+                      "https://upload.apimart.ai/f/image/9998227024176349-79c1bf55-880e-4ef9-bb65-3252db6d46a9-image_task_01KK6SF03JRD488M6MJ2QQW3JW.jpg"
+                    ]
+                  }
+                ]
+              },
+              "status": "completed"
+            }
+          },
+          "image_urls": [
+            "https://upload.apimart.ai/f/image/9998227024176349-79c1bf55-880e-4ef9-bb65-3252db6d46a9-image_task_01KK6SF03JRD488M6MJ2QQW3JW.jpg"
+          ]
+        }
+      ],
+      "saved_images": [
+        {
+          "filename": "02-task1-1.jpg",
+          "source_kind": "task_url",
+          "task_id": "task_01KK6SF03JRD488M6MJ2QQW3JW",
+          "task_index": 1,
+          "url_index": 1,
+          "url": "https://upload.apimart.ai/f/image/9998227024176349-79c1bf55-880e-4ef9-bb65-3252db6d46a9-image_task_01KK6SF03JRD488M6MJ2QQW3JW.jpg"
+        }
+      ]
+    }
+  ]
+}
