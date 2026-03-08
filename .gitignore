@@ -21,3 +21,6 @@ yarn.lock
 # WeChat HTML export
 _wechat_html/
 
+# Image generation outputs
+outputs/
+
