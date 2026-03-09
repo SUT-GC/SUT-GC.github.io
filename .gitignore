@@ -24,3 +24,6 @@ _wechat_html/
 # Image generation outputs
 outputs/
 
+# Claude Code local config and skills
+.claude/
+
