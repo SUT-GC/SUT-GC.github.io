@@ -35,9 +35,15 @@ Anthropic 把它比作 **"AI 的 USB-C 接口"** —— USB-C 让所有设备用
 
 ### 三个角色
 
-![MCP 三层架构](https://int32-blog.oss-cn-beijing.aliyuncs.com/02-architecture-task1-1.jpg)
+MCP 的世界里有三个核心角色：
 
-重点理解：**AI 模型本身不直接连 MCP Server**。中间的 Client 是桥梁——它从 Server 发现工具，告诉 AI 有什么可用，AI 决定要调什么，Client 再去 Server 执行。
+![MCP 架构：AI 模型 ↔ Client ↔ Server](https://int32-blog.oss-cn-beijing.aliyuncs.com/arch-v2-task1-1.jpg)
+
+- **AI 模型**：负责理解用户意图、决定调用哪个工具（如 Claude、GPT）
+- **MCP Client**：桥梁——从 Server 发现工具，翻译成 AI 能理解的格式，AI 要调用时转发给 Server 执行
+- **MCP Server**：暴露工具、资源等能力，接收调用请求并返回结果
+
+它们通常运行在一个 **Host（主机应用）** 里，比如 Claude Desktop 或 Cursor IDE。Host 启动 Client，Client 连接 Server，AI 模型通过 Client 间接使用 Server 的能力。**AI 不直接连 Server**，Client 是中间人。
 
 ### 三大核心能力
 
