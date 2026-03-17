@@ -1,9 +1,9 @@
 ---
 layout: post
 title: "深入理解 Model Context Protocol (MCP)：完整指南"
-description: "从概念、架构、实战到最佳实践，全面掌握 MCP 协议"
+description: "从概念、架构、协议格式到裸协议实现，彻底搞懂 MCP 的本质"
 categories: ["技术"]
-tags: ["Claude"]
+tags: ["MCP", "Claude", "AI", "协议"]
 ---
 
 * Kramdown table of contents
@@ -11,224 +11,502 @@ tags: ["Claude"]
 
 # 深入理解 Model Context Protocol (MCP)：完整指南
 
-> 本文全面介绍 MCP 协议：从基础概念、架构设计、通信机制，到 Python/Go 实战代码和生产环境最佳实践。
-
-## 目录
-
-1. [MCP 是什么](#一mcp-是什么)
-2. [架构与机制](#二架构与机制)
-3. [MCP vs Function Calling](#三mcp-vs-function-calling)
-4. [Hello World 实战](#四hello-world-实战)
-5. [调试与故障排查](#五调试与故障排查)
-6. [进阶主题](#六进阶主题)
-7. [最佳实践](#七最佳实践)
-8. [生态系统](#八生态系统)
+> 本文不只是告诉你 MCP 怎么用，而是带你从底层理解它到底是什么、为什么这么设计。我们会先搞清楚架构和协议格式，然后用最原始的 HTTP 代码手写一个 MCP Server 和 Client，看清协议的本质，最后再回到 SDK 的便捷写法。
 
 ---
 
 ## 一、MCP 是什么？
 
-### 1.1 核心概念
+2024 年 11 月，Anthropic 发布了 **Model Context Protocol (MCP)**，一个开放标准协议，用于在 AI 应用和外部工具、数据源之间建立标准化的连接。
 
-2024 年 11 月，Anthropic 发布了 **Model Context Protocol (MCP)**，这是一个开放标准协议，用于在 AI 应用和外部数据源之间建立安全的双向连接。
+**一句话概括**：MCP 定义了一套统一的接口规范，让 AI 模型能以标准化的方式**发现**并**调用**外部能力。
 
-**形象比喻**：Anthropic 将 MCP 比作 **"AI 的 USB-C 接口"**
-- USB-C 提供了连接设备与外设的标准方式
-- MCP 提供了连接 AI 模型与数据源的标准方式
+### 为什么需要 MCP？
 
-### 1.2 解决的核心问题
+在 MCP 出现之前，每个 AI 应用要接入外部工具，都得写一套自定义的集成代码：
 
-**M × N 问题**：
-```
-传统方式：
-- M 个 AI 应用
-- N 个数据源
-- 需要 M × N 个自定义集成 ❌
+![为什么需要 MCP](https://int32-blog.oss-cn-beijing.aliyuncs.com/01-mxn-compare-task1-1.jpg)
 
-MCP 方式：
-- M 个应用实现 MCP 客户端
-- N 个数据源实现 MCP 服务器
-- 任意组合无缝工作 ✅
-```
-
-### 1.3 应用场景
-
-- 🗂️ **业务工具集成**：Google Drive、Slack、GitHub
-- 🗄️ **数据库访问**：PostgreSQL、MongoDB、MySQL
-- 🌐 **API 服务**：天气、地图、支付
-- 📁 **文件系统**：本地文件读写
-- 💻 **开发工具**：IDE、代码编辑器
+Anthropic 把它比作 **"AI 的 USB-C 接口"** —— USB-C 让所有设备用同一种接口连接外设，MCP 让所有 AI 应用用同一种协议连接工具。
 
 ---
 
-## 二、架构与机制
+## 二、MCP 的架构
 
-### 2.1 三层架构
+### 三个角色
 
+![MCP 三层架构](https://int32-blog.oss-cn-beijing.aliyuncs.com/02-architecture-task1-1.jpg)
+
+重点理解：**AI 模型本身不直接连 MCP Server**。中间的 Client 是桥梁——它从 Server 发现工具，告诉 AI 有什么可用，AI 决定要调什么，Client 再去 Server 执行。
+
+### 三大核心能力
+
+MCP Server 可以提供三种能力，按需声明：
+
+| 能力 | 类比 | 用途 | 示例 |
+| ------ | ------ | ------ | ------ |
+| **Tools（工具）** | POST 端点 | 执行操作，有副作用 | 发邮件、查天气、写文件 |
+| **Resources（资源）** | GET 端点 | 提供数据，只读 | 读取文件、查询数据库记录 |
+| **Prompts（提示词）** | 模板 | 预定义的交互模板 | 代码审查模板、翻译模板 |
+
+其中 **Tools 是最常用的**，大多数 MCP Server 只实现 Tools 就够了。
+
+---
+
+## 三、客户端与服务端是怎么交互的？
+
+这是理解 MCP 最关键的部分。整个交互分为三个阶段：
+
+### 第一阶段：握手
+
+Client 和 Server 先"认识一下"，交换各自的能力：
+
+```text
+Client → Server:  initialize（我是谁，我支持什么）
+Server → Client:  返回（我是谁，我支持 tools / resources / prompts 中的哪些）
+Client → Server:  notifications/initialized（好的，握手完成）
 ```
-┌─────────────────────────────────────────┐
-│         Host (主机应用)                 │
-│   (Claude Desktop, Cursor IDE)          │
-│  ┌───────────────────────────────────┐  │
-│  │   MCP Client (客户端)             │  │
-│  │   - 管理连接                      │  │
-│  │   - 处理协议                      │  │
-│  │   - 路由请求                      │  │
-│  └──────────────┬────────────────────┘  │
-└─────────────────┼──────────────────────┘
-                  │ JSON-RPC 2.0
-                  │ (stdio/HTTP/SSE)
-                  ▼
-┌─────────────────────────────────────────┐
-│       MCP Server (服务器)               │
-│  ┌──────────┐ ┌──────────┐             │
-│  │Resources │ │  Tools   │             │
-│  │  (资源)  │ │ (工具)   │             │
-│  └──────────┘ └──────────┘             │
-│  ┌──────────┐                          │
-│  │ Prompts  │                          │
-│  │(提示词)  │                          │
-│  └──────────┘                          │
-└─────────────────────────────────────────┘
-```
 
-### 2.2 三大核心能力
+Server 在握手响应中**声明**自己支持哪些能力：
 
-#### 📚 Resources (资源)
-- **类比**：REST API 的 GET 端点
-- **用途**：提供上下文数据
-- **特点**：只读、静态或动态
-- **示例**：
-  ```
-  resource://files/report.pdf
-  resource://database/users/{id}
-  resource://api/weather/current
-  ```
-
-#### 🔧 Tools (工具)
-- **类比**：REST API 的 POST 端点
-- **用途**：执行操作、产生副作用
-- **特点**：可执行、需用户批准
-- **示例**：发送邮件、创建文件、查询数据库
-
-#### 💬 Prompts (提示词)
-- **用途**：预定义的交互模板
-- **特点**：可重用、支持参数化
-- **作用**：引导 AI 对话
-
-### 2.3 通信协议
-
-#### JSON-RPC 2.0 消息格式
-
-**Request (请求)**：
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
+  "capabilities": {
+    "tools": {}
+  }
+}
+```
+
+注意 `"tools": {}` 是空对象——这里不是说没有工具，而是**声明"我支持 tools 这个能力"**。具体有哪些工具，下一步才去问。
+
+### 第二阶段：发现
+
+Client 根据握手结果，去查询具体有哪些工具可用：
+
+```text
+Client → Server:  tools/list（你有哪些工具？）
+Server → Client:  返回工具列表（名称、描述、参数定义）
+```
+
+Client 拿到工具列表后，转换成 AI 模型能理解的格式，塞进对话上下文。
+
+### 第三阶段：调用
+
+用户提问，AI 分析后决定调用某个工具，Client 转发执行：
+
+```text
+用户: "北京天气怎么样？"
+      ↓
+AI 模型看到可用工具列表，决定调用 get_weather(city="北京")
+      ↓
+Client → Server:  tools/call（调用 get_weather，参数 city=北京）
+Server → Client:  返回结果（晴天 25°C）
+      ↓
+AI 模型拿到结果，生成最终回复: "北京今天晴天 25°C，适合出门。"
+```
+
+完整流程图：
+
+![MCP 交互全流程](https://int32-blog.oss-cn-beijing.aliyuncs.com/03-interaction-flow-task1-1.jpg)
+
+---
+
+## 四、协议格式：一个端点 + JSON-RPC
+
+上面说的所有交互，底层都是**往同一个端点发 JSON**。MCP 基于 JSON-RPC 2.0 协议（一个早已存在的开放标准，后面会详细介绍），不靠 URL 路径区分操作，而是靠消息体里的 `method` 字段路由：
+
+```text
+所有请求都发到同一个地方：
+POST /mcp  →  { "method": "initialize", ... }
+POST /mcp  →  { "method": "tools/list", ... }
+POST /mcp  →  { "method": "tools/call", ... }
+```
+
+每个方法的入参和出参格式都是协议预定义好的——这也是 SDK 能帮你收掉的部分。下面列出最核心的几个：
+
+### initialize（握手）
+
+```json
+// 请求
+{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+  "protocolVersion": "2025-03-26",
+  "capabilities": {},
+  "clientInfo": {"name": "my-client", "version": "1.0"}
+}}
+
+// 响应
+{"jsonrpc": "2.0", "id": 1, "result": {
+  "protocolVersion": "2025-03-26",
+  "capabilities": {"tools": {}},
+  "serverInfo": {"name": "my-server", "version": "1.0"}
+}}
+```
+
+### tools/list（发现工具）
+
+```json
+// 请求
+{"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}
+
+// 响应——返回工具名称、描述、参数的 JSON Schema
+{"jsonrpc": "2.0", "id": 2, "result": {
+  "tools": [{
     "name": "get_weather",
-    "arguments": {"location": "Singapore"}
-  }
-}
+    "description": "获取指定城市的天气",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "city": {"type": "string", "description": "城市名称"}
+      },
+      "required": ["city"]
+    }
+  }]
+}}
 ```
 
-**Response (响应)**：
+### tools/call（调用工具）
+
 ```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": {
-    "content": [
-      {"type": "text", "text": "Temperature: 28°C"}
-    ]
-  }
-}
+// 请求
+{"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {
+  "name": "get_weather",
+  "arguments": {"city": "北京"}
+}}
+
+// 响应
+{"jsonrpc": "2.0", "id": 3, "result": {
+  "content": [{"type": "text", "text": "晴天 25°C"}]
+}}
 ```
 
-#### 传输层
-
-| 传输方式 | 适用场景 | 优点 | 缺点 |
-|---------|---------|------|------|
-| **stdio** | 本地工具 | 简单、安全、低延迟 | 仅本地、单客户端 |
-| **HTTP+SSE** | 远程服务 | 跨网络、多客户端 | 需配置、较复杂 |
+可以看到，所有消息都遵循同一个信封格式：`jsonrpc` + `id` + `method` + `params`/`result`。**MCP 协议定义的就是每个 method 该传什么 params、返回什么 result**——这就是它作为"标准协议"的核心价值，任何语言的 SDK 只要按这个格式实现，就能互通。
 
 ---
 
-## 三、MCP vs Function Calling
+## 五、用最原始的代码实现 MCP
 
-### 对比表格
+理解协议最好的方式就是自己手写一遍。下面我们**不用任何 MCP SDK**，只用 Flask 和 requests，手撸一个完整的 MCP Server 和 Client。
 
-| 维度 | Function Calling | MCP |
-|------|------------------|-----|
-| **标准化** | 供应商特定 | 开放标准 |
-| **重用性** | 应用特定 | 跨应用重用 |
-| **连接** | 无状态 | 有状态持久连接 |
-| **能力** | 仅函数 | 工具+资源+提示词 |
-| **发现** | 编译时 | 运行时 |
-| **场景** | 简单临时 | 企业级可重用 |
+### 5.1 手写 MCP Server
 
-### 形象类比
+整个 Server 就一个 HTTP 端点 `/mcp`，所有请求都是 POST，靠请求体里的 `method` 字段区分操作：
 
-- **Function Calling**：把工具箱焊在车上（每辆车都要单独配）
-- **MCP**：USB 接口（一个工具插入所有设备）
+```python
+"""
+MCP Server - 纯 HTTP 实现，不依赖 MCP SDK
+pip install flask
+"""
 
----
+from flask import Flask, request, jsonify
 
-## 四、Hello World 实战
+app = Flask(__name__)
 
-### 4.1 Python 实现
+# ========== 定义工具 ==========
 
-#### 安装
+TOOLS = [
+    {
+        "name": "get_weather",
+        "description": "获取指定城市的天气信息",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "city": {"type": "string", "description": "城市名称"}
+            },
+            "required": ["city"],
+        },
+    },
+    {
+        "name": "add",
+        "description": "两个数字相加",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "a": {"type": "number", "description": "第一个数"},
+                "b": {"type": "number", "description": "第二个数"},
+            },
+            "required": ["a", "b"],
+        },
+    },
+]
+
+# ========== 工具实现 ==========
+
+def handle_get_weather(args):
+    city = args.get("city", "未知")
+    fake_weather = {"北京": "晴天 25°C", "上海": "多云 22°C", "深圳": "小雨 28°C"}
+    return [{"type": "text", "text": fake_weather.get(city, f"{city} 天气数据暂无")}]
+
+
+def handle_add(args):
+    return [{"type": "text", "text": str(args["a"] + args["b"])}]
+
+
+TOOL_HANDLERS = {
+    "get_weather": handle_get_weather,
+    "add": handle_add,
+}
+
+# ========== MCP 协议处理（JSON-RPC method → handler）==========
+
+def handle_initialize(params):
+    """握手：告诉 Client 我支持什么能力"""
+    return {
+        "protocolVersion": "2025-03-26",
+        "capabilities": {
+            "tools": {},  # 声明"我支持 tools"，不是说没有工具
+        },
+        "serverInfo": {"name": "raw-mcp-server", "version": "1.0.0"},
+    }
+
+
+def handle_tools_list(params):
+    """返回所有工具的定义"""
+    return {"tools": TOOLS}
+
+
+def handle_tools_call(params):
+    """执行工具调用"""
+    tool_name = params.get("name")
+    arguments = params.get("arguments", {})
+
+    handler = TOOL_HANDLERS.get(tool_name)
+    if not handler:
+        raise ValueError(f"Unknown tool: {tool_name}")
+
+    return {"content": handler(arguments)}
+
+
+METHOD_HANDLERS = {
+    "initialize": handle_initialize,
+    "tools/list": handle_tools_list,
+    "tools/call": handle_tools_call,
+}
+
+# ========== 唯一的 HTTP 端点 ==========
+
+@app.route("/mcp", methods=["POST"])
+def mcp_endpoint():
+    """所有 MCP 请求都走这一个端点，靠 body 里的 method 字段路由"""
+    body = request.get_json()
+    method = body.get("method")
+    params = body.get("params", {})
+    req_id = body.get("id")
+
+    # 通知消息（无 id），如 notifications/initialized
+    if req_id is None:
+        return "", 204
+
+    handler = METHOD_HANDLERS.get(method)
+    if not handler:
+        return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
+            "error": {"code": -32601, "message": f"Method not found: {method}"},
+        }), 400
+
+    try:
+        result = handler(params)
+        return jsonify({"jsonrpc": "2.0", "id": req_id, "result": result})
+    except Exception as e:
+        return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
+            "error": {"code": -32000, "message": str(e)},
+        }), 500
+
+
+if __name__ == "__main__":
+    print("MCP Server running at http://localhost:8000/mcp")
+    app.run(host="0.0.0.0", port=8000)
+```
+
+看到了吗？**整个 Server 就是一个 `/mcp` 端点**，根据 `method` 字段分发到不同的处理函数。没有什么黑魔法。
+
+### 5.2 手写 MCP Client
+
+Client 的职责是：连接 Server → 发现工具 → 翻译给 AI → 转发调用。
+
+```python
+"""
+MCP Client - 纯 HTTP 实现，不依赖 MCP SDK
+pip install requests
+"""
+
+import requests
+import json
+
+MCP_ENDPOINT = "http://localhost:8000/mcp"
+_request_id = 0
+
+
+def jsonrpc_request(method, params=None):
+    """发送一个 JSON-RPC 请求，返回 result"""
+    global _request_id
+    _request_id += 1
+
+    resp = requests.post(MCP_ENDPOINT, json={
+        "jsonrpc": "2.0",
+        "id": _request_id,
+        "method": method,
+        "params": params or {},
+    })
+    data = resp.json()
+
+    if "error" in data:
+        raise Exception(f"RPC Error: {data['error']}")
+    return data["result"]
+
+
+def jsonrpc_notify(method, params=None):
+    """发送一个 JSON-RPC 通知（无 id，不期望响应）"""
+    requests.post(MCP_ENDPOINT, json={
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": params or {},
+    })
+
+
+def main():
+    # ===== 第一步：握手 =====
+    print("1️⃣  Initialize 握手")
+    result = jsonrpc_request("initialize", {
+        "protocolVersion": "2025-03-26",
+        "capabilities": {},
+        "clientInfo": {"name": "raw-mcp-client", "version": "1.0.0"},
+    })
+    jsonrpc_notify("notifications/initialized")
+
+    server_caps = result["capabilities"]
+    print(f"   Server 支持的能力: {list(server_caps.keys())}")
+
+    # ===== 第二步：发现工具 =====
+    print("\n2️⃣  tools/list 发现工具")
+    result = jsonrpc_request("tools/list")
+    tools = result["tools"]
+    for t in tools:
+        print(f"   - {t['name']}: {t['description']}")
+
+    # ===== 第三步：转换为 AI 模型的 tools 格式 =====
+    # 这一步是 MCP Client 的核心价值——桥接 MCP 和 AI
+    print("\n3️⃣  转换为 AI 模型格式")
+    ai_tools = []
+    for t in tools:
+        ai_tools.append({
+            "type": "function",
+            "function": {
+                "name": t["name"],
+                "description": t["description"],
+                "parameters": t["inputSchema"],
+            },
+        })
+    print(f"   转换完成，{len(ai_tools)} 个工具已准备好传给 AI")
+
+    # ===== 第四步：模拟 AI 决策 =====
+    # 实际场景：把用户问题 + ai_tools 一起发给 AI，AI 返回 tool_calls
+    # 这里直接模拟 AI 的决策结果
+    print("\n4️⃣  用户问: '北京天气怎么样？'")
+    print("   AI 决定调用: get_weather(city='北京')")
+
+    # ===== 第五步：通过 MCP 调用工具 =====
+    print("\n5️⃣  tools/call 执行工具")
+    result = jsonrpc_request("tools/call", {
+        "name": "get_weather",
+        "arguments": {"city": "北京"},
+    })
+    tool_output = result["content"][0]["text"]
+    print(f"   工具返回: {tool_output}")
+
+    # ===== 第六步：AI 生成最终回复 =====
+    # 实际场景：把 tool_output 作为 tool message 喂回 AI
+    print(f"\n6️⃣  AI 最终回复: 北京今天{tool_output}，适合出门活动。")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+运行方式：
+
 ```bash
-uv init mcp-hello-python
-cd mcp-hello-python
+# 终端 1
+python server.py
+
+# 终端 2
+python client.py
+```
+
+输出：
+
+```text
+1️⃣  Initialize 握手
+   Server 支持的能力: ['tools']
+
+2️⃣  tools/list 发现工具
+   - get_weather: 获取指定城市的天气信息
+   - add: 两个数字相加
+
+3️⃣  转换为 AI 模型格式
+   转换完成，2 个工具已准备好传给 AI
+
+4️⃣  用户问: '北京天气怎么样？'
+   AI 决定调用: get_weather(city='北京')
+
+5️⃣  tools/call 执行工具
+   工具返回: 晴天 25°C
+
+6️⃣  AI 最终回复: 北京今天晴天 25°C，适合出门活动。
+```
+
+---
+
+## 六、用 SDK 实现 MCP
+
+理解了底层原理后，再看 SDK 的写法就很清晰了——SDK 帮你封装了 JSON-RPC 通信、协议握手、工具注册这些重复工作。
+
+### 6.1 Server 端（使用 Python SDK）
+
+```bash
+uv init mcp-hello && cd mcp-hello
 uv add mcp
 ```
 
-#### 完整代码 (server.py)
 ```python
 from mcp.server.fastmcp import FastMCP
-import sys
-import logging
-
-# 配置日志（重要：输出到 stderr）
-logging.basicConfig(
-    level=logging.INFO,
-    handlers=[logging.StreamHandler(sys.stderr)]
-)
 
 mcp = FastMCP("Hello MCP Server")
 
 @mcp.tool()
-def greet(name: str = "World") -> str:
-    """向指定的人打招呼"""
-    return f"Hello, {name}! Welcome to MCP!"
+def get_weather(city: str) -> str:
+    """获取指定城市的天气信息"""
+    fake_weather = {"北京": "晴天 25°C", "上海": "多云 22°C", "深圳": "小雨 28°C"}
+    return fake_weather.get(city, f"{city} 天气数据暂无")
 
 @mcp.tool()
 def add(a: int, b: int) -> int:
-    """两数相加"""
+    """两个数字相加"""
     return a + b
-
-@mcp.resource("greeting://static")
-def get_greeting() -> str:
-    """静态问候语"""
-    return "This is a static greeting!"
-
-@mcp.resource("greeting://dynamic/{name}")
-def get_dynamic_greeting(name: str) -> str:
-    """动态问候语"""
-    return f"Hello {name}, personalized greeting!"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
-#### Claude Desktop 配置
+对比手写版本，SDK 帮你做了什么：
+
+| 你手写的 | SDK 帮你封装的 |
+| --------- | -------------- |
+| `handle_initialize()` 函数 | 自动处理握手 |
+| `TOOLS` 列表 + `inputSchema` | 从函数签名和类型注解自动生成 |
+| `METHOD_HANDLERS` 路由 | 自动根据 `@mcp.tool()` 注册 |
+| Flask 端点 + JSON-RPC 解析 | 内置传输层（stdio / HTTP） |
+
+**本质上 SDK 做的事情和我们手写的完全一样**，只是把模板代码藏起来了。
+
+### 6.2 配置到 Claude Desktop
+
+在 Claude Desktop 的配置文件中添加：
+
 ```json
 {
   "mcpServers": {
-    "hello-python": {
+    "hello": {
       "command": "uv",
       "args": ["run", "/path/to/server.py"]
     }
@@ -236,442 +514,187 @@ if __name__ == "__main__":
 }
 ```
 
-### 4.2 Go 实现
+Claude Desktop 启动后，内置的 MCP Client 会自动：
 
-#### 安装
-```bash
-mkdir mcp-hello-go && cd mcp-hello-go
-go mod init mcp-hello-go
-go get github.com/mark3labs/mcp-go
-```
+1. 用 stdio 启动你的 Server 进程
+2. 发送 `initialize` 握手
+3. 调用 `tools/list` 拿到工具列表
+4. 把工具展示给用户，AI 需要时自动调用
 
-#### 完整代码 (main.go)
-```go
-package main
+### 6.3 HTTP 模式（支持远程/多客户端）
 
-import (
-	"context"
-	"fmt"
-	"log"
-	"os"
-
-	"github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
-)
-
-func main() {
-	// 重要：日志输出到 stderr
-	log.SetOutput(os.Stderr)
-	
-	s := server.NewMCPServer(
-		"Hello MCP Server (Go)",
-		"1.0.0",
-		server.WithToolCapabilities(false),
-	)
-
-	// 工具：打招呼
-	greetTool := mcp.NewTool(
-		"greet",
-		mcp.WithDescription("向指定的人打招呼"),
-		mcp.WithString("name", mcp.Required()),
-	)
-	s.AddTool(greetTool, greetHandler)
-
-	// 工具：加法
-	addTool := mcp.NewTool(
-		"add",
-		mcp.WithDescription("两数相加"),
-		mcp.WithNumber("a", mcp.Required()),
-		mcp.WithNumber("b", mcp.Required()),
-	)
-	s.AddTool(addTool, addHandler)
-
-	// 资源：静态
-	staticResource := mcp.NewResource(
-		"greeting://static",
-		"Static Greeting",
-	)
-	s.AddResource(staticResource, staticHandler)
-
-	log.Println("Starting MCP Server...")
-	if err := server.ServeStdio(s); err != nil {
-		log.Fatalf("Server error: %v", err)
-	}
-}
-
-func greetHandler(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	name, _ := req.RequireString("name")
-	return mcp.NewToolResultText(fmt.Sprintf("Hello, %s!", name)), nil
-}
-
-func addHandler(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	a, _ := req.RequireNumber("a")
-	b, _ := req.RequireNumber("b")
-	return mcp.NewToolResultText(fmt.Sprintf("%.0f", a+b)), nil
-}
-
-func staticHandler(ctx context.Context, req mcp.ReadResourceRequest) (string, error) {
-	return "Static greeting from Go!", nil
-}
-```
-
-#### 编译运行
-```bash
-go build -o mcp-hello-go
-./mcp-hello-go  # 测试
-```
-
-### ⚠️ 关键注意事项
-
-**stdio 服务器日志规则**：
-```python
-# ❌ 错误：会破坏 JSON-RPC 消息
-print("Starting server...")
-
-# ✅ 正确：输出到 stderr
-import logging, sys
-logging.basicConfig(handlers=[logging.StreamHandler(sys.stderr)])
-logging.info("Starting server...")
-```
-
-**Go 版本**：
-```go
-log.SetOutput(os.Stderr)  // 必须设置
-log.Println("Starting...")
-```
-
----
-
-## 五、调试与故障排查
-
-### 5.1 常见问题
-
-#### 问题 1：服务器无法启动
-
-**排查步骤**：
-```bash
-# 1. 检查配置路径
-cat ~/Library/Application\ Support/Claude/claude_desktop_config.json
-
-# 2. 查看日志
-tail -f ~/Library/Logs/Claude/mcp*.log
-
-# 3. 手动测试
-uv run server.py  # 应该等待输入，不立即退出
-```
-
-#### 问题 2：工具调用失败
-
-**原因 A：参数类型不匹配**
-```python
-@mcp.tool()
-def divide(a: int, b: int) -> float:  # 明确类型
-    """除法运算"""
-    if b == 0:
-        raise ValueError("Cannot divide by zero")
-    return a / b
-```
-
-**原因 B：stdout 污染**
-```python
-# ❌ 错误
-@mcp.tool()
-def fetch(url: str) -> str:
-    print(f"Fetching {url}")  # 破坏协议！
-    return requests.get(url).text
-
-# ✅ 正确
-import logging
-@mcp.tool()
-def fetch(url: str) -> str:
-    logging.info(f"Fetching {url}")  # 使用 logging
-    return requests.get(url).text
-```
-
-### 5.2 调试技巧
-
-#### 结构化日志
-```python
-import json
-from datetime import datetime
-
-def log_tool_call(tool_name, params, result=None, error=None):
-    entry = {
-        'timestamp': datetime.utcnow().isoformat(),
-        'tool': tool_name,
-        'params': params,
-        'success': error is None
-    }
-    if result: entry['result'] = str(result)
-    if error: entry['error'] = error
-    logging.info(json.dumps(entry))
-
-@mcp.tool()
-def calculate(op: str, a: float, b: float) -> float:
-    log_tool_call('calculate', {'op': op, 'a': a, 'b': b})
-    try:
-        result = a + b if op == 'add' else a - b
-        log_tool_call('calculate', {'op': op}, result=result)
-        return result
-    except Exception as e:
-        log_tool_call('calculate', {'op': op}, error=str(e))
-        raise
-```
-
----
-
-## 六、进阶主题
-
-### 6.1 HTTP 服务器（支持多客户端）
-
-#### Python + FastAPI
 ```python
 from mcp.server.fastmcp import FastMCP
-from fastapi import FastAPI
-import uvicorn
 
 mcp = FastMCP("HTTP MCP Server")
-app = FastAPI()
 
 @mcp.tool()
-def greet(name: str) -> str:
-    return f"Hello, {name}!"
-
-app.mount("/mcp", mcp.get_asgi_app())
+def get_weather(city: str) -> str:
+    """获取指定城市的天气信息"""
+    fake_weather = {"北京": "晴天 25°C", "上海": "多云 22°C"}
+    return fake_weather.get(city, f"{city} 天气数据暂无")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=8000)
 ```
 
-### 6.2 实战案例：系统监控服务器
+客户端配置改为：
+
+```json
+{
+  "mcpServers": {
+    "remote": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+### 6.4 stdio 模式的关键注意事项
+
+stdio 传输下，stdout 是 JSON-RPC 通信通道。如果你往 stdout 打日志，会破坏协议：
 
 ```python
-from mcp.server.fastmcp import FastMCP
-import psutil
-import json
+# ❌ 错误：print 输出到 stdout，污染 JSON-RPC 通信
+@mcp.tool()
+def fetch(url: str) -> str:
+    print(f"Fetching {url}")  # 这行会破坏协议！
+    return requests.get(url).text
 
-mcp = FastMCP("System Monitor")
+# ✅ 正确：日志输出到 stderr
+import logging, sys
+logging.basicConfig(handlers=[logging.StreamHandler(sys.stderr)])
 
 @mcp.tool()
-def get_cpu_info() -> str:
-    """获取 CPU 使用率"""
-    cpu_percent = psutil.cpu_percent(interval=1)
-    cpu_count = psutil.cpu_count()
-    return f"CPU: {cpu_percent}% ({cpu_count} cores)"
-
-@mcp.tool()
-def get_memory_info() -> str:
-    """获取内存信息"""
-    mem = psutil.virtual_memory()
-    return f"Memory: {mem.used/(1024**3):.2f}GB / {mem.total/(1024**3):.2f}GB ({mem.percent}%)"
-
-@mcp.resource("system://status")
-def get_status() -> str:
-    """系统状态"""
-    return json.dumps({
-        'cpu': psutil.cpu_percent(),
-        'memory': psutil.virtual_memory().percent,
-        'disk': psutil.disk_usage('/').percent
-    })
-
-if __name__ == "__main__":
-    mcp.run(transport="stdio")
+def fetch(url: str) -> str:
+    logging.info(f"Fetching {url}")  # 不影响 stdout
+    return requests.get(url).text
 ```
 
 ---
 
-## 七、最佳实践
+## 七、补充知识：JSON-RPC 是什么？
 
-### 7.1 安全考虑
+前面反复提到 JSON-RPC，这里专门解释一下。
 
-```python
-import os
-from pathlib import Path
+### JSON-RPC 2.0 是一个已有的开放标准
 
-def validate_path(file_path: str, allowed_dirs: list) -> bool:
-    """验证文件路径安全"""
-    normalized = os.path.abspath(file_path)
-    
-    # 防止路径遍历
-    if '..' in file_path:
-        return False
-    
-    # 检查是否在允许目录中
-    return any(
-        normalized.startswith(os.path.abspath(d)) 
-        for d in allowed_dirs
-    )
+它和 MCP 无关，是一个独立的、早已存在的远程过程调用协议。整个规范极其简单，只定义了三种消息格式：
 
-@mcp.tool()
-def read_file(path: str) -> str:
-    """安全读取文件"""
-    ALLOWED = ["/Users/username/Documents"]
-    
-    if not validate_path(path, ALLOWED):
-        return "Error: Access denied"
-    
-    if os.path.getsize(path) > 10 * 1024 * 1024:
-        return "Error: File too large (max 10MB)"
-    
-    try:
-        with open(path, 'r') as f:
-            return f.read()
-    except Exception:
-        return "Error: Failed to read file"
+```json
+// 1. Request（请求）—— 有 id，期望响应
+{"jsonrpc": "2.0", "id": 1, "method": "xxx", "params": {...}}
+
+// 2. Response（响应）—— 对应某个 request
+{"jsonrpc": "2.0", "id": 1, "result": {...}}
+{"jsonrpc": "2.0", "id": 1, "error": {"code": -32600, "message": "xxx"}}
+
+// 3. Notification（通知）—— 没有 id，不期望响应
+{"jsonrpc": "2.0", "method": "xxx", "params": {...}}
 ```
 
-### 7.2 性能优化
+就这么多。它只规定了**消息信封的格式**，不关心传输方式（HTTP、WebSocket、stdio 都行），也不关心 `method` 叫什么。
 
-```python
-from functools import lru_cache
-import asyncio
+### 为什么 MCP 选择 JSON-RPC 而不是 REST？
 
-# 1. 使用缓存
-@lru_cache(maxsize=128)
-def expensive_calc(data: str) -> str:
-    # 耗时计算
-    return process(data)
+```text
+REST 思路：不同操作 = 不同 URL 路径
+POST /api/tools/list         → 列出工具
+POST /api/tools/call         → 调用工具
+POST /api/resources/list     → 列出资源
 
-# 2. 异步批量处理
-@mcp.tool()
-async def batch_process(files: list) -> str:
-    async def process_one(f):
-        return {"file": f, "status": "done"}
-    
-    results = await asyncio.gather(
-        *[process_one(f) for f in files]
-    )
-    return json.dumps(results)
-
-# 3. 超时控制
-from contextlib import contextmanager
-import signal
-
-@contextmanager
-def timeout(seconds):
-    def handler(signum, frame):
-        raise TimeoutError()
-    signal.signal(signal.SIGALRM, handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)
-
-@mcp.tool()
-def long_task(data: str) -> str:
-    try:
-        with timeout(30):
-            return process(data)
-    except TimeoutError:
-        return "Error: Timeout"
+JSON-RPC 思路：一个端点，靠 method 字段区分
+POST /mcp  → {"method": "tools/list", ...}
+POST /mcp  → {"method": "tools/call", ...}
+POST /mcp  → {"method": "resources/list", ...}
 ```
 
-### 7.3 测试策略
+JSON-RPC 的好处是**协议逻辑完全在消息体里，不依赖 URL 路径**。这让 MCP 可以无缝支持多种传输：
 
-```python
-import pytest
+- **HTTP**：POST 到一个端点
+- **stdio**：直接往 stdin/stdout 写 JSON
 
-@pytest.fixture
-def mcp_server():
-    mcp = FastMCP("Test")
-    
-    @mcp.tool()
-    def add(a: int, b: int) -> int:
-        return a + b
-    
-    return mcp
+如果用 REST，stdio 模式就没法玩了——没有 URL 的概念。
 
-@pytest.mark.asyncio
-async def test_add_tool(mcp_server):
-    result = await mcp_server.call_tool("add", {"a": 2, "b": 3})
-    assert result == 5
-```
+### MCP 在 JSON-RPC 之上定义了什么？
+
+JSON-RPC 是信封格式，MCP 填写了信封里的内容：
+
+| JSON-RPC 提供的框架 | MCP 填入的具体内容 |
+| ------------------- | ----------------- |
+| `method` 字段 | `initialize`、`tools/list`、`tools/call` 等固定方法名 |
+| `params` 字段 | 每个方法的参数 Schema |
+| `result` 字段 | 每个方法的返回 Schema |
+| 传输无关 | 定义了 stdio 和 Streamable HTTP 两种传输 |
 
 ---
 
-## 八、生态系统
+## 八、传输方式
 
-### 8.1 官方资源
+MCP 支持三种传输方式，Server 提供方决定支持哪种，Client 配置时选对应方式即可：
 
-- **文档**：https://docs.claude.com/en/docs/mcp
-- **规范**：https://modelcontextprotocol.io
-- **Python SDK**：https://github.com/modelcontextprotocol/python-sdk
-- **Go SDK**：https://github.com/modelcontextprotocol/go-sdk
+| 传输方式 | 适用场景 | 特点 |
+| --------- | --------- | ------ |
+| **stdio** | 本地工具 | 最简单，Host 直接启动 Server 进程，通过 stdin/stdout 通信 |
+| **Streamable HTTP** | 远程服务（推荐） | 单个 HTTP 端点，支持断线重连，可升级为 SSE 流式推送 |
+| **HTTP+SSE** | 远程服务（旧版） | 逐步被 Streamable HTTP 取代 |
 
-### 8.2 社区资源
+**协议消息完全一样**，区别只是搬运方式不同：
 
-**第三方 SDK**：
-- mark3labs/mcp-go
-- metoro-io/mcp-golang
-- FastMCP (Python 高级框架)
+```text
+stdio 模式：
+  Client 写 stdin  →  {"jsonrpc":"2.0","method":"tools/list",...}
+  Server 写 stdout →  {"jsonrpc":"2.0","result":{...}}
 
-**支持 MCP 的应用**：
-- Claude Desktop
-- Cursor IDE
-- Zed Editor
-- Codeium
-- Sourcegraph Cody
+HTTP 模式：
+  Client POST /mcp →  {"jsonrpc":"2.0","method":"tools/list",...}
+  Server 响应 200  →  {"jsonrpc":"2.0","result":{...}}
+```
 
-### 8.3 官方服务器示例
+从配置上也能看出两种模式的区别：
 
-- **filesystem**：文件系统访问
-- **github**：GitHub 集成
-- **google-drive**：Google Drive
-- **slack**：Slack 集成
-- **postgres**：PostgreSQL 数据库
-- **puppeteer**：浏览器自动化
+```json
+// stdio 模式——配置的是启动命令
+{"mcpServers": {"local": {"command": "uv", "args": ["run", "server.py"]}}}
 
----
+// HTTP 模式——配置的是 URL
+{"mcpServers": {"remote": {"url": "http://localhost:8000/mcp"}}}
+```
 
-## 九、常见问题
+选择建议：
 
-**Q1: MCP 和 RAG 有什么关系？**
-> MCP 提供标准化的数据访问接口，RAG 利用这些接口检索知识。MCP 是基础设施，RAG 是应用模式。
-
-**Q2: 一个服务器能同时服务多个客户端吗？**
-> stdio：不能（1对1）  
-> HTTP/SSE：可以（1对多）
-
-**Q3: MCP 适合生产环境吗？**
-> 是的，但需要：
-> - 完善错误处理
-> - 添加监控日志
-> - 安全加固
-> - 性能测试
-
-**Q4: 如何调试连接问题？**
-> 1. 查看日志文件
-> 2. 手动测试服务器
-> 3. 使用 `mcp dev` 工具
-> 4. 检查 JSON-RPC 格式
-> 5. 验证配置路径
+- 本地工具（IDE 插件、本地脚本）→ **stdio**
+- 远程服务、需要多客户端访问 → **Streamable HTTP**
 
 ---
 
-## 十、总结
+## 九、总结
 
-### 核心要点
+### MCP 的本质
 
-1. **MCP 是什么**：AI 的 USB-C 接口，标准化的连接协议
-2. **三大能力**：Resources（数据）、Tools（操作）、Prompts（模板）
-3. **vs Function Calling**：标准化、可重用、生态系统
-4. **实现要点**：注意 stdio 日志规则，重视安全和错误处理
+MCP 本质上就是一套 **JSON-RPC 消息契约**：
 
-### 开始你的 MCP 之旅
+1. **规定了有哪些方法**：`initialize`、`tools/list`、`tools/call` 等
+2. **规定了每个方法的入参和返回格式**：JSON Schema 定义
+3. **规定了交互流程**：先握手，再发现，最后调用
+4. **传输层只是搬运工**：stdio 或 HTTP，协议消息不变
 
-1. **从简单开始**：实现 Hello World
-2. **解决实际问题**：构建针对性服务器
-3. **贡献社区**：开源你的实现
-4. **持续学习**：关注规范更新
+### 一张图看懂全貌
+
+![MCP 协议全貌](https://int32-blog.oss-cn-beijing.aliyuncs.com/04-protocol-overview-task1-1.jpg)
+
+### 关键理解
+
+- **MCP Server 只有一个端点**，所有操作靠 `method` 字段区分，不靠 URL 路径
+- **AI 不直接连 Server**，MCP Client 是中间桥梁，负责发现工具、翻译格式、转发调用
+- **capabilities 是能力声明**，`"tools": {}` 表示"我支持 tools"而不是"我没有工具"
+- **SDK 只是封装**，底层做的事情和手写的完全一样——理解了协议，用什么语言实现都不难
 
 ---
 
 ## 参考资源
 
-- [MCP 官方文档](https://docs.claude.com/en/docs/mcp)
+- [MCP 官方规范与文档](https://modelcontextprotocol.io)
 - [Python SDK](https://github.com/modelcontextprotocol/python-sdk)
-- [Go SDK](https://github.com/modelcontextprotocol/go-sdk)
-- [服务器目录](https://mcp.so)
-
-希望这篇指南能帮助你全面掌握 MCP！🚀
+- [TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
+- [MCP 服务器目录](https://mcp.so)
