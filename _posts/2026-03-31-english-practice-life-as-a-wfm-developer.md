@@ -374,3 +374,33 @@ I think the honest answer is: data is a powerful tool, but it's not the whole pi
 Data can support your case. But it takes judgment and communication to truly prove your value.
 
 数据可以支撑你的论点。但要真正证明你的价值，还需要判断力和沟通能力。
+
+## What I Do During My Holidays
+
+Holidays are something I always look forward to. After weeks of meetings, coding, and deadlines, having a few days to slow down feels really good.
+
+假期是我一直期待的事情。经过几周的会议、写代码和赶截止日期之后，能有几天慢下来的时间，感觉真的很好。
+
+I don't usually plan my holidays too carefully. I like to keep things relaxed. Sometimes I sleep in, cook a proper meal instead of ordering takeout, and just enjoy doing nothing for a while. It sounds boring, but honestly, it feels great after a busy stretch at work.
+
+我通常不会把假期安排得太详细，喜欢保持轻松随意的状态。有时候睡个懒觉，自己好好做顿饭而不是叫外卖，然后就享受一会儿什么都不干的感觉。听起来很无聊，但说实话，忙了一阵之后这样做感觉特别好。
+
+If the holiday is long enough, I might travel somewhere. It doesn't have to be far — even a short trip to a nearby city can feel refreshing. I enjoy walking around unfamiliar streets, trying local food, and taking photos of random things that catch my eye. Traveling, even on a small scale, helps me see things from a different perspective.
+
+如果假期够长，我可能会去旅行。不一定要去很远的地方——哪怕是去附近的城市短途走走也会让人感到神清气爽。我喜欢在陌生的街道上闲逛、尝尝当地的美食、随手拍一些吸引我的东西。旅行，哪怕规模很小，也能帮我换一个角度看事情。
+
+I also use holidays to catch up on things I don't have time for during the week. Reading a book I've been putting off, watching a documentary, or learning something new out of pure curiosity — not because it's useful for work, just because it's interesting. That kind of learning feels the most enjoyable.
+
+我也会利用假期去做平时没时间做的事情。读一本一直拖着没看的书、看一部纪录片，或者纯粹出于好奇学点新东西——不是因为对工作有用，只是因为有意思。这种学习的感觉是最愉快的。
+
+Of course, spending time with family and friends is a big part of holidays too. A simple meal together or a long conversation over tea can be more meaningful than any fancy trip.
+
+当然，和家人朋友在一起也是假期很重要的一部分。一起吃顿简单的饭，或者喝着茶聊很久，有时候比任何精心安排的旅行都更有意义。
+
+After a good holiday, I always come back to work feeling more energized and clear-headed. I think rest is not the opposite of productivity — it's actually part of it.
+
+好好休完一个假之后，我回到工作中总是感觉更有精力、头脑也更清醒。我觉得休息不是效率的对立面——它其实是效率的一部分。
+
+Everyone deserves a proper break. Don't feel guilty about enjoying your holidays.
+
+每个人都值得好好休息一下。享受你的假期，不要有负罪感。
