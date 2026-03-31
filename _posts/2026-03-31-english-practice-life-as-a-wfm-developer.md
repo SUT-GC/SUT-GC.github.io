@@ -348,3 +348,29 @@ Finally, I remind myself that social media is not real life. People usually shar
 Social media can be a great tool if you use it with intention. The key is to stay in control of it — and not let it control you.
 
 社交媒体如果有目的地使用，可以是一个很好的工具。关键是你要掌控它——而不是让它来掌控你。
+
+## Can Data Really Prove Your Results?
+
+In the workplace, we often hear things like "let the data speak" or "show me the numbers." Data has become one of the most common ways to prove that your work is delivering results. But can data really tell the whole story?
+
+在职场中，我们经常听到"用数据说话"或者"拿数字来看"这样的话。数据已经成为证明工作成果最常用的方式之一。但数据真的能说明全部问题吗？
+
+In many cases, data is genuinely useful. If a new feature I built reduces the time managers spend on scheduling by 30%, that number is clear and convincing. It shows that something real changed because of my work. Data like this is hard to argue with, and it gives both me and my manager a shared way to measure progress.
+
+在很多情况下，数据确实很有用。如果我开发的一个新功能让管理者在排班上花费的时间减少了 30%，这个数字就很清晰、很有说服力。它说明因为我的工作，确实有了实际的改变。这样的数据很难反驳，而且它给了我和我的上级一个共同衡量进展的方式。
+
+But data also has its limits. Some of the most valuable work is difficult to measure. For example, if I help a junior teammate grow by mentoring them, there's no direct number for that. If I improve the structure of the codebase so it's easier to maintain in the future, the benefit might not show up in any report for months. Does that mean the work didn't matter? Of course not.
+
+但数据也有它的局限性。有些最有价值的工作是很难量化的。比如说，如果我通过指导帮助一个初级同事成长，这件事没有直接的数字可以衡量。如果我优化了代码库的结构，让它在未来更容易维护，这个好处可能几个月之后才会体现出来。但这是不是意味着这些工作不重要？当然不是。
+
+There's also the risk of measuring the wrong things. If a team is judged only by how many features they ship, they might rush and sacrifice quality. The numbers look good, but the actual results are poor. Data can be misleading if we're not careful about what we choose to measure.
+
+还有一个风险是衡量错了指标。如果一个团队只按上线了多少功能来评判，他们可能会赶进度而牺牲质量。数字看起来很好看，但实际效果很差。如果我们不注意选择衡量什么，数据是会产生误导的。
+
+I think the honest answer is: data is a powerful tool, but it's not the whole picture. Good results need both — numbers that show impact, and context that explains the story behind them.
+
+我觉得实话实说就是：数据是一个强大的工具，但它不是全貌。好的成果展示需要两者兼备——能体现影响力的数字，以及解释背后故事的上下文。
+
+Data can support your case. But it takes judgment and communication to truly prove your value.
+
+数据可以支撑你的论点。但要真正证明你的价值，还需要判断力和沟通能力。
