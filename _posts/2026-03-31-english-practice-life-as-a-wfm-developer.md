@@ -314,3 +314,37 @@ Finally, **long-term thinking** is key. Overseas business takes time to build. C
 Going global is a big challenge, but with the right mindset and preparation, it can also be a great opportunity.
 
 走向全球是一个很大的挑战，但只要心态对、准备充分，它也可以是一个绝佳的机遇。
+
+## How I Use Social Media in My Daily Life
+
+Social media is everywhere these days. Whether it's WeChat, Weibo, LinkedIn, Instagram, or Twitter, most of us check our phones multiple times a day. But have you ever stopped to think about how you use social media — and whether it's actually working for you?
+
+如今社交媒体无处不在。不管是微信、微博、LinkedIn、Instagram 还是 Twitter，我们大多数人每天都会刷好几次手机。但你有没有停下来想过，你是怎么使用社交媒体的——它真的对你有帮助吗？
+
+Let me share how I approach it.
+
+让我来分享一下我的做法。
+
+First, I try to be clear about my purpose. Different platforms serve different needs. For me, LinkedIn is for professional networking — I follow people in the tech industry, read articles about software development, and occasionally share something work-related. WeChat is more personal — it's how I stay in touch with friends and family. Mixing these up can get messy, so I try to keep them separate.
+
+首先，我会明确自己使用社交媒体的目的。不同的平台满足不同的需求。对我来说，LinkedIn 是用来拓展职业人脉的——我关注科技行业的人、阅读软件开发相关的文章，偶尔也分享一些跟工作有关的内容。微信则更私人——是我跟朋友和家人保持联系的方式。把这些搞混会很乱，所以我尽量把它们分开。
+
+Second, I use social media to keep learning. There are a lot of great developers and industry experts who share useful content online. Following the right people is like having a free news feed of things that actually matter to your career. I've learned about new tools, read about other people's project experiences, and even found solutions to technical problems just by scrolling through my feed.
+
+第二，我用社交媒体来持续学习。网上有很多优秀的开发者和行业专家在分享有价值的内容。关注对的人就像拥有了一个免费的信息流，里面都是对你职业发展真正有用的东西。我通过刷信息流了解过新工具、读到过别人的项目经验，甚至找到过技术问题的解决方案。
+
+Third, I'm careful about how much time I spend on it. It's very easy to open an app "just for a minute" and suddenly realize thirty minutes have gone by. I try to set a rough limit for myself — checking social media at specific times rather than constantly throughout the day. This helps me stay focused during work hours.
+
+第三，我会注意控制花在上面的时间。打开一个 App "就看一分钟"然后突然发现已经过了半小时，这种事太容易发生了。我会给自己设一个大致的限制——在特定的时间查看社交媒体，而不是一整天都在不停地刷。这有助于我在工作时间保持专注。
+
+Fourth, I think about what I post. I don't post very often, but when I do, I try to share something that might actually be useful or interesting to others. Random complaints or oversharing personal drama — I try to avoid that. Your online presence is part of how people see you, especially professionally.
+
+第四，我会考虑自己发什么内容。我发帖不多，但每次发的时候，我会尽量分享对别人真正有用或有趣的东西。随意吐槽或者过度暴露私人生活——这些我都尽量避免。你的网络形象是别人看待你的一部分，尤其是在职业层面。
+
+Finally, I remind myself that social media is not real life. People usually share their highlights — their achievements, their travels, their best moments. It's easy to compare yourself to others and feel like you're falling behind. But what you see online is rarely the full picture. I try to enjoy the content without letting it affect how I feel about my own life.
+
+最后，我会提醒自己，社交媒体不是真实的生活。人们通常只分享精彩瞬间——他们的成就、旅行、最美好的时刻。你很容易拿自己跟别人比，然后觉得自己落后了。但你在网上看到的几乎从来都不是全貌。我会享受这些内容，但不让它影响我对自己生活的感受。
+
+Social media can be a great tool if you use it with intention. The key is to stay in control of it — and not let it control you.
+
+社交媒体如果有目的地使用，可以是一个很好的工具。关键是你要掌控它——而不是让它来掌控你。
