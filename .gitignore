@@ -27,3 +27,6 @@ outputs/
 # Claude Code local config and skills
 .claude/
 
+# Deep research working directory
+.research/
+
