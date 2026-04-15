@@ -9,6 +9,8 @@ tags: ["AI", "Agent", "Harness Engineering", "Python", "开源", "SDK", "Cody"]
 * Kramdown table of contents
 {:toc .toc}
 
+![Cody：把 Harness Engineering 装进一个框架](https://int32-blog.oss-cn-beijing.aliyuncs.com/blog/cody-framework/cody-cover.jpg)
+
 [上一篇](/blog/2026/03/29/我造了一只自己的龙虾/)我提到，造 CodyClaw 的时候把 Agent 执行层抽了出来，做成了独立框架，叫 [Cody](https://github.com/CodyCodeAgent/cody)。当时是一句带过。
 
 但其实 Cody 背后有个更完整的出发点，跟[更早那篇 Harness Engineering](/blog/2026/03/24/harness-engineering-ai-agent-时代的工程范式革命/)有很深的关系。这篇专门来讲透。
@@ -46,20 +48,13 @@ Philipp Schmid 打了个比方：Model 是 CPU，Context Window 是 RAM，**Harn
 
 接入方式有四种：**Python SDK**（最核心，本文主要讲这个）、CLI、TUI 终端界面、Web 浏览器界面。四种方式共享同一个核心引擎，能力完全一致。
 
-```
-你的应用代码
-     ↓
-Python SDK（AsyncCodyClient）
-     ↓
-Core Engine ← 这里是 Harness 所在的地方
-（context / tools / security / memory / circuit breaker...）
-     ↓
-任意模型（qwen / claude / gpt / deepseek / glm...）
-```
+![Cody 架构分层](https://int32-blog.oss-cn-beijing.aliyuncs.com/blog/cody-framework/cody-arch.jpg)
 
 ---
 
 ## Cody 是怎么实现 Harness 三根柱子的
+
+![Harness 三根柱子](https://int32-blog.oss-cn-beijing.aliyuncs.com/blog/cody-framework/cody-pillars.jpg)
 
 Harness 有三根柱子：上下文工程、架构约束、熵管理。来一根根对照看 Cody 做了什么。
 
@@ -441,6 +436,8 @@ client = (
 ---
 
 ## Harness 很重要，但搭 Harness 不应该是每次都从零开始
+
+![有 Cody vs 没有 Cody](https://int32-blog.oss-cn-beijing.aliyuncs.com/blog/cody-framework/cody-compare.jpg)
 
 回到最开始的问题。
 
