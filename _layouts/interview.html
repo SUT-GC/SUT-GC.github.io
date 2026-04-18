@@ -1,0 +1,95 @@
+---
+layout: blog
+---
+
+{% assign interview_posts = site.posts | where_exp: "post", "post.categories contains '面试'" %}
+
+<div class="interview-page">
+  <div class="interview-intro">
+    <p>收录面试经验、八股文总结、系统设计题等内容。</p>
+  </div>
+
+  {% if interview_posts.size == 0 %}
+    <p class="interview-empty">暂无内容，快来写第一篇吧！</p>
+  {% else %}
+    {% assign grouped = interview_posts | group_by_exp: "post", "post.tags | first" %}
+
+    {% assign all_tags = "" %}
+    {% for post in interview_posts %}
+      {% for tag in post.tags %}
+        {% unless all_tags contains tag %}
+          {% assign all_tags = all_tags | append: tag | append: "," %}
+        {% endunless %}
+      {% endfor %}
+    {% endfor %}
+    {% assign all_tags = all_tags | split: "," | uniq | sort %}
+
+    {% for tag in all_tags %}
+      {% assign tag_posts = interview_posts | where_exp: "post", "post.tags contains tag" %}
+      {% if tag_posts.size > 0 %}
+        <div class="interview-group">
+          <h2 class="interview-tag">{{ tag }}</h2>
+          <ul class="post-list">
+            {% for post in tag_posts %}
+              <li>
+                <a class="active internal" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                <span class="date">{{ post.date | date: "%b %d, %Y" }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    {% assign untagged = interview_posts | where_exp: "post", "post.tags == empty" %}
+    {% if untagged.size > 0 %}
+      <div class="interview-group">
+        <h2 class="interview-tag">其他</h2>
+        <ul class="post-list">
+          {% for post in untagged %}
+            <li>
+              <a class="active internal" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              <span class="date">{{ post.date | date: "%b %d, %Y" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+
+<style>
+.interview-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.interview-intro {
+  color: rgba(0,0,0,0.5);
+  margin-bottom: 40px;
+  font-size: 0.95rem;
+}
+
+.interview-empty {
+  color: rgba(0,0,0,0.4);
+  text-align: center;
+  padding: 60px 0;
+  font-size: 1rem;
+}
+
+.interview-group {
+  margin-bottom: 40px;
+}
+
+.interview-tag {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #3b82f6;
+  border-left: 4px solid #3b82f6;
+  padding-left: 12px;
+  margin-bottom: 16px;
+}
+</style>
+
+{{ content }}
